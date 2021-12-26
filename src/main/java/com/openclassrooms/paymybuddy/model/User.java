@@ -1,5 +1,6 @@
 package com.openclassrooms.paymybuddy.model;
 
+import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,10 +26,10 @@ public class User {
   private int userId;
 
   @Column(name = "firstname")
-  private String firstName;
+  private String firstname;
 
   @Column(name = "lastname")
-  private String lastName;
+  private String lastname;
 
   @Column(name = "email", unique = true)
   private String email;
@@ -36,6 +37,8 @@ public class User {
   @Column(name = "password")
   private String password;
 
+  @Column(name = "wallet")
+  private BigDecimal wallet;
 }
 
 
