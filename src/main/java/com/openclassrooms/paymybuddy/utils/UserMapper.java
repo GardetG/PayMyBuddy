@@ -1,0 +1,32 @@
+package com.openclassrooms.paymybuddy.utils;
+
+import com.openclassrooms.paymybuddy.dto.UserInfoDto;
+import com.openclassrooms.paymybuddy.model.User;
+
+/**
+ * Mapper utility class for user.
+ */
+public class UserMapper {
+
+  private UserMapper() {
+    throw new IllegalStateException("Utility class");
+  }
+
+  /**
+   * Map a user into an userInfoDto.
+   *
+
+   * @param user to map
+   * @return userDto
+   */
+  public static UserInfoDto toInfoDto(User user) {
+    UserInfoDto userDto = new UserInfoDto();
+    userDto.setUserId(user.getUserId());
+    userDto.setFirstname(user.getFirstname());
+    userDto.setLastname(user.getLastname());
+    userDto.setEmail(user.getEmail());
+    userDto.setWallet(user.getWallet());
+    return userDto;
+  }
+
+}

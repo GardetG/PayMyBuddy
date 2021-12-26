@@ -4,6 +4,7 @@ import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
+import com.openclassrooms.paymybuddy.utils.UserMapper;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,6 @@ public class UserServiceImpl implements UserService {
       throw new ResourceNotFoundException("This user is not found");
     }
 
-    UserInfoDto userDto = new UserInfoDto();
-    userDto.setUserId(user.get().getUserId());
-    userDto.setFirstname(user.get().getFirstname());
-    userDto.setLastname(user.get().getLastname());
-    userDto.setEmail(user.get().getEmail());
-    userDto.setWallet(user.get().getWallet());
-    return userDto;
+    return UserMapper.toInfoDto(user.get());
   }
 }
