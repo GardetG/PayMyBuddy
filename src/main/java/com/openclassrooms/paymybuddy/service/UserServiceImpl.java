@@ -1,10 +1,13 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
+import com.openclassrooms.paymybuddy.dto.UserSubscriptionDto;
+import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.UserMapper;
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,4 +30,21 @@ public class UserServiceImpl implements UserService {
 
     return UserMapper.toInfoDto(user.get());
   }
+
+  @Override
+  public UserInfoDto subscribe(UserSubscriptionDto user) throws EmailAlreadyExistsException {
+    if (userRepository.existsByEmail(user.getEmail())) {
+      throw new EmailAlreadyExistsException("This email is already used");
+    }
+
+    User userToCreate = new User();
+    userToCreate.setFirstname(user.getFirstname());
+    userToCreate.setLastname(user.getLastname());
+    userToCreate.setEmail(user.getEmail());
+    userToCreate.setPassword(user.getPassword());
+    userToCreate.setWallet(BigDecimal.ZERO);
+
+    return UserMapper.toInfoDto(userRepository.save(userToCreate));
+  }
+
 }
