@@ -1,10 +1,15 @@
 package com.openclassrooms.paymybuddy.controller;
 
+import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -31,4 +36,37 @@ public class GlobalControllerExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
   }
 
+  /**
+   * Handle EmailAlreadyExistsException thrown when the email already exists.
+   *
+   * @param ex instance of the exception
+   * @return HTTP 409 response
+   */
+  @ExceptionHandler(EmailAlreadyExistsException.class)
+  public ResponseEntity<String> handleEmailAlreadyExistsExceptions(EmailAlreadyExistsException ex) {
+    String error = ex.getMessage();
+    LOGGER.info("Response : 409 {}", error);
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+  }
+
+  /**
+   * Handle MethodArgumentNotValidException thrown when validation failed.
+   *
+
+   * @param ex instance of the exception
+   * @return HTTP 422 response with information on invalid fields
+   */
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<Map<String, String>> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
+    Map<String, String> errors = new HashMap<>();
+    ex.getBindingResult().getAllErrors().forEach(error -> {
+      String fieldName = ((FieldError) error).getField();
+      String errorMessage = error.getDefaultMessage();
+      errors.put(fieldName, errorMessage);
+    });
+    LOGGER.info("Response : 422 invalid DTO");
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errors);
+  }
 }
+
