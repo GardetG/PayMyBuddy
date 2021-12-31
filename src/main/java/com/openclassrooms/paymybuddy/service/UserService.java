@@ -16,4 +16,6 @@ public interface UserService {
 
   UserInfoDto subscribe(UserSubscriptionDto user) throws EmailAlreadyExistsException;
 
+  UserInfoDto update(UserInfoDto user) throws ResourceNotFoundException,
+      EmailAlreadyExistsException;
 }

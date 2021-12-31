@@ -42,8 +42,8 @@ class UserServiceTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User(0,"test","test","test@mail.com","12345678", BigDecimal.ZERO);
-    userInfoDto = new UserInfoDto(0, "test","test","test@mail.com",BigDecimal.ZERO);
+    userTest = new User(1,"test","test","test@mail.com","12345678", BigDecimal.ZERO);
+    userInfoDto = new UserInfoDto(1, "test","test","test@mail.com",BigDecimal.ZERO);
   }
 
   @Test
@@ -77,6 +77,8 @@ class UserServiceTest {
   void subscribeTest() throws Exception {
     // GIVEN
     UserSubscriptionDto subscriptionDto = new UserSubscriptionDto("test","test", "test@mail.com", "12345678");
+    userTest.setUserId(0);
+    userInfoDto.setUserId(0);
     when(userRepository.existsByEmail(anyString())).thenReturn(false);
     when(userRepository.save(any(User.class))).thenReturn(userTest);
 
@@ -103,6 +105,81 @@ class UserServiceTest {
         .isInstanceOf(EmailAlreadyExistsException.class)
         .hasMessageContaining("This email is already used");
     verify(userRepository, times(1)).existsByEmail("test@mail.com");
+    verify(userRepository, times(0)).save(any(User.class));
+  }
+
+  @Test
+  void updateInfoWithSameEmailTest() throws Exception {
+    // GIVEN
+    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "test@mail.com", BigDecimal.ZERO);
+    User updatedUser = new User(1, "update", "test", "test@mail.com", "12345678", BigDecimal.ZERO);
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
+    when(userRepository.existsByEmail(anyString())).thenReturn(true);
+    when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+
+    // WHEN
+    UserInfoDto actualUserinfoDto = userService.update(updateDto);
+
+    // THEN
+    assertThat(actualUserinfoDto).usingRecursiveComparison().isEqualTo(updateDto);
+    verify(userRepository, times(1)).findById(1);
+    verify(userRepository, times(0)).existsByEmail(anyString());
+    verify(userRepository, times(1)).save(userCaptor.capture());
+    assertThat(userCaptor.getValue()).usingRecursiveComparison().isEqualTo(updatedUser);
+  }
+
+  @Test
+  void updateInfoWithNewEmailTest() throws Exception {
+    // GIVEN
+    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "update@mail.com", BigDecimal.ZERO);
+    User updatedUser = new User(1, "update", "test", "update@mail.com", "12345678", BigDecimal.ZERO);
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
+    when(userRepository.existsByEmail(anyString())).thenReturn(false);
+    when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+
+    // WHEN
+    UserInfoDto actualUserinfoDto = userService.update(updateDto);
+
+    // THEN
+    assertThat(actualUserinfoDto).usingRecursiveComparison().isEqualTo(updateDto);
+    verify(userRepository, times(1)).findById(1);
+    verify(userRepository, times(1)).existsByEmail("update@mail.com");
+    verify(userRepository, times(1)).save(userCaptor.capture());
+    assertThat(userCaptor.getValue()).usingRecursiveComparison().isEqualTo(updatedUser);
+  }
+
+  @Test
+  void updateInfoWhenNotFoundTest() {
+    // GIVEN
+    UserInfoDto updateDto = new UserInfoDto(2, "update","test", "update@mail.com", BigDecimal.ZERO);
+    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+    // WHEN
+    assertThatThrownBy(() -> userService.update(updateDto))
+
+        // THEN
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("This user is not found");
+    verify(userRepository, times(1)).findById(2);
+    verify(userRepository, times(0)).existsByEmail(anyString());
+    verify(userRepository, times(0)).save(any(User.class));
+  }
+
+  @Test
+  void updateInfoWhenNewEmailAlreadyExistsTest() {
+    // GIVEN
+    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "existing@mail.com",BigDecimal.ZERO);
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
+    when(userRepository.existsByEmail(anyString())).thenReturn(true);
+
+    // WHEN
+    assertThatThrownBy(() -> userService.update(updateDto))
+
+        // THEN
+        .isInstanceOf(EmailAlreadyExistsException.class)
+        .hasMessageContaining("This email is already used");
+    verify(userRepository, times(1)).findById(1);
+    verify(userRepository, times(1)).existsByEmail("existing@mail.com");
     verify(userRepository, times(0)).save(any(User.class));
   }
 
