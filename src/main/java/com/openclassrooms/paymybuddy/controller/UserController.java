@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -71,7 +72,10 @@ public class UserController {
   /**
    * Handle HTTP PUT update user's information..
    *
+   * @param userUpdate user's information to update
    * @return HTTP 201 Response with updated user's information
+   * @throws EmailAlreadyExistsException when updating whith an already existing email
+   * @throws ResourceNotFoundException when user not found
    */
   @PutMapping("/users")
   public ResponseEntity<UserInfoDto> update(@Valid @RequestBody UserInfoDto userUpdate)
@@ -82,5 +86,24 @@ public class UserController {
 
     LOGGER.info("Response: user successfully updated");
     return ResponseEntity.ok(userInfo);
+  }
+
+  /**
+   * Handle HTTP DELETE request on an user by id.
+   *
+   * @param id of user to delete
+   * @return HTTP 204
+   * @throws ResourceNotFoundException when user not found
+   */
+  @DeleteMapping("/users/{id}")
+  public ResponseEntity<Void> deleteUser(@PathVariable int id)
+      throws ResourceNotFoundException {
+
+    LOGGER.info("Request: Delete user {}", id);
+    userService.deleteById(id);
+
+    LOGGER.info("Response: user deleted");
+    return ResponseEntity.noContent().build();
+
   }
 }
