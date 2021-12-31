@@ -183,4 +183,31 @@ class UserServiceTest {
     verify(userRepository, times(0)).save(any(User.class));
   }
 
+  @Test
+  void deleteByIdTest() throws Exception {
+    // GIVEN
+    when(userRepository.existsById(anyInt())).thenReturn(true);
+
+    // WHEN
+    userService.deleteById(1);
+
+    // THEN
+    verify(userRepository, times(1)).existsById(1);
+    verify(userRepository, times(1)).deleteById(1);
+  }
+
+  @Test
+  void deleteByIdWhenNotFoundTest() {
+    // GIVEN
+    when(userRepository.existsById(anyInt())).thenReturn(false);
+
+    // WHEN
+    assertThatThrownBy(() -> userService.deleteById(2))
+
+        // THEN
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("This user is not found");
+    verify(userRepository, times(1)).existsById(2);
+    verify(userRepository, times(0)).deleteById(anyInt());
+  }
 }

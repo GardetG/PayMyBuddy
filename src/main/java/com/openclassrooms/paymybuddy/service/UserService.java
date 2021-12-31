@@ -18,4 +18,7 @@ public interface UserService {
 
   UserInfoDto update(UserInfoDto user) throws ResourceNotFoundException,
       EmailAlreadyExistsException;
+
+  void deleteById(int id) throws ResourceNotFoundException;
+
 }
