@@ -4,10 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -230,5 +232,31 @@ class UserControllerTest {
         .andExpect(jsonPath("$.firstname", is("Firstname is mandatory")))
         .andExpect(jsonPath("$.email", is("Email should be a valid email address")));
     verify(userService, times(0)).subscribe(any(UserSubscriptionDto.class));
+  }
+
+  @Test
+  void deleteUserTest() throws Exception {
+    // GIVEN
+
+    // WHEN
+    mockMvc.perform(delete("/users/1"))
+
+        // THEN
+        .andExpect(status().isNoContent());
+    verify(userService, times(1)).deleteById(1);
+  }
+
+  @Test
+  void deleteUserWhenNotFoundTest() throws Exception {
+    // GIVEN
+    doThrow(new ResourceNotFoundException("This user is not found")).when(userService).deleteById(anyInt());
+
+    // WHEN
+    mockMvc.perform(delete("/users/2"))
+
+        // THEN
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$", is("This user is not found")));
+    verify(userService, times(1)).deleteById(2);
   }
 }
