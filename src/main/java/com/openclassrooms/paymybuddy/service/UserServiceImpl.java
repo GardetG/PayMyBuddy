@@ -7,7 +7,6 @@ import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.UserMapper;
-import java.math.BigDecimal;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,12 +36,7 @@ public class UserServiceImpl implements UserService {
       throw new EmailAlreadyExistsException("This email is already used");
     }
 
-    User userToCreate = new User();
-    userToCreate.setFirstname(user.getFirstname());
-    userToCreate.setLastname(user.getLastname());
-    userToCreate.setEmail(user.getEmail());
-    userToCreate.setPassword(user.getPassword());
-    userToCreate.setWallet(BigDecimal.ZERO);
+    User userToCreate = UserMapper.toModel(user);
 
     return UserMapper.toInfoDto(userRepository.save(userToCreate));
   }

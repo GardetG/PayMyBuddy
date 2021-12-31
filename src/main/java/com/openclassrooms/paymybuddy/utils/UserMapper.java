@@ -1,7 +1,9 @@
 package com.openclassrooms.paymybuddy.utils;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
+import com.openclassrooms.paymybuddy.dto.UserSubscriptionDto;
 import com.openclassrooms.paymybuddy.model.User;
+import java.math.BigDecimal;
 
 /**
  * Mapper utility class for user.
@@ -29,4 +31,20 @@ public class UserMapper {
     return userDto;
   }
 
+  /**
+   * Map a userSubscriptionDto into a new user.
+   *
+
+   * @param subscription to map
+   * @return user to create
+   */
+  public static User toModel(UserSubscriptionDto subscription) {
+    User user = new User();
+    user.setFirstname(subscription.getFirstname());
+    user.setLastname(subscription.getLastname());
+    user.setEmail(subscription.getEmail());
+    user.setPassword(subscription.getPassword());
+    user.setWallet(BigDecimal.ZERO);
+    return user;
+  }
 }
