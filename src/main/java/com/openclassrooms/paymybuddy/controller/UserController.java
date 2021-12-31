@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
@@ -65,5 +66,21 @@ public class UserController {
 
     LOGGER.info("Response: user successfully subscribed");
     return ResponseEntity.status(HttpStatus.CREATED).body(userInfo);
+  }
+
+  /**
+   * Handle HTTP PUT update user's information..
+   *
+   * @return HTTP 201 Response with updated user's information
+   */
+  @PutMapping("/users")
+  public ResponseEntity<UserInfoDto> update(@Valid @RequestBody UserInfoDto userUpdate)
+      throws EmailAlreadyExistsException, ResourceNotFoundException {
+
+    LOGGER.info("Request: Update user {}", userUpdate.getUserId());
+    UserInfoDto userInfo = userService.update(userUpdate);
+
+    LOGGER.info("Response: user successfully updated");
+    return ResponseEntity.ok(userInfo);
   }
 }
