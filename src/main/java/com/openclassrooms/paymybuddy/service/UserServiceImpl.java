@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
 
+  private static final String USER_NOT_FOUND = "This user is not found";
+  private static final String EMAIL_ALREADY_EXIST = "This email is already used";
+
   @Autowired
   private UserRepository userRepository;
 
@@ -24,7 +27,7 @@ public class UserServiceImpl implements UserService {
   public UserInfoDto getInfoById(int id) throws ResourceNotFoundException {
     Optional<User> user = userRepository.findById(id);
     if (user.isEmpty()) {
-      throw new ResourceNotFoundException("This user is not found");
+      throw new ResourceNotFoundException(USER_NOT_FOUND);
     }
 
     return UserMapper.toInfoDto(user.get());
@@ -33,7 +36,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserInfoDto subscribe(UserSubscriptionDto user) throws EmailAlreadyExistsException {
     if (userRepository.existsByEmail(user.getEmail())) {
-      throw new EmailAlreadyExistsException("This email is already used");
+      throw new EmailAlreadyExistsException(EMAIL_ALREADY_EXIST);
     }
 
     User userToCreate = UserMapper.toModel(user);
@@ -46,11 +49,11 @@ public class UserServiceImpl implements UserService {
       EmailAlreadyExistsException {
     Optional<User> existingUser = userRepository.findById(user.getUserId());
     if (existingUser.isEmpty()) {
-      throw new ResourceNotFoundException("This user is not found");
+      throw new ResourceNotFoundException(USER_NOT_FOUND);
     }
     if (!existingUser.get().getEmail().equals(user.getEmail())
         && userRepository.existsByEmail(user.getEmail())) {
-      throw new EmailAlreadyExistsException("This email is already used");
+      throw new EmailAlreadyExistsException(EMAIL_ALREADY_EXIST);
     }
 
     User userToUpdate = existingUser.get();
@@ -60,4 +63,15 @@ public class UserServiceImpl implements UserService {
 
     return UserMapper.toInfoDto(userRepository.save(userToUpdate));
   }
+
+  @Override
+  public void deleteById(int id) throws ResourceNotFoundException {
+
+    if (!userRepository.existsById(id)) {
+      throw new ResourceNotFoundException(USER_NOT_FOUND);
+    }
+    userRepository.deleteById(id);
+
+  }
+
 }
