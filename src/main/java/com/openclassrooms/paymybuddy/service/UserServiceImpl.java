@@ -41,4 +41,23 @@ public class UserServiceImpl implements UserService {
     return UserMapper.toInfoDto(userRepository.save(userToCreate));
   }
 
+  @Override
+  public UserInfoDto update(UserInfoDto user) throws ResourceNotFoundException,
+      EmailAlreadyExistsException {
+    Optional<User> existingUser = userRepository.findById(user.getUserId());
+    if (existingUser.isEmpty()) {
+      throw new ResourceNotFoundException("This user is not found");
+    }
+    if (!existingUser.get().getEmail().equals(user.getEmail())
+        && userRepository.existsByEmail(user.getEmail())) {
+      throw new EmailAlreadyExistsException("This email is already used");
+    }
+
+    User userToUpdate = existingUser.get();
+    userToUpdate.setFirstname(user.getFirstname());
+    userToUpdate.setLastname(user.getLastname());
+    userToUpdate.setEmail(user.getEmail());
+
+    return UserMapper.toInfoDto(userRepository.save(userToUpdate));
+  }
 }
