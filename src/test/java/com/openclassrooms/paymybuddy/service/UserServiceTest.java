@@ -95,7 +95,7 @@ class UserServiceTest {
   @Test
   void subscribeWhenEmailAlreadyExistTest() {
     // GIVEN
-    UserSubscriptionDto subscriptionDto = new UserSubscriptionDto("test","test", "test@mail.com", "12345678");
+    UserSubscriptionDto subscriptionDto = new UserSubscriptionDto("test","test", "existing@mail.com", "12345678");
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
     // WHEN
@@ -104,7 +104,7 @@ class UserServiceTest {
         // THEN
         .isInstanceOf(EmailAlreadyExistsException.class)
         .hasMessageContaining("This email is already used");
-    verify(userRepository, times(1)).existsByEmail("test@mail.com");
+    verify(userRepository, times(1)).existsByEmail("existing@mail.com");
     verify(userRepository, times(0)).save(any(User.class));
   }
 
