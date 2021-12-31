@@ -20,7 +20,7 @@ public class UserSubscriptionDto {
   @NotBlank(message = "Lastname is mandatory")
   private String lastname;
   @NotBlank(message = "Email is mandatory")
-  @Email(message = "Email is not a valid email address")
+  @Email(message = "Email should be a valid email address")
   private String email;
   @NotBlank(message = "Password is mandatory")
   @Size(min = 8, message = "Password should have at least 8 characters")
