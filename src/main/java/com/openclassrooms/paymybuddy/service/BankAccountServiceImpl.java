@@ -53,10 +53,7 @@ public class BankAccountServiceImpl implements BankAccountService {
       throw new ResourceNotFoundException(USER_NOT_FOUND);
     }
 
-    BankAccount bankAccountToAdd = new BankAccount();
-    bankAccountToAdd.setTitle(account.getTitle());
-    bankAccountToAdd.setIban(account.getIban());
-    bankAccountToAdd.setBic(account.getBic());
+    BankAccount bankAccountToAdd = BankAccountMapper.toModel(account);
     bankAccountToAdd.setBalance(DEFAULT_ACCOUNT_BALANCE);
 
     user.get().getBankAccounts().add(bankAccountToAdd);
@@ -65,7 +62,6 @@ public class BankAccountServiceImpl implements BankAccountService {
     return savedUser.getBankAccounts().stream()
         .map(BankAccountMapper::toDto)
         .collect(Collectors.toList());
-
   }
 
 }

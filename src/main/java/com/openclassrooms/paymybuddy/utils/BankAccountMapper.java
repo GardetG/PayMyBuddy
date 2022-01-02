@@ -31,4 +31,18 @@ public class BankAccountMapper {
     return bankAccountDto;
   }
 
+  /**
+   * Map a BankAccountDto into a new BankAccount.
+   *
+
+   * @param bankAccountDto to map
+   * @return user to create
+   */
+  public static BankAccount toModel(BankAccountDto bankAccountDto) {
+    BankAccount bankAccount = new BankAccount();
+    bankAccount.setTitle(bankAccountDto.getTitle());
+    bankAccount.setIban(bankAccount.getIban());
+    bankAccount.setBic(bankAccount.getBic());
+    return bankAccount;
+  }
 }
