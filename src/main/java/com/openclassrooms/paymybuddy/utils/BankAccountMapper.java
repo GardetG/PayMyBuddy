@@ -41,8 +41,8 @@ public class BankAccountMapper {
   public static BankAccount toModel(BankAccountDto bankAccountDto) {
     BankAccount bankAccount = new BankAccount();
     bankAccount.setTitle(bankAccountDto.getTitle());
-    bankAccount.setIban(bankAccount.getIban());
-    bankAccount.setBic(bankAccount.getBic());
+    bankAccount.setIban(bankAccountDto.getIban());
+    bankAccount.setBic(bankAccountDto.getBic());
     return bankAccount;
   }
 }
