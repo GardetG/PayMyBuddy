@@ -29,7 +29,6 @@ import com.openclassrooms.paymybuddy.service.UserService;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -67,7 +66,7 @@ class UserControllerTest {
   @BeforeEach
   void setUp() {
     userInfoDto = new UserInfoDto(1, "test","test","test@mail.com", BigDecimal.ZERO, "USER");
-    userTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO, new Role(0,"USER"));
+    userTest = new User(1,"test","test","user1@mail.com","password",BigDecimal.ZERO, new Role(0,"USER"));
     adminTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO, new Role(0,"ADMIN"));
   }
 
@@ -105,7 +104,7 @@ class UserControllerTest {
     when(userService.getInfoById(anyInt())).thenReturn(userInfoDto);
 
     // WHEN
-    mockMvc.perform(get("/users/1").with(user(userTest)))
+    mockMvc.perform(get("/users/1").with(user(adminTest)))
 
         // THEN
         .andExpect(status().isOk())
@@ -124,7 +123,7 @@ class UserControllerTest {
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
-    mockMvc.perform(get("/users/2").with(user(userTest)))
+    mockMvc.perform(get("/users/2").with(user(adminTest)))
 
         // THEN
         .andExpect(status().isNotFound())
@@ -142,6 +141,19 @@ class UserControllerTest {
 
         // THEN
         .andExpect(status().isUnauthorized());
+    verify(userService, times(0)).getInfoById(1);
+  }
+
+  @Test
+  void getInfoWhenAuthenticateButIdNotMatchingTest() throws Exception {
+    // GIVEN
+    when(userService.getInfoById(anyInt())).thenReturn(userInfoDto);
+
+    // WHEN
+    mockMvc.perform(get("/users/2").with(user(userTest)))
+
+        // THEN
+        .andExpect(status().isForbidden());
     verify(userService, times(0)).getInfoById(1);
   }
 
@@ -256,11 +268,9 @@ class UserControllerTest {
   }
 
   @Test
-  void putUpdateWhenNotFoundTest() throws Exception {
+  void putUpdateWhenAuthenticateButIdNotMatchingTest() throws Exception {
     // GIVEN
     UserInfoDto updateDto = new UserInfoDto(2,"update", "test", "update@mail.com", BigDecimal.ZERO, "USER");
-    when(userService.update(any(UserInfoDto.class))).thenThrow(
-        new ResourceNotFoundException("This user is not found"));
 
     // WHEN
     mockMvc.perform(put("/users").with(user(userTest))
@@ -269,10 +279,8 @@ class UserControllerTest {
             .content(JsonParser.asString(updateDto)))
 
         // THEN
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$", is("This user is not found")));
-    verify(userService, times(1)).update(infoCaptor.capture());
-    assertThat(infoCaptor.getValue()).usingRecursiveComparison().isEqualTo(updateDto);
+        .andExpect(status().isForbidden());
+    verify(userService, times(0)).update(infoCaptor.capture());
   }
 
   @Test
@@ -321,17 +329,14 @@ class UserControllerTest {
   }
 
   @Test
-  void deleteUserWhenNotFoundTest() throws Exception {
+  void deleteUserAuthenticateButIdNotMatchingTest() throws Exception {
     // GIVEN
-    doThrow(new ResourceNotFoundException("This user is not found")).when(userService).deleteById(anyInt());
 
     // WHEN
     mockMvc.perform(delete("/users/2").with(user(userTest)))
 
         // THEN
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$", is("This user is not found")));
-    verify(userService, times(1)).deleteById(2);
+        .andExpect(status().isForbidden());
   }
 
   @Test

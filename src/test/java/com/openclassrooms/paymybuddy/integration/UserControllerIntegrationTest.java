@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
@@ -21,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.context.WebApplicationContext;
@@ -47,16 +49,17 @@ class UserControllerIntegrationTest {
         subscriptionDto = new UserRegistrationDto("test", "test", "test@mail.com", "12345678");
 
     // WHEN
-    mockMvc.perform(post("/register")
+    MvcResult result = mockMvc.perform(post("/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonParser.asString(subscriptionDto)))
 
         // THEN
         // Check response
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.userId", is(3)));
-    // Check that a person has been added
-    mockMvc.perform(get("/users/3")
+        .andExpect(status().isCreated()).andReturn();
+
+    // Check that user successfully registered
+    int id = JsonPath.read(result.getResponse().getContentAsString(), "$.userId");
+    mockMvc.perform(get("/users/" + id)
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("test@mail.com","12345678")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.firstname", is("test")))
@@ -68,7 +71,7 @@ class UserControllerIntegrationTest {
   @Test
   void updateTest() throws Exception {
     // GIVEN
-    UserInfoDto updatedUser = new UserInfoDto(2, "update", "test", "update@mail.com", null, "USER");
+    UserInfoDto updatedUser = new UserInfoDto(3, "update", "test", "update@mail.com", null, "USER");
 
     // WHEN
     mockMvc.perform(put("/users")
@@ -78,10 +81,9 @@ class UserControllerIntegrationTest {
 
         // THEN
         // Check response
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.userId", is(2)));
-    // Check that a person has been added
-    mockMvc.perform(get("/users/2")
+        .andExpect(status().isOk());
+    // Check that the user successfully updated
+    mockMvc.perform(get("/users/" + updatedUser.getUserId())
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("update@mail.com","password")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.firstname", is("update")))
@@ -93,15 +95,16 @@ class UserControllerIntegrationTest {
   @Test
   void deleteIntegrationTest() throws Exception {
     // GIVEN
+    int id = 2;
 
     // WHEN
-    mockMvc.perform(delete("/users/1")
+    mockMvc.perform(delete("/users/" + id)
         .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password")))
         // THEN
         // Check response
         .andExpect(status().isNoContent());
     // Check that the user is deleted
-    mockMvc.perform(get("/users/1")
+    mockMvc.perform(get("/users/" + id)
         .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password")))
         .andExpect(status().isUnauthorized());
   }
