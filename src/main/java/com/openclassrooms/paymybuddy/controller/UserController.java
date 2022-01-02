@@ -1,7 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserSubscriptionDto;
+import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.UserService;
@@ -51,21 +51,21 @@ public class UserController {
   }
 
   /**
-   * Handle HTTP POST user subscription.
+   * Handle HTTP POST user registration.
    *
-   * @param userSubscription of the subscribing user
-   * @return HTTP 201 Response with subscribed user's information
+   * @param userSubscription of the registering user
+   * @return HTTP 201 Response with registered user's information
    * @throws EmailAlreadyExistsException when requesting email already exists
    */
-  @PostMapping("/subscribe")
-  public ResponseEntity<UserInfoDto> subscribe(
-      @Valid @RequestBody UserSubscriptionDto userSubscription)
+  @PostMapping("/register")
+  public ResponseEntity<UserInfoDto> register(
+      @Valid @RequestBody UserRegistrationDto userSubscription)
       throws EmailAlreadyExistsException {
 
-    LOGGER.info("Request: Subscribing user");
-    UserInfoDto userInfo = userService.subscribe(userSubscription);
+    LOGGER.info("Request: Registering user");
+    UserInfoDto userInfo = userService.register(userSubscription);
 
-    LOGGER.info("Response: user successfully subscribed");
+    LOGGER.info("Response: user successfully registered");
     return ResponseEntity.status(HttpStatus.CREATED).body(userInfo);
   }
 

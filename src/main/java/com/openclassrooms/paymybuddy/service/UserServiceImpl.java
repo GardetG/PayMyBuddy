@@ -1,7 +1,7 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserSubscriptionDto;
+import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfoDto subscribe(UserSubscriptionDto user) throws EmailAlreadyExistsException {
+  public UserInfoDto register(UserRegistrationDto user) throws EmailAlreadyExistsException {
     if (userRepository.existsByEmail(user.getEmail())) {
       LOGGER.error(EMAIL_ALREADY_EXIST + ": {}", user.getEmail());
       throw new EmailAlreadyExistsException(EMAIL_ALREADY_EXIST);
