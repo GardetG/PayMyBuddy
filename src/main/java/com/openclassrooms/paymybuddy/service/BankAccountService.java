@@ -13,4 +13,5 @@ public interface BankAccountService {
 
   List<BankAccountDto> getAllByUserId(int id) throws ResourceNotFoundException;
 
+  List<BankAccountDto> addToUserId(int id, BankAccountDto account) throws ResourceNotFoundException;
 }
