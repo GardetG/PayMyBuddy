@@ -12,3 +12,6 @@ INSERT INTO role (role_id, name)
     values (1, 'USER');
 INSERT INTO role (role_id, name)
     values (2, 'ADMIN');
+
+INSERT INTO bank_account (bank_account_id, balance, bic, iban, title, user_id)
+    values (1, 100, '12345678abc', '1234567890abcedfghijklmnopqrstu123', 'Primary Account', 3);

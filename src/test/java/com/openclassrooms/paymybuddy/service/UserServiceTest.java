@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -32,7 +31,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootTest
@@ -55,7 +53,7 @@ class UserServiceTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User(1,"test","test","test@mail.com","12345678", BigDecimal.ZERO, new Role(1,"USER"));
+    userTest = new User(1,"test","test","test@mail.com","12345678", BigDecimal.ZERO, new Role(1,"USER"), Collections.emptySet());
     userInfoDto = new UserInfoDto(1, "test","test","test@mail.com",BigDecimal.ZERO, "USER");
   }
 
@@ -158,7 +156,7 @@ class UserServiceTest {
   void updateInfoWithSameEmailTest() throws Exception {
     // GIVEN
     UserInfoDto updateDto = new UserInfoDto(1, "update","test", "test@mail.com", BigDecimal.ZERO, "USER");
-    User updatedUser = new User(1, "update", "test", "test@mail.com", "12345678", BigDecimal.ZERO,new Role(1,"USER"));
+    User updatedUser = new User(1, "update", "test", "test@mail.com", "12345678", BigDecimal.ZERO,new Role(1,"USER"),Collections.emptySet());
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
     when(userRepository.save(any(User.class))).thenReturn(updatedUser);
@@ -178,7 +176,7 @@ class UserServiceTest {
   void updateInfoWithNewEmailTest() throws Exception {
     // GIVEN
     UserInfoDto updateDto = new UserInfoDto(1, "update","test", "update@mail.com", BigDecimal.ZERO, "USER");
-    User updatedUser = new User(1, "update", "test", "update@mail.com", "12345678", BigDecimal.ZERO,new Role(1,"USER"));
+    User updatedUser = new User(1, "update", "test", "update@mail.com", "12345678", BigDecimal.ZERO,new Role(1,"USER"),Collections.emptySet());
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.existsByEmail(anyString())).thenReturn(false);
     when(userRepository.save(any(User.class))).thenReturn(updatedUser);
