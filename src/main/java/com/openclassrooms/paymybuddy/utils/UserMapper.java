@@ -43,7 +43,6 @@ public class UserMapper {
     user.setFirstname(subscription.getFirstname());
     user.setLastname(subscription.getLastname());
     user.setEmail(subscription.getEmail());
-    user.setPassword(subscription.getPassword());
     user.setWallet(BigDecimal.ZERO);
     return user;
   }

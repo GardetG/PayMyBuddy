@@ -1,4 +1,4 @@
 INSERT INTO user (email, password, firstname, lastname, wallet)
-  values ('user@mail.com', '{noop}password', 'test', 'test', 50);
+  values ('user@mail.com', '$2a$10$OSzSdG3ou.NCsuZKUJOQOuly.K64NMYyoHAi4psrzdFfSBZpdoggy', 'test', 'test', 50);
 INSERT INTO user (email, password, firstname, lastname, wallet)
-    values ('user2@mail.com', '{noop}password', 'test2', 'test2', 100);
+    values ('user2@mail.com', '$2a$10$OSzSdG3ou.NCsuZKUJOQOuly.K64NMYyoHAi4psrzdFfSBZpdoggy', 'test2', 'test2', 100);
