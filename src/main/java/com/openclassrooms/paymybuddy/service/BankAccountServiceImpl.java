@@ -4,6 +4,7 @@ import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
+import com.openclassrooms.paymybuddy.utils.BankAccountMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,14 +35,8 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     return user.get().getBankAccounts().stream()
-        .map(bankAccount -> {
-          BankAccountDto bankAccountDto = new BankAccountDto();
-          bankAccountDto.setBankAccountId(bankAccount.getBankAccountId());
-          bankAccountDto.setTitle(bankAccount.getTitle());
-          bankAccountDto.setIban(bankAccount.getIban().replaceAll(".(?=.{3})", "X"));
-          bankAccountDto.setBic(bankAccount.getBic().replaceAll(".(?=.{3})", "X"));
-          return bankAccountDto;
-        }).collect(Collectors.toList());
+        .map(BankAccountMapper::toDto)
+        .collect(Collectors.toList());
   }
 
 }
