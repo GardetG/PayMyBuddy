@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserSubscriptionDto;
+import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
@@ -24,6 +24,7 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootTest
 class UserServiceTest {
@@ -33,6 +34,9 @@ class UserServiceTest {
 
   @MockBean
   UserRepository userRepository;
+
+  @MockBean
+  PasswordEncoder passwordEncoder;
 
   @Captor
   ArgumentCaptor<User> userCaptor;
@@ -74,16 +78,18 @@ class UserServiceTest {
   }
 
   @Test
-  void subscribeTest() throws Exception {
+  void registerTest() throws Exception {
     // GIVEN
-    UserSubscriptionDto subscriptionDto = new UserSubscriptionDto("test","test", "test@mail.com", "12345678");
+    UserRegistrationDto
+        subscriptionDto = new UserRegistrationDto("test","test", "test@mail.com", "12345678");
     userTest.setUserId(0);
     userInfoDto.setUserId(0);
     when(userRepository.existsByEmail(anyString())).thenReturn(false);
     when(userRepository.save(any(User.class))).thenReturn(userTest);
+    when(passwordEncoder.encode(anyString())).thenReturn("12345678");
 
     // WHEN
-    UserInfoDto actualUserinfoDto = userService.subscribe(subscriptionDto);
+    UserInfoDto actualUserinfoDto = userService.register(subscriptionDto);
 
     // THEN
     assertThat(actualUserinfoDto).usingRecursiveComparison().isEqualTo(userInfoDto);
@@ -93,13 +99,14 @@ class UserServiceTest {
   }
 
   @Test
-  void subscribeWhenEmailAlreadyExistTest() {
+  void registerWhenEmailAlreadyExistTest() {
     // GIVEN
-    UserSubscriptionDto subscriptionDto = new UserSubscriptionDto("test","test", "existing@mail.com", "12345678");
+    UserRegistrationDto
+        subscriptionDto = new UserRegistrationDto("test","test", "existing@mail.com", "12345678");
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
     // WHEN
-    assertThatThrownBy(() -> userService.subscribe(subscriptionDto))
+    assertThatThrownBy(() -> userService.register(subscriptionDto))
 
         // THEN
         .isInstanceOf(EmailAlreadyExistsException.class)
