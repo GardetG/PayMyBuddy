@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -43,6 +44,27 @@ public class BankAccountController {
 
     LOGGER.info("Response: List of user bank accounts sent");
     return ResponseEntity.ok(bankAccounts);
+  }
+
+  /**
+   * Handle HTTP DELETE request on an user bank account by id.
+   *
+   * @param id of user
+   * @param accountId of the account
+   * @return HTTP 204
+   * @throws ResourceNotFoundException when user or account not found
+   */
+  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
+  @DeleteMapping("/users/{id}/bankaccounts/{accountId}")
+  public ResponseEntity<Void> deleteUser(@PathVariable int id, @PathVariable int accountId)
+      throws ResourceNotFoundException {
+
+    LOGGER.info("Request: Delete user {} bank account {}", id, accountId);
+    bankAccountService.deleteById(id, accountId);
+
+    LOGGER.info("Response: user bank account deleted");
+    return ResponseEntity.noContent().build();
+
   }
 
 }
