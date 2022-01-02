@@ -1,6 +1,7 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
+import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface BankAccountService {
 
-  List<BankAccountDto> getAllByUserId(int id);
+  List<BankAccountDto> getAllByUserId(int id) throws ResourceNotFoundException;
 
 }
