@@ -20,10 +20,10 @@ public class BankAccountDto {
   @NotBlank(message = "Title is mandatory")
   private String title;
   @NotBlank(message = "IBAN is mandatory")
-  @Size(min = 14, max = 34, message = "Password should have between 14 and 34 characters")
+  @Size(min = 14, max = 34, message = "IBAN should have between 14 and 34 characters")
   private String iban;
   @NotBlank(message = "BIC is mandatory")
-  @Size(min = 8, max = 11, message = "Password should have between 8 and 11 characters")
+  @Size(min = 8, max = 11, message = "BIC should have between 8 and 11 characters")
   private String bic;
 
 }

@@ -1,13 +1,16 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -17,14 +20,18 @@ import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.BankAccountService;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
+import com.openclassrooms.paymybuddy.utils.JsonParser;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(value = BankAccountController.class)
@@ -103,6 +110,92 @@ class BankAccountControllerTest {
 
         // WHEN
         mockMvc.perform(get("/users/2/bankaccounts").with(user(userTest)))
+
+            // THEN
+            .andExpect(status().isForbidden());
+        verify(bankAccountService, times(0)).getAllByUserId(anyInt());
+    }
+
+    @Test
+    void addToUserTest() throws Exception {
+        // GIVEN
+        when(bankAccountService.addToUserId(anyInt(), any(BankAccountDto.class))).thenReturn(List.of(bankAccountDtoTest));
+
+        // WHEN
+        mockMvc.perform(post("/users/1/bankaccounts").with(user(userTest))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonParser.asString(UnmaskedBankAccountDtoTest)))
+
+            // THEN
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$[0].bankAccountId", is(1)))
+            .andExpect(jsonPath("$[0].title", is("Primary Account")))
+            .andExpect(jsonPath("$[0].iban", is("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456")))
+            .andExpect(jsonPath("$[0].bic", is("XXXXXXXXxyz")));
+        verify(bankAccountService, times(1)).addToUserId(anyInt(),any(BankAccountDto.class));
+    }
+
+    @Test
+    void addToUserWithInvalidBankAccountTest() throws Exception {
+        // GIVEN
+        BankAccountDto invalidDto = new BankAccountDto(0,"  ","XX","XXXX");
+
+        // WHEN
+        mockMvc.perform(post("/users/1/bankaccounts").with(user(userTest))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonParser.asString(invalidDto)))
+
+            // THEN
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.title", is("Title is mandatory")))
+            .andExpect(jsonPath("$.iban", is("IBAN should have between 14 and 34 characters")))
+            .andExpect(jsonPath("$.bic", is("BIC should have between 8 and 11 characters")));
+        verify(bankAccountService, times(0)).addToUserId(anyInt(),any(BankAccountDto.class));
+    }
+
+    @Test
+    void addToUserWhenUserNotFoundTest() throws Exception {
+        // GIVEN
+        when(bankAccountService.addToUserId(anyInt(), any(BankAccountDto.class))).thenThrow(
+            new ResourceNotFoundException("This user is not found"));
+
+        // WHEN
+        mockMvc.perform(post("/users/2/bankaccounts").with(user(adminTest))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonParser.asString(UnmaskedBankAccountDtoTest)))
+
+            // THEN
+            .andExpect(status().isNotFound());
+        verify(bankAccountService, times(1)).addToUserId(anyInt(), any(BankAccountDto.class));
+    }
+
+    @Test
+    void addToUserWhenNotAuthenticateTest() throws Exception {
+        // GIVEN
+
+        // WHEN
+        mockMvc.perform(get("/users/1/bankaccounts")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonParser.asString(UnmaskedBankAccountDtoTest)))
+
+            // THEN
+            .andExpect(status().isUnauthorized());
+        verify(bankAccountService, times(0)).getAllByUserId(anyInt());
+    }
+
+    @Test
+    void addToUserWhenAuthenticateButIdNotMatchingTest() throws Exception {
+        // GIVEN
+
+        // WHEN
+        mockMvc.perform(get("/users/2/bankaccounts").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonParser.asString(UnmaskedBankAccountDtoTest)))
 
             // THEN
             .andExpect(status().isForbidden());
