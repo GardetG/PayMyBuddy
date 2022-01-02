@@ -60,7 +60,7 @@ public class UserController {
    * @return HTTP 200 Response with user's information
    * @throws ResourceNotFoundException when user not found
    */
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/users/{id}")
   public ResponseEntity<UserInfoDto> getInfoById(@PathVariable int id)
       throws ResourceNotFoundException {
@@ -99,6 +99,7 @@ public class UserController {
    * @throws EmailAlreadyExistsException when updating whith an already existing email
    * @throws ResourceNotFoundException when user not found
    */
+  @PreAuthorize("hasRole('ADMIN') or #userUpdate.userId == authentication.principal.userId")
   @PutMapping("/users")
   public ResponseEntity<UserInfoDto> update(@Valid @RequestBody UserInfoDto userUpdate)
       throws EmailAlreadyExistsException, ResourceNotFoundException {
@@ -117,6 +118,7 @@ public class UserController {
    * @return HTTP 204
    * @throws ResourceNotFoundException when user not found
    */
+  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @DeleteMapping("/users/{id}")
   public ResponseEntity<Void> deleteUser(@PathVariable int id)
       throws ResourceNotFoundException {
