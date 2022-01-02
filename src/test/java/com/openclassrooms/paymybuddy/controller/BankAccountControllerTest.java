@@ -6,19 +6,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
-import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
-import com.openclassrooms.paymybuddy.model.BankAccount;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.BankAccountService;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
-import com.openclassrooms.paymybuddy.service.UserService;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
@@ -109,5 +107,71 @@ class BankAccountControllerTest {
             // THEN
             .andExpect(status().isForbidden());
         verify(bankAccountService, times(0)).getAllByUserId(anyInt());
+    }
+
+    @Test
+    void deleteByIdTest() throws Exception {
+        // GIVEN
+
+        // WHEN
+        mockMvc.perform(delete("/users/1/bankaccounts/9").with(user(userTest)))
+
+            // THEN
+            .andExpect(status().isNoContent());
+        verify(bankAccountService, times(1)).deleteById(1,9);
+    }
+
+    @Test
+    void deleteByIdWhenAccountNotFoundTest() throws Exception {
+        // GIVEN
+        when(bankAccountService.deleteById(anyInt(),anyInt())).thenThrow(
+            new ResourceNotFoundException("This account is not found"));
+
+        // WHEN
+        mockMvc.perform(delete("/users/1/bankaccounts/99").with(user(userTest)))
+
+            // THEN
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$", is("This account is not found")));
+        verify(bankAccountService, times(1)).deleteById(1,99);
+    }
+
+    @Test
+    void deleteByIdWhenUserNotFoundTest() throws Exception {
+        // GIVEN
+        when(bankAccountService.deleteById(anyInt(),anyInt())).thenThrow(
+            new ResourceNotFoundException("This user is not found"));
+
+        // WHEN
+        mockMvc.perform(delete("/users/2/bankaccounts/9").with(user(adminTest)))
+
+            // THEN
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$", is("This user is not found")));
+        verify(bankAccountService, times(1)).deleteById(2,9);
+    }
+
+    @Test
+    void deleteByIdWhenNotAuthenticateTest() throws Exception {
+        // GIVEN
+
+        // WHEN
+        mockMvc.perform(delete("/users/1/bankaccounts/9"))
+
+            // THEN
+            .andExpect(status().isUnauthorized());
+        verify(bankAccountService, times(0)).deleteById(anyInt(),anyInt());
+    }
+
+    @Test
+    void deleteByIdWhenAuthenticateButIdNotMatchingTest() throws Exception {
+        // GIVEN
+
+        // WHEN
+        mockMvc.perform(delete("/users/2/bankaccounts/9").with(user(userTest)))
+
+            // THEN
+            .andExpect(status().isForbidden());
+        verify(bankAccountService, times(0)).deleteById(anyInt(),anyInt());
     }
 }
