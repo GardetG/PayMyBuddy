@@ -1,6 +1,5 @@
 package com.openclassrooms.paymybuddy.dto;
 
-import java.math.BigDecimal;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -26,7 +25,5 @@ public class BankAccountDto {
   @NotBlank(message = "BIC is mandatory")
   @Size(min = 8, max = 11, message = "Password should have between 8 and 11 characters")
   private String bic;
-  private BigDecimal balance;
-  private int userId;
 
 }
