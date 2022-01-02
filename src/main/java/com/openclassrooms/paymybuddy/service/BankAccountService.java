@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service;
 @Service
 public interface BankAccountService {
 
-  List<BankAccountDto> getAllByUserId(int id) throws ResourceNotFoundException;
+  List<BankAccountDto> getAllByUserId(int userId) throws ResourceNotFoundException;
 
-  List<BankAccountDto> addToUserId(int id, BankAccountDto account) throws ResourceNotFoundException;
+  List<BankAccountDto> addToUserId(int userId, BankAccountDto account)
+      throws ResourceNotFoundException;
+
+  List<BankAccountDto> deleteById(int userId, int id) throws ResourceNotFoundException;
 }

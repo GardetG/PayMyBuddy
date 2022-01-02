@@ -31,10 +31,10 @@ public class BankAccountServiceImpl implements BankAccountService {
   private UserRepository userRepository;
 
   @Override
-  public List<BankAccountDto> getAllByUserId(int id) throws ResourceNotFoundException {
-    Optional<User> user = userRepository.findById(id);
+  public List<BankAccountDto> getAllByUserId(int userId) throws ResourceNotFoundException {
+    Optional<User> user = userRepository.findById(userId);
     if (user.isEmpty()) {
-      LOGGER.error(USER_NOT_FOUND + ": {}", id);
+      LOGGER.error(USER_NOT_FOUND + ": {}", userId);
       throw new ResourceNotFoundException(USER_NOT_FOUND);
     }
 
@@ -45,11 +45,11 @@ public class BankAccountServiceImpl implements BankAccountService {
 
   @Override
   @Transactional
-  public List<BankAccountDto> addToUserId(int id, BankAccountDto account)
+  public List<BankAccountDto> addToUserId(int userId, BankAccountDto account)
       throws ResourceNotFoundException {
-    Optional<User> user = userRepository.findById(id);
+    Optional<User> user = userRepository.findById(userId);
     if (user.isEmpty()) {
-      LOGGER.error(USER_NOT_FOUND + ": {}", id);
+      LOGGER.error(USER_NOT_FOUND + ": {}", userId);
       throw new ResourceNotFoundException(USER_NOT_FOUND);
     }
 
@@ -57,6 +57,30 @@ public class BankAccountServiceImpl implements BankAccountService {
     bankAccountToAdd.setBalance(DEFAULT_ACCOUNT_BALANCE);
 
     user.get().getBankAccounts().add(bankAccountToAdd);
+    User savedUser = userRepository.save(user.get());
+
+    return savedUser.getBankAccounts().stream()
+        .map(BankAccountMapper::toDto)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<BankAccountDto> deleteById(int userId, int id) throws ResourceNotFoundException {
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) {
+      LOGGER.error(USER_NOT_FOUND + ": {}", userId);
+      throw new ResourceNotFoundException(USER_NOT_FOUND);
+    }
+
+    Optional<BankAccount> accountToDelete = user.get().getBankAccounts().stream()
+        .filter(account -> account.getBankAccountId() == id)
+        .findFirst();
+    if (accountToDelete.isEmpty()) {
+      LOGGER.error("This account is not found: {}", id);
+      throw new ResourceNotFoundException("This account is not found");
+    }
+
+    user.get().getBankAccounts().remove(accountToDelete.get());
     User savedUser = userRepository.save(user.get());
 
     return savedUser.getBankAccounts().stream()
