@@ -22,11 +22,13 @@ import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
+import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.service.UserService;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
 import java.math.BigDecimal;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -59,8 +61,8 @@ class UserControllerTest {
 
   @BeforeEach
   void setUp() {
-    userInfoDto = new UserInfoDto(1, "test","test","test@mail.com", BigDecimal.ZERO);
-    userTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO);
+    userInfoDto = new UserInfoDto(1, "test","test","test@mail.com", BigDecimal.ZERO, "USER");
+    userTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO, new Role(0,"USER"));
   }
 
 
@@ -179,7 +181,7 @@ class UserControllerTest {
   @Test
   void putUpdateTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "update@mail.com", BigDecimal.ZERO);
+    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "update@mail.com", BigDecimal.ZERO, "USER");
     when(userService.update(any(UserInfoDto.class))).thenReturn(updateDto);
 
     // WHEN
@@ -203,7 +205,7 @@ class UserControllerTest {
   @Test
   void putUpdateWithAlreadyUsedEmailTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "existing@mail.com", BigDecimal.ZERO);
+    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "existing@mail.com", BigDecimal.ZERO, "USER");
     when(userService.update(any(UserInfoDto.class))).thenThrow(
         new EmailAlreadyExistsException("This email is already used"));
 
@@ -223,7 +225,7 @@ class UserControllerTest {
   @Test
   void putUpdateWhenNotFoundTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(2,"update", "test", "update@mail.com", BigDecimal.ZERO);
+    UserInfoDto updateDto = new UserInfoDto(2,"update", "test", "update@mail.com", BigDecimal.ZERO, "USER");
     when(userService.update(any(UserInfoDto.class))).thenThrow(
         new ResourceNotFoundException("This user is not found"));
 
@@ -243,7 +245,7 @@ class UserControllerTest {
   @Test
   void putInvalidUpdateTest() throws Exception {
     // GIVEN
-    UserInfoDto invalidUpdateDto = new UserInfoDto(1,"","test", "testmail.com", BigDecimal.ZERO);
+    UserInfoDto invalidUpdateDto = new UserInfoDto(1,"","test", "testmail.com", BigDecimal.ZERO, "USER");
 
     // WHEN
     mockMvc.perform(put("/users").with(user(userTest))
@@ -261,7 +263,7 @@ class UserControllerTest {
   @Test
   void putUpdateWhenNotAuthenticateTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "update@mail.com", BigDecimal.ZERO);
+    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "update@mail.com", BigDecimal.ZERO, "USER");
 
     // WHEN
     mockMvc.perform(put("/users")

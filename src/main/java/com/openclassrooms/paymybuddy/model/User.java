@@ -3,11 +3,18 @@ package com.openclassrooms.paymybuddy.model;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -49,10 +56,14 @@ public class User implements UserDetails {
   @Column(name = "wallet")
   private BigDecimal wallet;
 
+  @ManyToOne()
+  @JoinColumn(name = "role_id")
+  private Role role;
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     Collection<GrantedAuthority> authorities = new ArrayList<>();
-    authorities.add(new SimpleGrantedAuthority("USER"));
+    authorities.add(new SimpleGrantedAuthority(role.getName()));
     return authorities;
   }
 

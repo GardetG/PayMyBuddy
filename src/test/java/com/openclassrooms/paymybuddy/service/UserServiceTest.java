@@ -13,10 +13,12 @@ import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
+import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -46,8 +48,8 @@ class UserServiceTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User(1,"test","test","test@mail.com","12345678", BigDecimal.ZERO);
-    userInfoDto = new UserInfoDto(1, "test","test","test@mail.com",BigDecimal.ZERO);
+    userTest = new User(1,"test","test","test@mail.com","12345678", BigDecimal.ZERO, new Role(0,"USER"));
+    userInfoDto = new UserInfoDto(1, "test","test","test@mail.com",BigDecimal.ZERO, "USER");
   }
 
   @Test
@@ -118,8 +120,8 @@ class UserServiceTest {
   @Test
   void updateInfoWithSameEmailTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "test@mail.com", BigDecimal.ZERO);
-    User updatedUser = new User(1, "update", "test", "test@mail.com", "12345678", BigDecimal.ZERO);
+    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "test@mail.com", BigDecimal.ZERO, "USER");
+    User updatedUser = new User(1, "update", "test", "test@mail.com", "12345678", BigDecimal.ZERO,new Role(0,"USER"));
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
     when(userRepository.save(any(User.class))).thenReturn(updatedUser);
@@ -138,8 +140,8 @@ class UserServiceTest {
   @Test
   void updateInfoWithNewEmailTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "update@mail.com", BigDecimal.ZERO);
-    User updatedUser = new User(1, "update", "test", "update@mail.com", "12345678", BigDecimal.ZERO);
+    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "update@mail.com", BigDecimal.ZERO, "USER");
+    User updatedUser = new User(1, "update", "test", "update@mail.com", "12345678", BigDecimal.ZERO,new Role(0,"USER"));
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.existsByEmail(anyString())).thenReturn(false);
     when(userRepository.save(any(User.class))).thenReturn(updatedUser);
@@ -158,7 +160,7 @@ class UserServiceTest {
   @Test
   void updateInfoWhenNotFoundTest() {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(2, "update","test", "update@mail.com", BigDecimal.ZERO);
+    UserInfoDto updateDto = new UserInfoDto(2, "update","test", "update@mail.com", BigDecimal.ZERO, "USER");
     when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
@@ -175,7 +177,7 @@ class UserServiceTest {
   @Test
   void updateInfoWhenNewEmailAlreadyExistsTest() {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "existing@mail.com",BigDecimal.ZERO);
+    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "existing@mail.com",BigDecimal.ZERO, "USER");
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
 

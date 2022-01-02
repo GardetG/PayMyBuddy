@@ -6,5 +6,13 @@ CREATE TABLE user (
   firstname VARCHAR(50) NOT NULL,
   lastname VARCHAR(50) NOT NULL,
   wallet DECIMAL,
+  role_id INTEGER NOT NULL,
   PRIMARY KEY (user_id)
+);
+
+DROP TABLE IF EXISTS `role`;
+CREATE TABLE role (
+  role_id INTEGER NOT NULL AUTO_INCREMENT,
+  name VARCHAR(10) NOT NULL,
+  PRIMARY KEY (role_id)
 );
