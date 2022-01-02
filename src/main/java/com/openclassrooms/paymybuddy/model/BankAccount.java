@@ -1,14 +1,11 @@
 package com.openclassrooms.paymybuddy.model;
 
 import java.math.BigDecimal;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,7 +40,4 @@ public class BankAccount {
   @Column(name = "balance")
   private BigDecimal balance;
 
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "user_id")
-  private User user;
 }

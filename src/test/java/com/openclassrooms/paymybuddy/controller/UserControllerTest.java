@@ -28,6 +28,7 @@ import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.service.UserService;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,8 +67,9 @@ class UserControllerTest {
   @BeforeEach
   void setUp() {
     userInfoDto = new UserInfoDto(1, "test","test","test@mail.com", BigDecimal.ZERO, "USER");
-    userTest = new User(1,"test","test","user1@mail.com","password",BigDecimal.ZERO, new Role(0,"USER"));
-    adminTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO, new Role(0,"ADMIN"));
+    userTest = new User(1,"test","test","user1@mail.com","password",BigDecimal.ZERO, new Role(0,"USER"),
+        Collections.emptySet());
+    adminTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO, new Role(0,"ADMIN"),Collections.emptySet());
   }
 
   @Test
