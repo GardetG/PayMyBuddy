@@ -17,6 +17,8 @@ import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +28,11 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootTest
@@ -50,6 +57,36 @@ class UserServiceTest {
   void setUp() {
     userTest = new User(1,"test","test","test@mail.com","12345678", BigDecimal.ZERO, new Role(0,"USER"));
     userInfoDto = new UserInfoDto(1, "test","test","test@mail.com",BigDecimal.ZERO, "USER");
+  }
+
+  @Test
+  void getAllInfoTest() {
+    // GIVEN
+    Pageable pageable = PageRequest.of(0,1);
+    when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(userTest)));
+
+    // WHEN
+    Page<UserInfoDto> actualPageUserinfoDto = userService.getAll(pageable);
+
+    // THEN
+    assertThat(actualPageUserinfoDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(userInfoDto));
+    assertThat(actualPageUserinfoDto.getTotalPages()).isEqualTo(1);
+    verify(userRepository, times(1)).findAll(pageable);
+  }
+
+  @Test
+  void getAllInfoWhenNotFoundTest() {
+    // GIVEN
+    Pageable pageable = PageRequest.of(0,1);
+    when(userRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
+
+    // WHEN
+    Page<UserInfoDto> actualPageUserinfoDto = userService.getAll(pageable);
+
+    // THEN
+    assertThat(actualPageUserinfoDto.getContent()).isEmpty();
+    assertThat(actualPageUserinfoDto.getTotalPages()).isEqualTo(1);
+    verify(userRepository, times(1)).findAll(pageable);
   }
 
   @Test

@@ -9,8 +9,11 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,12 +36,31 @@ public class UserController {
   UserService userService;
 
   /**
+   * Handle HTTP GET request on all user's information.
+   *
+   * @param pageable for user's information page
+   * @return HTTP 200 with user's information page
+   */
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/users")
+  public ResponseEntity<Page<UserInfoDto>> getInfoById(Pageable pageable) {
+
+    LOGGER.info("Request: Get all users information");
+    Page<UserInfoDto> userInfo = userService.getAll(pageable);
+
+    LOGGER.info("Response: All users information sent");
+    return ResponseEntity.ok(userInfo);
+  }
+
+
+  /**
    * Handle HTTP GET request on user's information by id.
    *
    * @param id of the user
    * @return HTTP 200 Response with user's information
    * @throws ResourceNotFoundException when user not found
    */
+  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/users/{id}")
   public ResponseEntity<UserInfoDto> getInfoById(@PathVariable int id)
       throws ResourceNotFoundException {

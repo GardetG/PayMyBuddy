@@ -12,6 +12,8 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,12 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   private PasswordEncoder passwordEncoder;
+
+  @Override
+  public Page<UserInfoDto> getAll(Pageable pageable) {
+    return userRepository.findAll(pageable)
+        .map(UserMapper::toInfoDto);
+  }
 
   @Override
   public UserInfoDto getInfoById(int id) throws ResourceNotFoundException {

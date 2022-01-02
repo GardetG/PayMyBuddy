@@ -28,6 +28,7 @@ import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.service.UserService;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,9 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -58,13 +62,42 @@ class UserControllerTest {
 
   private UserInfoDto userInfoDto;
   private User userTest;
+  private User adminTest;
 
   @BeforeEach
   void setUp() {
     userInfoDto = new UserInfoDto(1, "test","test","test@mail.com", BigDecimal.ZERO, "USER");
     userTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO, new Role(0,"USER"));
+    adminTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO, new Role(0,"ADMIN"));
   }
 
+  @Test
+  void getAllInfoTest() throws Exception {
+    // GIVEN
+    Pageable pageable = PageRequest.of(0,10);
+    when(userService.getAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(userInfoDto)));
+
+    // WHEN
+    mockMvc.perform(get("/users?page=0&size=10").with(user(adminTest)))
+
+        // THEN
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].userId", is(1)))
+        .andExpect(jsonPath("$.totalPages", is(1)))
+        .andExpect(jsonPath("$.totalElements", is(1)));
+    verify(userService, times(1)).getAll(pageable);
+  }
+
+  @Test
+  void getAllInfoWhenNotAdminTest() throws Exception {
+    // GIVEN
+
+    // WHEN
+    mockMvc.perform(get("/users?page=0&size=10").with(user(userTest)))
+
+        // THEN
+        .andExpect(status().isForbidden());
+  }
 
   @Test
   void getInfoByIdTest() throws Exception {
