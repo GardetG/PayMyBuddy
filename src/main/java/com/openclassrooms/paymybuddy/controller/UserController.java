@@ -1,7 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserSubscriptionDto;
+import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.UserService;
@@ -9,8 +9,11 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,12 +36,31 @@ public class UserController {
   UserService userService;
 
   /**
+   * Handle HTTP GET request on all user's information.
+   *
+   * @param pageable for user's information page
+   * @return HTTP 200 with user's information page
+   */
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/users")
+  public ResponseEntity<Page<UserInfoDto>> getInfoById(Pageable pageable) {
+
+    LOGGER.info("Request: Get all users information");
+    Page<UserInfoDto> userInfo = userService.getAll(pageable);
+
+    LOGGER.info("Response: All users information sent");
+    return ResponseEntity.ok(userInfo);
+  }
+
+
+  /**
    * Handle HTTP GET request on user's information by id.
    *
    * @param id of the user
    * @return HTTP 200 Response with user's information
    * @throws ResourceNotFoundException when user not found
    */
+  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/users/{id}")
   public ResponseEntity<UserInfoDto> getInfoById(@PathVariable int id)
       throws ResourceNotFoundException {
@@ -51,21 +73,21 @@ public class UserController {
   }
 
   /**
-   * Handle HTTP POST user subscription.
+   * Handle HTTP POST user registration.
    *
-   * @param userSubscription of the subscribing user
-   * @return HTTP 201 Response with subscribed user's information
+   * @param userSubscription of the registering user
+   * @return HTTP 201 Response with registered user's information
    * @throws EmailAlreadyExistsException when requesting email already exists
    */
-  @PostMapping("/subscribe")
-  public ResponseEntity<UserInfoDto> subscribe(
-      @Valid @RequestBody UserSubscriptionDto userSubscription)
+  @PostMapping("/register")
+  public ResponseEntity<UserInfoDto> register(
+      @Valid @RequestBody UserRegistrationDto userSubscription)
       throws EmailAlreadyExistsException {
 
-    LOGGER.info("Request: Subscribing user");
-    UserInfoDto userInfo = userService.subscribe(userSubscription);
+    LOGGER.info("Request: Registering user");
+    UserInfoDto userInfo = userService.register(userSubscription);
 
-    LOGGER.info("Response: user successfully subscribed");
+    LOGGER.info("Response: user successfully registered");
     return ResponseEntity.status(HttpStatus.CREATED).body(userInfo);
   }
 
@@ -77,6 +99,7 @@ public class UserController {
    * @throws EmailAlreadyExistsException when updating whith an already existing email
    * @throws ResourceNotFoundException when user not found
    */
+  @PreAuthorize("hasRole('ADMIN') or #userUpdate.userId == authentication.principal.userId")
   @PutMapping("/users")
   public ResponseEntity<UserInfoDto> update(@Valid @RequestBody UserInfoDto userUpdate)
       throws EmailAlreadyExistsException, ResourceNotFoundException {
@@ -95,6 +118,7 @@ public class UserController {
    * @return HTTP 204
    * @throws ResourceNotFoundException when user not found
    */
+  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @DeleteMapping("/users/{id}")
   public ResponseEntity<Void> deleteUser(@PathVariable int id)
       throws ResourceNotFoundException {

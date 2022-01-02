@@ -2,9 +2,17 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE user (
   user_id INTEGER NOT NULL AUTO_INCREMENT,
   email VARCHAR(50) UNIQUE NOT NULL,
-  password VARCHAR(50) NOT NULL,
+  password VARCHAR(60) NOT NULL,
   firstname VARCHAR(50) NOT NULL,
   lastname VARCHAR(50) NOT NULL,
   wallet DECIMAL,
+  role_id INTEGER NOT NULL,
   PRIMARY KEY (user_id)
+);
+
+DROP TABLE IF EXISTS `role`;
+CREATE TABLE role (
+  role_id INTEGER NOT NULL AUTO_INCREMENT,
+  name VARCHAR(10) NOT NULL,
+  PRIMARY KEY (role_id)
 );

@@ -26,5 +26,6 @@ public class UserInfoDto {
   @Email(message = "Email should be a valid email address")
   private String email;
   private BigDecimal wallet;
+  private String role;
 
 }

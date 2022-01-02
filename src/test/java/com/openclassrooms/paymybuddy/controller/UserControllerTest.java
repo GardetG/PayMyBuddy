@@ -9,6 +9,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,24 +19,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserSubscriptionDto;
+import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
+import com.openclassrooms.paymybuddy.model.Role;
+import com.openclassrooms.paymybuddy.model.User;
+import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.service.UserService;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
 import java.math.BigDecimal;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(value = UserController.class, excludeAutoConfiguration = {SecurityAutoConfiguration.class})
+@WebMvcTest(value = UserController.class)
 class UserControllerTest {
 
   @Autowired
@@ -43,16 +51,51 @@ class UserControllerTest {
   @MockBean
   private UserService userService;
 
+  @MockBean
+  private CredentialsService credentialsService;
+
   @Captor
-  ArgumentCaptor<UserSubscriptionDto> subscriptionCaptor;
+  ArgumentCaptor<UserRegistrationDto> subscriptionCaptor;
   @Captor
   ArgumentCaptor<UserInfoDto> infoCaptor;
 
   private UserInfoDto userInfoDto;
+  private User userTest;
+  private User adminTest;
 
   @BeforeEach
   void setUp() {
-    userInfoDto = new UserInfoDto(1, "test","test","test@mail.com", BigDecimal.ZERO);
+    userInfoDto = new UserInfoDto(1, "test","test","test@mail.com", BigDecimal.ZERO, "USER");
+    userTest = new User(1,"test","test","user1@mail.com","password",BigDecimal.ZERO, new Role(0,"USER"));
+    adminTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO, new Role(0,"ADMIN"));
+  }
+
+  @Test
+  void getAllInfoTest() throws Exception {
+    // GIVEN
+    Pageable pageable = PageRequest.of(0,10);
+    when(userService.getAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(userInfoDto)));
+
+    // WHEN
+    mockMvc.perform(get("/users?page=0&size=10").with(user(adminTest)))
+
+        // THEN
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].userId", is(1)))
+        .andExpect(jsonPath("$.totalPages", is(1)))
+        .andExpect(jsonPath("$.totalElements", is(1)));
+    verify(userService, times(1)).getAll(pageable);
+  }
+
+  @Test
+  void getAllInfoWhenNotAdminTest() throws Exception {
+    // GIVEN
+
+    // WHEN
+    mockMvc.perform(get("/users?page=0&size=10").with(user(userTest)))
+
+        // THEN
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -61,8 +104,7 @@ class UserControllerTest {
     when(userService.getInfoById(anyInt())).thenReturn(userInfoDto);
 
     // WHEN
-    mockMvc.perform(get("/users/1"))
-
+    mockMvc.perform(get("/users/1").with(user(adminTest)))
 
         // THEN
         .andExpect(status().isOk())
@@ -81,7 +123,7 @@ class UserControllerTest {
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
-    mockMvc.perform(get("/users/2"))
+    mockMvc.perform(get("/users/2").with(user(adminTest)))
 
         // THEN
         .andExpect(status().isNotFound())
@@ -90,13 +132,40 @@ class UserControllerTest {
   }
 
   @Test
-  void postSubscriptionTest() throws Exception {
+  void getInfoWhenNotAuthenticateTest() throws Exception {
     // GIVEN
-    UserSubscriptionDto subscriptionDto = new UserSubscriptionDto("test","test", "test@mail.com","12345678");
-    when(userService.subscribe(any(UserSubscriptionDto.class))).thenReturn(userInfoDto);
+    when(userService.getInfoById(anyInt())).thenReturn(userInfoDto);
 
     // WHEN
-    mockMvc.perform(post("/subscribe")
+    mockMvc.perform(get("/users/1"))
+
+        // THEN
+        .andExpect(status().isUnauthorized());
+    verify(userService, times(0)).getInfoById(1);
+  }
+
+  @Test
+  void getInfoWhenAuthenticateButIdNotMatchingTest() throws Exception {
+    // GIVEN
+    when(userService.getInfoById(anyInt())).thenReturn(userInfoDto);
+
+    // WHEN
+    mockMvc.perform(get("/users/2").with(user(userTest)))
+
+        // THEN
+        .andExpect(status().isForbidden());
+    verify(userService, times(0)).getInfoById(1);
+  }
+
+  @Test
+  void postSubscriptionTest() throws Exception {
+    // GIVEN
+    UserRegistrationDto
+        subscriptionDto = new UserRegistrationDto("test","test", "test@mail.com","12345678");
+    when(userService.register(any(UserRegistrationDto.class))).thenReturn(userInfoDto);
+
+    // WHEN
+    mockMvc.perform(post("/register")
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonParser.asString(subscriptionDto)))
@@ -108,7 +177,7 @@ class UserControllerTest {
         .andExpect(jsonPath("$.lastname", is("test")))
         .andExpect(jsonPath("$.email", is("test@mail.com")))
         .andExpect(jsonPath("$.wallet", is(0)));
-    verify(userService, times(1)).subscribe(subscriptionCaptor.capture());
+    verify(userService, times(1)).register(subscriptionCaptor.capture());
     assertThat(subscriptionCaptor.getValue()).usingRecursiveComparison().isEqualTo(subscriptionDto);
 
   }
@@ -116,12 +185,13 @@ class UserControllerTest {
   @Test
   void postSubscriptionWithAlreadyUsedEmailTest() throws Exception {
     // GIVEN
-    UserSubscriptionDto subscriptionDto = new UserSubscriptionDto("test","test", "test@mail.com","12345678");
-    when(userService.subscribe(any(UserSubscriptionDto.class))).thenThrow(
+    UserRegistrationDto
+        subscriptionDto = new UserRegistrationDto("test","test", "test@mail.com","12345678");
+    when(userService.register(any(UserRegistrationDto.class))).thenThrow(
         new EmailAlreadyExistsException("This email is already used"));
 
     // WHEN
-    mockMvc.perform(post("/subscribe")
+    mockMvc.perform(post("/register")
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonParser.asString(subscriptionDto)))
@@ -129,17 +199,18 @@ class UserControllerTest {
         // THEN
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$", is("This email is already used")));
-    verify(userService, times(1)).subscribe(subscriptionCaptor.capture());
+    verify(userService, times(1)).register(subscriptionCaptor.capture());
     assertThat(subscriptionCaptor.getValue()).usingRecursiveComparison().isEqualTo(subscriptionDto);
   }
 
   @Test
   void postInvalidSubscriptionTest() throws Exception {
     // GIVEN
-    UserSubscriptionDto invalidSubscriptionDto = new UserSubscriptionDto("","test", "testmail.com","1234");
+    UserRegistrationDto
+        invalidSubscriptionDto = new UserRegistrationDto("","test", "testmail.com","1234");
 
     // WHEN
-    mockMvc.perform(post("/subscribe")
+    mockMvc.perform(post("/register")
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonParser.asString(invalidSubscriptionDto)))
@@ -149,17 +220,17 @@ class UserControllerTest {
         .andExpect(jsonPath("$.firstname", is("Firstname is mandatory")))
         .andExpect(jsonPath("$.email", is("Email should be a valid email address")))
         .andExpect(jsonPath("$.password", is("Password should have at least 8 characters")));
-    verify(userService, times(0)).subscribe(any(UserSubscriptionDto.class));
+    verify(userService, times(0)).register(any(UserRegistrationDto.class));
   }
 
   @Test
   void putUpdateTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "update@mail.com", BigDecimal.ZERO);
+    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "update@mail.com", BigDecimal.ZERO, "USER");
     when(userService.update(any(UserInfoDto.class))).thenReturn(updateDto);
 
     // WHEN
-    mockMvc.perform(put("/users")
+    mockMvc.perform(put("/users").with(user(userTest))
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonParser.asString(updateDto)))
@@ -179,12 +250,12 @@ class UserControllerTest {
   @Test
   void putUpdateWithAlreadyUsedEmailTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "existing@mail.com", BigDecimal.ZERO);
+    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "existing@mail.com", BigDecimal.ZERO, "USER");
     when(userService.update(any(UserInfoDto.class))).thenThrow(
         new EmailAlreadyExistsException("This email is already used"));
 
     // WHEN
-    mockMvc.perform(put("/users")
+    mockMvc.perform(put("/users").with(user(userTest))
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonParser.asString(updateDto)))
@@ -197,32 +268,28 @@ class UserControllerTest {
   }
 
   @Test
-  void putUpdateWhenNotFoundTest() throws Exception {
+  void putUpdateWhenAuthenticateButIdNotMatchingTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(2,"update", "test", "update@mail.com", BigDecimal.ZERO);
-    when(userService.update(any(UserInfoDto.class))).thenThrow(
-        new ResourceNotFoundException("This user is not found"));
+    UserInfoDto updateDto = new UserInfoDto(2,"update", "test", "update@mail.com", BigDecimal.ZERO, "USER");
 
     // WHEN
-    mockMvc.perform(put("/users")
+    mockMvc.perform(put("/users").with(user(userTest))
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonParser.asString(updateDto)))
 
         // THEN
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$", is("This user is not found")));
-    verify(userService, times(1)).update(infoCaptor.capture());
-    assertThat(infoCaptor.getValue()).usingRecursiveComparison().isEqualTo(updateDto);
+        .andExpect(status().isForbidden());
+    verify(userService, times(0)).update(infoCaptor.capture());
   }
 
   @Test
   void putInvalidUpdateTest() throws Exception {
     // GIVEN
-    UserInfoDto invalidUpdateDto = new UserInfoDto(1,"","test", "testmail.com", BigDecimal.ZERO);
+    UserInfoDto invalidUpdateDto = new UserInfoDto(1,"","test", "testmail.com", BigDecimal.ZERO, "USER");
 
     // WHEN
-    mockMvc.perform(put("/users")
+    mockMvc.perform(put("/users").with(user(userTest))
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonParser.asString(invalidUpdateDto)))
@@ -231,7 +298,22 @@ class UserControllerTest {
         .andExpect(status().isUnprocessableEntity())
         .andExpect(jsonPath("$.firstname", is("Firstname is mandatory")))
         .andExpect(jsonPath("$.email", is("Email should be a valid email address")));
-    verify(userService, times(0)).subscribe(any(UserSubscriptionDto.class));
+    verify(userService, times(0)).register(any(UserRegistrationDto.class));
+  }
+
+  @Test
+  void putUpdateWhenNotAuthenticateTest() throws Exception {
+    // GIVEN
+    UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "update@mail.com", BigDecimal.ZERO, "USER");
+
+    // WHEN
+    mockMvc.perform(put("/users")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonParser.asString(updateDto)))
+
+        // THEN
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -239,7 +321,7 @@ class UserControllerTest {
     // GIVEN
 
     // WHEN
-    mockMvc.perform(delete("/users/1"))
+    mockMvc.perform(delete("/users/1").with(user(userTest)))
 
         // THEN
         .andExpect(status().isNoContent());
@@ -247,16 +329,24 @@ class UserControllerTest {
   }
 
   @Test
-  void deleteUserWhenNotFoundTest() throws Exception {
+  void deleteUserAuthenticateButIdNotMatchingTest() throws Exception {
     // GIVEN
-    doThrow(new ResourceNotFoundException("This user is not found")).when(userService).deleteById(anyInt());
 
     // WHEN
-    mockMvc.perform(delete("/users/2"))
+    mockMvc.perform(delete("/users/2").with(user(userTest)))
 
         // THEN
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$", is("This user is not found")));
-    verify(userService, times(1)).deleteById(2);
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void deleteUserWhenNotAuthenticateTest() throws Exception {
+    // GIVEN
+
+    // WHEN
+    mockMvc.perform(delete("/users/1"))
+
+        // THEN
+        .andExpect(status().isUnauthorized());
   }
 }

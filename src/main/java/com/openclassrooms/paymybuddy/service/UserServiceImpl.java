@@ -1,16 +1,20 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserSubscriptionDto;
+import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
+import com.openclassrooms.paymybuddy.repository.RoleRepository;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.UserMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,6 +31,18 @@ public class UserServiceImpl implements UserService {
   @Autowired
   private UserRepository userRepository;
 
+  @Autowired
+  private RoleRepository roleRepository;
+
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+
+  @Override
+  public Page<UserInfoDto> getAll(Pageable pageable) {
+    return userRepository.findAll(pageable)
+        .map(UserMapper::toInfoDto);
+  }
+
   @Override
   public UserInfoDto getInfoById(int id) throws ResourceNotFoundException {
     Optional<User> user = userRepository.findById(id);
@@ -39,13 +55,15 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfoDto subscribe(UserSubscriptionDto user) throws EmailAlreadyExistsException {
+  public UserInfoDto register(UserRegistrationDto user) throws EmailAlreadyExistsException {
     if (userRepository.existsByEmail(user.getEmail())) {
       LOGGER.error(EMAIL_ALREADY_EXIST + ": {}", user.getEmail());
       throw new EmailAlreadyExistsException(EMAIL_ALREADY_EXIST);
     }
 
     User userToCreate = UserMapper.toModel(user);
+    userToCreate.setPassword(passwordEncoder.encode(user.getPassword()));
+    userToCreate.setRole(roleRepository.findByName("USER"));
 
     return UserMapper.toInfoDto(userRepository.save(userToCreate));
   }
