@@ -22,13 +22,11 @@ import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
-import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.service.UserService;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,9 +65,9 @@ class UserControllerTest {
   @BeforeEach
   void setUp() {
     userInfoDto = new UserInfoDto(1, "test","test","test@mail.com", BigDecimal.ZERO, "USER");
-    userTest = new User(1,"test","test","user1@mail.com","password",BigDecimal.ZERO, new Role(0,"USER"),
-        Collections.emptySet());
-    adminTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO, new Role(0,"ADMIN"),Collections.emptySet());
+    userTest = new User("test","test","user1@mail.com","password", User.Role.USER);
+    userTest.setUserId(1);
+    adminTest = new User("test","test","test@mail.com","password", User.Role.ADMIN);
   }
 
   @Test

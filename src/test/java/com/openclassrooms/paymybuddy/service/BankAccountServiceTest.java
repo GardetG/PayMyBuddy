@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.BankAccount;
-import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import java.math.BigDecimal;
@@ -39,7 +38,7 @@ class BankAccountServiceTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User(1,"test","test","test@mail.com","12345678", BigDecimal.ZERO, new Role(1,"USER"), new HashSet<>());
+    userTest = new User("test","test","test@mail.com","12345678", User.Role.USER);
     userTest.getBankAccounts().add(new BankAccount(1,"PrimaryAccount", "1234567890abcdefghijklmnopqrstu123","12345678abc",BigDecimal.valueOf(100)));
     account1DtoTest = new BankAccountDto(1, "PrimaryAccount","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX123","XXXXXXXXabc");
   }
@@ -90,7 +89,7 @@ class BankAccountServiceTest {
     // GIVEN
     BankAccountDto accountToAddDto = new BankAccountDto(2, "PrimaryAccount","1234567890abcdefghijklmnopqrstu456","12345678xyz");
     BankAccountDto maskedAccountDto = new BankAccountDto(2, "PrimaryAccount","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456","XXXXXXXXxyz");
-    User updateUserTest = new User(1,"test","test","test@mail.com","12345678", BigDecimal.ZERO, new Role(1,"USER"), new HashSet<>());
+    User updateUserTest = new User("test","test","test@mail.com","12345678", User.Role.USER);
     updateUserTest.getBankAccounts().add(new BankAccount(1,"PrimaryAccount", "1234567890abcdefghijklmnopqrstu123","12345678abc",BigDecimal.valueOf(100)));
     updateUserTest.getBankAccounts().add(new BankAccount(2,"PrimaryAccount", "1234567890abcdefghijklmnopqrstu456","12345678xyz",BigDecimal.valueOf(100)));
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
@@ -124,7 +123,7 @@ class BankAccountServiceTest {
   @Test
   void deleteByIdTest() throws Exception {
     // GIVEN
-    User updateUserTest = new User(1,"test","test","test@mail.com","12345678", BigDecimal.ZERO, new Role(1,"USER"), new HashSet<>());
+    User updateUserTest = new User("test","test","test@mail.com","12345678", User.Role.USER);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.save(any(User.class))).thenReturn(updateUserTest);
 

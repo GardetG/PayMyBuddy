@@ -16,16 +16,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
-import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.BankAccountService;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
-import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +50,9 @@ class BankAccountControllerTest {
     void setUp() {
         UnmaskedBankAccountDtoTest = new BankAccountDto(1, "Primary Account","1234567890abcdefghijklmnopqrstu456","12345678xyz");
         bankAccountDtoTest = new BankAccountDto(1, "Primary Account","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456","XXXXXXXXxyz");
-        userTest = new User(1,"test","test","user1@mail.com","password",BigDecimal.ZERO, new Role(0,"USER"),
-            Collections.emptySet());
-        adminTest = new User(1,"test","test","test@mail.com","password",BigDecimal.ZERO, new Role(0,"ADMIN"),Collections.emptySet());
+        userTest = new User("test","test","user1@mail.com","password", User.Role.USER);
+        userTest.setUserId(1);
+        adminTest = new User("test","test","test@mail.com","password", User.Role.ADMIN);
     }
 
     @Test
