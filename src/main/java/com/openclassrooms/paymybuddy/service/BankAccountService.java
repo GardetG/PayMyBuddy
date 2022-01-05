@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 /**
- * Service interface for managing user's bank account.
+ * Service Interface for managing user's bank accounts.
  */
 @Service
 public interface BankAccountService {

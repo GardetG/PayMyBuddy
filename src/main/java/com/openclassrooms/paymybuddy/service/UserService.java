@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
- * Service interface for users.
+ * Service Interface for managing users.
  */
 @Service
 public interface UserService {

@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Service class for managing user's bank account.
+ * Service Class for managing user's bank accounts.
  */
 @Service
 public class BankAccountServiceImpl implements BankAccountService {

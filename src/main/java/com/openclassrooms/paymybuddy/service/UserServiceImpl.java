@@ -17,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
- * Service Class for users.
+ * Service Class for managing users.
  */
 @Service
 public class UserServiceImpl implements UserService {
