@@ -27,16 +27,34 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * Model Class of an user with personals information like firstname and lastname and credentials
- * information with email and password.
+ * Model Class of a user with credentials such as email and password and personal information,
+ * firstname, lastname, amount on wallet, list of bank accounts and list of connections with other
+ * users.
  */
+
 @Entity
 @Table(name = "user")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class User implements UserDetails {
+
+  /**
+   * Enumeration of user roles.
+   */
+  public enum Role { USER, ADMIN }
+  private static final BigDecimal INITIAL_WALLET = BigDecimal.ZERO;
+
+  private User() {
+    // Private default constructor for hibernate
+  }
+
+  public User(String firstname, String lastname, String email, String password, Role role) {
+    this.firstname = firstname;
+    this.lastname = lastname;
+    this.email = email;
+    this.password = password;
+    this.role = role;
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,10 +74,9 @@ public class User implements UserDetails {
   private String password;
 
   @Column(name = "wallet")
-  private BigDecimal wallet;
+  private BigDecimal wallet = INITIAL_WALLET;
 
-  @ManyToOne()
-  @JoinColumn(name = "role_id")
+  @Column(name = "role")
   private Role role;
 
   @OneToMany(
@@ -69,10 +86,16 @@ public class User implements UserDetails {
   @JoinColumn(name = "user_id")
   Set<BankAccount> bankAccounts = new HashSet<>();
 
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "connection",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "connection_id"))
+  private Set<User> connections = new HashSet<>();
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     Collection<GrantedAuthority> authorities = new ArrayList<>();
-    authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+    authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
     return authorities;
   }
 

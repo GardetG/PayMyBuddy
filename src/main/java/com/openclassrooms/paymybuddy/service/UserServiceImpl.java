@@ -5,7 +5,6 @@ import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
-import com.openclassrooms.paymybuddy.repository.RoleRepository;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.UserMapper;
 import java.util.Optional;
@@ -30,9 +29,6 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   private UserRepository userRepository;
-
-  @Autowired
-  private RoleRepository roleRepository;
 
   @Autowired
   private PasswordEncoder passwordEncoder;
@@ -62,8 +58,7 @@ public class UserServiceImpl implements UserService {
     }
 
     User userToCreate = UserMapper.toModel(user);
-    userToCreate.setPassword(passwordEncoder.encode(user.getPassword()));
-    userToCreate.setRole(roleRepository.findByName("USER"));
+    userToCreate.setPassword(passwordEncoder.encode(userToCreate.getPassword()));
 
     return UserMapper.toInfoDto(userRepository.save(userToCreate));
   }
