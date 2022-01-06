@@ -3,6 +3,7 @@ package com.openclassrooms.paymybuddy.controller;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
+import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.BankAccountService;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
@@ -50,9 +52,9 @@ class BankAccountControllerTest {
     void setUp() {
         UnmaskedBankAccountDtoTest = new BankAccountDto(1, "Primary Account","1234567890abcdefghijklmnopqrstu456","12345678xyz");
         bankAccountDtoTest = new BankAccountDto(1, "Primary Account","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456","XXXXXXXXxyz");
-        userTest = new User("test","test","user1@mail.com","password", User.Role.USER);
+        userTest = new User("test","test","user1@mail.com","password", Role.USER);
         userTest.setUserId(1);
-        adminTest = new User("test","test","test@mail.com","password", User.Role.ADMIN);
+        adminTest = new User("test","test","test@mail.com","password", Role.ADMIN);
     }
 
     @Test
@@ -114,7 +116,7 @@ class BankAccountControllerTest {
     @Test
     void addToUserTest() throws Exception {
         // GIVEN
-        when(bankAccountService.addToUserId(anyInt(), any(BankAccountDto.class))).thenReturn(List.of(bankAccountDtoTest));
+        when(bankAccountService.addToUserId(anyInt(), any(BankAccountDto.class))).thenReturn(bankAccountDtoTest);
 
         // WHEN
         mockMvc.perform(post("/users/1/bankaccounts").with(user(userTest))
@@ -124,10 +126,10 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$[0].bankAccountId", is(1)))
-            .andExpect(jsonPath("$[0].title", is("Primary Account")))
-            .andExpect(jsonPath("$[0].iban", is("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456")))
-            .andExpect(jsonPath("$[0].bic", is("XXXXXXXXxyz")));
+            .andExpect(jsonPath("$.bankAccountId", is(1)))
+            .andExpect(jsonPath("$.title", is("Primary Account")))
+            .andExpect(jsonPath("$.iban", is("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456")))
+            .andExpect(jsonPath("$.bic", is("XXXXXXXXxyz")));
         verify(bankAccountService, times(1)).addToUserId(anyInt(),any(BankAccountDto.class));
     }
 
@@ -212,8 +214,8 @@ class BankAccountControllerTest {
     @Test
     void deleteByIdWhenAccountNotFoundTest() throws Exception {
         // GIVEN
-        when(bankAccountService.deleteById(anyInt(),anyInt())).thenThrow(
-            new ResourceNotFoundException("This account is not found"));
+        doThrow(new ResourceNotFoundException("This account is not found")).when(bankAccountService)
+            .deleteById(anyInt(),anyInt());
 
         // WHEN
         mockMvc.perform(delete("/users/1/bankaccounts/99").with(user(userTest)))
@@ -227,8 +229,8 @@ class BankAccountControllerTest {
     @Test
     void deleteByIdWhenUserNotFoundTest() throws Exception {
         // GIVEN
-        when(bankAccountService.deleteById(anyInt(),anyInt())).thenThrow(
-            new ResourceNotFoundException("This user is not found"));
+        doThrow(new ResourceNotFoundException("This user is not found")).when(bankAccountService)
+            .deleteById(anyInt(),anyInt());
 
         // WHEN
         mockMvc.perform(delete("/users/2/bankaccounts/9").with(user(adminTest)))

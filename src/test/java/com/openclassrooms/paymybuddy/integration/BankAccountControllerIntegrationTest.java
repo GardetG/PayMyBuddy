@@ -45,8 +45,7 @@ class BankAccountControllerIntegrationTest {
 
         // THEN
         // Check response
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$", hasSize(1)));
+        .andExpect(status().isCreated());
 
     // Check that user successfully registered
     mockMvc.perform(get("/users/2/bankaccounts")
