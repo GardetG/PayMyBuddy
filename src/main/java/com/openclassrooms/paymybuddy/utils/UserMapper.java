@@ -2,6 +2,7 @@ package com.openclassrooms.paymybuddy.utils;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
+import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 
 /**
@@ -44,7 +45,7 @@ public class UserMapper {
         subscription.getLastname(),
         subscription.getEmail(),
         subscription.getPassword(),
-        User.Role.USER
+        Role.USER
     );
   }
 }

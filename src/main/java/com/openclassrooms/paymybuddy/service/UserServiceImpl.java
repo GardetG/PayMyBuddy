@@ -1,5 +1,6 @@
 package com.openclassrooms.paymybuddy.service;
 
+import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
@@ -24,9 +25,6 @@ public class UserServiceImpl implements UserService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
-  private static final String USER_NOT_FOUND = "This user is not found";
-  private static final String EMAIL_ALREADY_EXIST = "This email is already used";
-
   @Autowired
   private UserRepository userRepository;
 
@@ -41,21 +39,13 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserInfoDto getInfoById(int id) throws ResourceNotFoundException {
-    Optional<User> user = userRepository.findById(id);
-    if (user.isEmpty()) {
-      LOGGER.error(USER_NOT_FOUND + ": {}", id);
-      throw new ResourceNotFoundException(USER_NOT_FOUND);
-    }
-
-    return UserMapper.toInfoDto(user.get());
+    User user = getUserById(id);
+    return UserMapper.toInfoDto(user);
   }
 
   @Override
   public UserInfoDto register(UserRegistrationDto user) throws EmailAlreadyExistsException {
-    if (userRepository.existsByEmail(user.getEmail())) {
-      LOGGER.error(EMAIL_ALREADY_EXIST + ": {}", user.getEmail());
-      throw new EmailAlreadyExistsException(EMAIL_ALREADY_EXIST);
-    }
+    checkEmail(user.getEmail());
 
     User userToCreate = UserMapper.toModel(user);
     userToCreate.setPassword(passwordEncoder.encode(userToCreate.getPassword()));
@@ -64,36 +54,41 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfoDto update(UserInfoDto user) throws ResourceNotFoundException,
+  public UserInfoDto update(UserInfoDto userUpdate) throws ResourceNotFoundException,
       EmailAlreadyExistsException {
-    Optional<User> existingUser = userRepository.findById(user.getUserId());
-    if (existingUser.isEmpty()) {
-      LOGGER.error(USER_NOT_FOUND + ": {}", user.getUserId());
-      throw new ResourceNotFoundException(USER_NOT_FOUND);
-    }
-    if (!existingUser.get().getEmail().equals(user.getEmail())
-        && userRepository.existsByEmail(user.getEmail())) {
-      LOGGER.error(EMAIL_ALREADY_EXIST + ": {}", user.getEmail());
-      throw new EmailAlreadyExistsException(EMAIL_ALREADY_EXIST);
-    }
+    User user = getUserById(userUpdate.getUserId());
 
-    User userToUpdate = existingUser.get();
-    userToUpdate.setFirstname(user.getFirstname());
-    userToUpdate.setLastname(user.getLastname());
-    userToUpdate.setEmail(user.getEmail());
+    if (!userUpdate.getEmail().equals(user.getEmail())) {
+      checkEmail(userUpdate.getEmail());
+      user.setEmail(userUpdate.getEmail());
+    }
+    user.setFirstname(userUpdate.getFirstname());
+    user.setLastname(userUpdate.getLastname());
 
-    return UserMapper.toInfoDto(userRepository.save(userToUpdate));
+
+    return UserMapper.toInfoDto(userRepository.save(user));
   }
 
   @Override
   public void deleteById(int id) throws ResourceNotFoundException {
+    User user = getUserById(id);
+    userRepository.delete(user);
+  }
 
-    if (!userRepository.existsById(id)) {
-      LOGGER.error(USER_NOT_FOUND + ": {}", id);
-      throw new ResourceNotFoundException(USER_NOT_FOUND);
+  private User getUserById(int userId) throws ResourceNotFoundException {
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) {
+      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
+      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
     }
-    userRepository.deleteById(id);
+    return user.get();
+  }
 
+  private void checkEmail(String email) throws EmailAlreadyExistsException {
+    if (userRepository.existsByEmail(email)) {
+      LOGGER.error(ErrorMessage.EMAIL_ALREADY_EXIST + ": {}", email);
+      throw new EmailAlreadyExistsException(ErrorMessage.EMAIL_ALREADY_EXIST);
+    }
   }
 
 }
