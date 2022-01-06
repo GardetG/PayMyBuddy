@@ -1,14 +1,17 @@
 package com.openclassrooms.paymybuddy.service;
 
+import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.BankAccount;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.BankAccountMapper;
-import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
@@ -24,68 +27,64 @@ public class BankAccountServiceImpl implements BankAccountService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BankAccountServiceImpl.class);
 
-  private static final String USER_NOT_FOUND = "This user is not found";
-  private static  final BigDecimal DEFAULT_ACCOUNT_BALANCE = BigDecimal.valueOf(100);
-
   @Autowired
   private UserRepository userRepository;
 
   @Override
   public List<BankAccountDto> getAllByUserId(int userId) throws ResourceNotFoundException {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
-      LOGGER.error(USER_NOT_FOUND + ": {}", userId);
-      throw new ResourceNotFoundException(USER_NOT_FOUND);
-    }
+    User user = getUserById(userId);
 
-    return user.get().getBankAccounts().stream()
+    return user.getBankAccounts().stream()
         .map(BankAccountMapper::toDto)
         .collect(Collectors.toList());
   }
 
   @Override
   @Transactional
-  public List<BankAccountDto> addToUserId(int userId, BankAccountDto account)
-      throws ResourceNotFoundException {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
-      LOGGER.error(USER_NOT_FOUND + ": {}", userId);
-      throw new ResourceNotFoundException(USER_NOT_FOUND);
-    }
+  public BankAccountDto addToUserId(int userId, BankAccountDto account)
+      throws ResourceNotFoundException, ResourceAlreadyExistsException {
 
+    User user = getUserById(userId);
     BankAccount bankAccountToAdd = BankAccountMapper.toModel(account);
-    bankAccountToAdd.setBalance(DEFAULT_ACCOUNT_BALANCE);
 
-    user.get().getBankAccounts().add(bankAccountToAdd);
-    User savedUser = userRepository.save(user.get());
+    user.addBankAccount(bankAccountToAdd);
+    user = userRepository.save(user);
 
-    return savedUser.getBankAccounts().stream()
-        .map(BankAccountMapper::toDto)
-        .collect(Collectors.toList());
+    BankAccount bankAccountCreated = findBankAccount(user.getBankAccounts(),
+        a -> a.getIban().equals(account.getIban()));
+    return BankAccountMapper.toDto(bankAccountCreated);
   }
 
   @Override
-  public List<BankAccountDto> deleteById(int userId, int id) throws ResourceNotFoundException {
+  public void deleteById(int userId, int id) throws ResourceNotFoundException {
+
+    User user = getUserById(userId);
+    BankAccount bankAccountToDelete = findBankAccount(user.getBankAccounts(),
+        a -> a.getBankAccountId() == id);
+
+    user.removeBankAccount(bankAccountToDelete);
+    userRepository.save(user);
+  }
+
+  private User getUserById(int userId) throws ResourceNotFoundException {
     Optional<User> user = userRepository.findById(userId);
     if (user.isEmpty()) {
-      LOGGER.error(USER_NOT_FOUND + ": {}", userId);
-      throw new ResourceNotFoundException(USER_NOT_FOUND);
+      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
+      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
     }
+    return user.get();
+  }
 
-    Optional<BankAccount> accountToDelete = user.get().getBankAccounts().stream()
-        .filter(account -> account.getBankAccountId() == id)
-        .findFirst();
-    if (accountToDelete.isEmpty()) {
-      LOGGER.error("This account is not found: {}", id);
-      throw new ResourceNotFoundException("This account is not found");
-    }
-
-    user.get().getBankAccounts().remove(accountToDelete.get());
-    User savedUser = userRepository.save(user.get());
-
-    return savedUser.getBankAccounts().stream()
-        .map(BankAccountMapper::toDto)
-        .collect(Collectors.toList());
+  private BankAccount findBankAccount(Collection<BankAccount> bankAccounts,
+                                     Predicate<BankAccount> predicate)
+      throws ResourceNotFoundException {
+    return bankAccounts.stream()
+        .filter(predicate)
+        .findFirst()
+        .orElseThrow(() -> {
+          LOGGER.error(ErrorMessage.BANKACCOUNT_NOT_FOUND);
+          return new ResourceNotFoundException(ErrorMessage.BANKACCOUNT_NOT_FOUND);
+        });
   }
 
 }

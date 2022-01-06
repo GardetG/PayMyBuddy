@@ -1,6 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.BankAccountService;
 import java.util.List;
@@ -60,15 +61,15 @@ public class BankAccountController {
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @PostMapping("/users/{id}/bankaccounts")
-  public ResponseEntity<List<BankAccountDto>> deleteUser(@PathVariable int id, @Valid @RequestBody
+  public ResponseEntity<BankAccountDto> addBankAccount(@PathVariable int id, @Valid @RequestBody
       BankAccountDto bankAccount)
-      throws ResourceNotFoundException {
+      throws ResourceNotFoundException, ResourceAlreadyExistsException {
 
     LOGGER.info("Request: Add user {} new bank account", id);
-    List<BankAccountDto> bankAccounts = bankAccountService.addToUserId(id, bankAccount);
+    BankAccountDto bankAccountAdded = bankAccountService.addToUserId(id, bankAccount);
 
     LOGGER.info("Response: User bank account added");
-    return ResponseEntity.status(HttpStatus.CREATED).body(bankAccounts);
+    return ResponseEntity.status(HttpStatus.CREATED).body(bankAccountAdded);
 
   }
 
