@@ -3,10 +3,13 @@ package com.openclassrooms.paymybuddy.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -17,7 +20,6 @@ import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.service.UserService;
-import com.openclassrooms.paymybuddy.utils.JsonParser;
 import java.math.BigDecimal;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,17 +49,16 @@ class AuthenticationControllerTest {
 
   private UserDto userInfoDto;
   private User userTest;
-  private User adminTest;
   private JSONObject jsonParam;
 
   @BeforeEach
   void setUp() {
     userInfoDto = new UserDto(1, "test", "test", "test@mail.com", null,BigDecimal.ZERO, "USER");
-    userTest = new User("test", "test", "user1@mail.com", "password", Role.USER);
+    userTest = new User("test", "test", "test@mail.com", "password", Role.USER);
     userTest.setUserId(1);
-    adminTest = new User("test", "test", "test@mail.com", "password", Role.ADMIN);
     jsonParam = new JSONObject();
   }
+
   @Test
   void postSubscriptionTest() throws Exception {
     // GIVEN
@@ -83,7 +84,6 @@ class AuthenticationControllerTest {
     verify(userService, times(1)).register(subscriptionCaptor.capture());
     UserDto expectedDto = new UserDto(0,"test","test", "test@mail.com","password",null,null);
     assertThat(subscriptionCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
-
   }
 
   @Test
@@ -127,5 +127,35 @@ class AuthenticationControllerTest {
         .andExpect(jsonPath("$.email", is("Email should be a valid email address")))
         .andExpect(jsonPath("$.password", is("Password is mandatory")));
     verify(userService, times(0)).register(any(UserDto.class));
+  }
+
+  @Test
+  void loginTest() throws Exception {
+    // GIVEN
+
+    // WHEN
+    mockMvc.perform(get("/login").with(user(userTest)))
+
+        // THEN
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.userId", is(1)))
+        .andExpect(jsonPath("$.firstname", is("test")))
+        .andExpect(jsonPath("$.lastname", is("test")))
+        .andExpect(jsonPath("$.email", is("test@mail.com")))
+        .andExpect(jsonPath("$.password").doesNotExist())
+        .andExpect(jsonPath("$.wallet", is(0)))
+        .andExpect(jsonPath("$.role", is("USER")));
+  }
+
+  @Test
+  void loginWithoutCorrectAuthenticateTest() throws Exception {
+    // GIVEN
+
+    // WHEN
+    mockMvc.perform(get("/login"))
+
+        // THEN
+        .andExpect(status().isUnauthorized());
+    verify(userService, times(0)).getById(anyInt());
   }
 }
