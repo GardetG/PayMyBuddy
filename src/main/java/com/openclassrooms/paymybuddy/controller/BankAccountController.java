@@ -41,7 +41,7 @@ public class BankAccountController {
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/users/{id}/bankaccounts")
-  public ResponseEntity<List<BankAccountDto>> getByUserId(@PathVariable int id)
+  public ResponseEntity<List<BankAccountDto>> getAllfromUser(@PathVariable int id)
       throws ResourceNotFoundException {
 
     LOGGER.info("Request: Get user {} bank accounts", id);
@@ -61,7 +61,7 @@ public class BankAccountController {
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @PostMapping("/users/{id}/bankaccounts")
-  public ResponseEntity<BankAccountDto> addBankAccount(@PathVariable int id, @Valid @RequestBody
+  public ResponseEntity<BankAccountDto> addToUser(@PathVariable int id, @Valid @RequestBody
       BankAccountDto bankAccount)
       throws ResourceNotFoundException, ResourceAlreadyExistsException {
 
@@ -83,7 +83,7 @@ public class BankAccountController {
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @DeleteMapping("/users/{id}/bankaccounts/{accountId}")
-  public ResponseEntity<Void> deleteUser(@PathVariable int id, @PathVariable int accountId)
+  public ResponseEntity<Void> removeFromUser(@PathVariable int id, @PathVariable int accountId)
       throws ResourceNotFoundException {
 
     LOGGER.info("Request: Delete user {} bank account {}", id, accountId);

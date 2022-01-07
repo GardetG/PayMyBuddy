@@ -58,7 +58,7 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void getAllByIdTest() throws Exception {
+    void getAllFromUserTest() throws Exception {
         // GIVEN
         when(bankAccountService.getAllFromUser(anyInt())).thenReturn(List.of(bankAccountDtoTest));
 
@@ -75,7 +75,7 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void getAllByIdWhenNotFoundTest() throws Exception {
+    void getAllFromUserWhenNotFoundTest() throws Exception {
         // GIVEN
         when(bankAccountService.getAllFromUser(anyInt())).thenThrow(
             new ResourceNotFoundException("This user is not found"));
@@ -90,7 +90,7 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void getAllByIdNotAuthenticateTest() throws Exception {
+    void getAllFromUserWhenNotAuthenticateTest() throws Exception {
         // GIVEN
 
         // WHEN
@@ -102,7 +102,7 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void getAllByIdWhenAuthenticateButIdNotMatchingTest() throws Exception {
+    void getAllFromUserWhenAuthenticateButIdNotMatchingTest() throws Exception {
         // GIVEN
 
         // WHEN
@@ -200,7 +200,7 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void deleteByIdTest() throws Exception {
+    void removeFromUserIdTest() throws Exception {
         // GIVEN
 
         // WHEN
@@ -212,7 +212,7 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void deleteByIdWhenAccountNotFoundTest() throws Exception {
+    void removeFromUserWhenAccountNotFoundTest() throws Exception {
         // GIVEN
         doThrow(new ResourceNotFoundException("This account is not found")).when(bankAccountService)
             .removeFromUser(anyInt(),anyInt());
@@ -227,7 +227,7 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void deleteByIdWhenUserNotFoundTest() throws Exception {
+    void removeFromUserWhenUserNotFoundTest() throws Exception {
         // GIVEN
         doThrow(new ResourceNotFoundException("This user is not found")).when(bankAccountService)
             .removeFromUser(anyInt(),anyInt());
@@ -242,7 +242,7 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void deleteByIdWhenNotAuthenticateTest() throws Exception {
+    void removeFromUserWhenNotAuthenticateTest() throws Exception {
         // GIVEN
 
         // WHEN
@@ -254,7 +254,7 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void deleteByIdWhenAuthenticateButIdNotMatchingTest() throws Exception {
+    void removeFromUserWhenAuthenticateButIdNotMatchingTest() throws Exception {
         // GIVEN
 
         // WHEN

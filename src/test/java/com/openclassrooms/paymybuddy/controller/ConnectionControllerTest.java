@@ -155,7 +155,7 @@ class ConnectionControllerTest {
     // GIVEN
 
     // WHEN
-    mockMvc.perform(delete("/users/1/bankaccounts/9"))
+    mockMvc.perform(delete("/users/1/connections/9"))
 
         // THEN
         .andExpect(status().isUnauthorized());
@@ -167,7 +167,7 @@ class ConnectionControllerTest {
     // GIVEN
 
     // WHEN
-    mockMvc.perform(delete("/users/2/bankaccounts/9").with(user(userTest)))
+    mockMvc.perform(delete("/users/2/connections/9").with(user(userTest)))
 
         // THEN
         .andExpect(status().isForbidden());
