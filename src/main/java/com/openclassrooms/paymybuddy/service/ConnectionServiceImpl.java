@@ -2,6 +2,7 @@ package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.dto.ConnectionDto;
+import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
@@ -40,8 +41,28 @@ public class ConnectionServiceImpl implements ConnectionService {
 
   @Override
   public ConnectionDto addToUser(int userId, ConnectionDto connection)
-      throws ResourceNotFoundException, ResourceAlreadyExistsException {
-    return null;
+      throws ResourceNotFoundException, ResourceAlreadyExistsException,
+      ForbbidenOperationException {
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) {
+      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
+      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
+    }
+
+    if (user.get().getEmail().equals(connection.getEmail())) {
+      throw new ForbbidenOperationException("The user can't add himself as connection");
+    }
+
+    Optional<User> connectionToAdd = userRepository.findByEmail(connection.getEmail());
+    if (connectionToAdd.isEmpty()) {
+      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
+      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
+    }
+
+    user.get().addConnection(connectionToAdd.get());
+    userRepository.save(user.get());
+
+    return ConnectionMapper.toDto(connectionToAdd.get());
   }
 
   @Override
