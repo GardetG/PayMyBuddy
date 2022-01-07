@@ -1,6 +1,8 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
+import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +46,35 @@ public class GlobalControllerExceptionHandler {
    */
   @ExceptionHandler(EmailAlreadyExistsException.class)
   public ResponseEntity<String> handleEmailAlreadyExistsExceptions(EmailAlreadyExistsException ex) {
+    String error = ex.getMessage();
+    LOGGER.info("Response : 409 {}", error);
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+  }
+
+  /**
+   * Handle EmailAlreadyExistsException thrown when the resource already exists.
+   *
+   * @param ex instance of the exception
+   * @return HTTP 409 response
+   */
+  @ExceptionHandler(ResourceAlreadyExistsException.class)
+  public ResponseEntity<String> handleResourceAlreadyExistsException(
+      ResourceAlreadyExistsException ex) {
+    String error = ex.getMessage();
+    LOGGER.info("Response : 409 {}", error);
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+  }
+
+  /**
+   * Handle ForbbidenOperationException thrown when requesting an operation forbidden by business
+   * rules.
+   *
+
+   * @param ex instance of the exception
+   * @return HTTP 409 response
+   */
+  @ExceptionHandler(ForbbidenOperationException.class)
+  public ResponseEntity<String> handleForbbidenOperationException(ForbbidenOperationException ex) {
     String error = ex.getMessage();
     LOGGER.info("Response : 409 {}", error);
     return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
