@@ -1,29 +1,36 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.openclassrooms.paymybuddy.dto.ConnectionDto;
+import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.ConnectionService;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
 import java.util.List;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(value = ConnectionController.class)
@@ -39,6 +46,7 @@ class ConnectionControllerTest {
   private CredentialsService credentialsService;
 
   private ConnectionDto connectionDtoTest;
+  JSONObject JSONparam;
   private User userTest;
   private User adminTest;
 
@@ -48,6 +56,7 @@ class ConnectionControllerTest {
     userTest = new User("user1","test","user1@mail.com","password", Role.USER);
     userTest.setUserId(1);
     adminTest = new User("test","test","test@mail.com","password", Role.ADMIN);
+    JSONparam = new JSONObject();
   }
 
   @Test
@@ -104,6 +113,98 @@ class ConnectionControllerTest {
         // THEN
         .andExpect(status().isForbidden());
     verify(connectionService, times(0)).getAllFromUser(anyInt());
+  }
+
+  @Test
+  void addToUserTest() throws Exception {
+    // GIVEN
+    JSONparam.put("email","user2@mail.com");
+    when(connectionService.addToUser(anyInt(), any(ConnectionDto.class))).thenReturn(connectionDtoTest);
+
+    // WHEN
+    mockMvc.perform(post("/users/1/connections").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JSONparam.toString()))
+
+        // THEN
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.connectionId", is(2)))
+        .andExpect(jsonPath("$.firstname", is("user2")))
+        .andExpect(jsonPath("$.lastname", is("test")))
+        .andExpect(jsonPath("$.email").doesNotExist());
+    verify(connectionService, times(1)).addToUser(anyInt(),any(ConnectionDto.class));
+  }
+
+  @Test
+  void addToUserWithInvalidConnectionEmailTest() throws Exception {
+    // GIVEN
+    JSONparam.put("email","usermail");
+
+    // WHEN
+    mockMvc.perform(post("/users/1/connections").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JSONparam.toString()))
+
+        // THEN
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(jsonPath("$.email", is("Email should be a valid email address")));
+    verify(connectionService, times(0)).addToUser(anyInt(),any(ConnectionDto.class));
+  }
+
+  @Test
+  void addToUserWhenUserAlreadyAddedTest() throws Exception {
+    // GIVEN
+    JSONparam.put("email","user2@mail.com");
+    when(connectionService.addToUser(anyInt(), any(ConnectionDto.class))).thenThrow(
+        new ResourceAlreadyExistsException("This connection already exists"));
+
+    // WHEN
+    mockMvc.perform(post("/users/1/connections").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JSONparam.toString()))
+
+        // THEN
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$", is("This connection already exists")));
+    verify(connectionService, times(1)).addToUser(anyInt(),any(ConnectionDto.class));
+  }
+
+  @Test
+  void addToUserWhenUserAddHimselfTest() throws Exception {
+    // GIVEN
+    JSONparam.put("email","user1@mail.com");
+    when(connectionService.addToUser(anyInt(), any(ConnectionDto.class))).thenThrow(
+        new ForbbidenOperationException("The user can't add himself as connection"));
+
+    // WHEN
+    mockMvc.perform(post("/users/1/connections").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JSONparam.toString()))
+
+        // THEN
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$", is("The user can't add himself as connection")));
+    verify(connectionService, times(1)).addToUser(anyInt(),any(ConnectionDto.class));
+  }
+
+  @Test
+  void addToUserWhenAuthenticateButIdNotMatchingTest() throws Exception {
+    // GIVEN
+    JSONparam.put("email","user1@mail.com");
+
+    // WHEN
+    mockMvc.perform(get("/users/2/connections").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JSONparam.toString()))
+
+        // THEN
+        .andExpect(status().isForbidden());
+    verify(connectionService, times(0)).addToUser(anyInt(),any(ConnectionDto.class));
   }
 
 
