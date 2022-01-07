@@ -2,6 +2,7 @@ package com.openclassrooms.paymybuddy.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -81,6 +82,52 @@ class ConnectionServiceTest {
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
     verify(userRepository, times(1)).findById(9);
+  }
+
+  @Test
+  void removeFromUserTest() throws Exception {
+    // GIVEN
+    user1Test.addConnection(user2Test);
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
+    when(userRepository.save(any(User.class))).thenReturn(user1Test);
+
+    // WHEN
+    connectionService.removeFromUser(1,2);
+
+    // THEN
+    assertThat(user1Test.getConnections()).isEmpty();
+    verify(userRepository, times(1)).findById(1);
+    verify(userRepository,times(1)).save(any(User.class));
+  }
+
+  @Test
+  void removeFromUserWhenUserNotFoundTest() {
+    // GIVEN
+    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+    // WHEN
+    assertThatThrownBy(() -> connectionService.removeFromUser(9,1))
+
+        // THEN
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("This user is not found");
+    verify(userRepository, times(1)).findById(9);
+    verify(userRepository,times(0)).save(any(User.class));
+  }
+
+  @Test
+  void removeFromUserWhenConnectionNotFoundTest() {
+    // GIVEN
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
+
+    // WHEN
+    assertThatThrownBy(() -> connectionService.removeFromUser(1,9))
+
+        // THEN
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("This connection is not found");
+    verify(userRepository, times(1)).findById(1);
+    verify(userRepository,times(0)).save(any(User.class));
   }
 
 }
