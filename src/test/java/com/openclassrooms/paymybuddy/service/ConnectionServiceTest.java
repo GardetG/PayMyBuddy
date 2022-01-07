@@ -4,11 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.dto.ConnectionDto;
+import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
@@ -82,6 +86,96 @@ class ConnectionServiceTest {
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
     verify(userRepository, times(1)).findById(9);
+  }
+
+  @Test
+  void addToUserTest() throws Exception {
+    // GIVEN
+    ConnectionDto requestDto = new ConnectionDto(0, null,null,"user2@mail.com");
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
+    when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user2Test));
+    when(userRepository.save(any(User.class))).thenReturn(user1Test);
+
+    // WHEN
+    ConnectionDto actualConnectionDto = connectionService.addToUser(1,requestDto);
+
+    // THEN
+    assertThat(actualConnectionDto).usingRecursiveComparison().isEqualTo(connectionDto);
+    assertThat(user1Test.getConnections().size()).isEqualTo(1);
+    verify(userRepository, times(1)).findById(1);
+    verify(userRepository, times(1)).findByEmail("user2@mail.com");
+    verify(userRepository,times(1)).save(any(User.class));
+  }
+
+  @Test
+  void addToUserWhenUserNotFoundTest() {
+    // GIVEN
+    ConnectionDto requestDto = new ConnectionDto(0, null,null,"user2@mail.com");
+    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+    // WHEN
+    assertThatThrownBy(() -> connectionService.addToUser(9,requestDto))
+
+        // THEN
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("This user is not found");
+    verify(userRepository, times(1)).findById(9);
+    verify(userRepository, times(0)).findByEmail(anyString());
+    verify(userRepository,times(0)).save(any(User.class));
+  }
+
+  @Test
+  void addToUserWhenConnectionNotFoundTest() {
+    // GIVEN
+    ConnectionDto requestDto = new ConnectionDto(0, null,null,"NotExisting@mail.com");
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
+    when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+    // WHEN
+    assertThatThrownBy(() -> connectionService.addToUser(1,requestDto))
+
+        // THEN
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("This user is not found");
+    verify(userRepository, times(1)).findById(1);
+    verify(userRepository, times(1)).findByEmail("NotExisting@mail.com");
+    verify(userRepository,times(0)).save(any(User.class));
+  }
+
+  @Test
+  void addToUserWithAlreadyAddedConnectionTest() throws Exception{
+    // GIVEN
+    user1Test.addConnection(user2Test);
+    ConnectionDto requestDto = new ConnectionDto(0, null,null,"user2@mail.com");
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
+    when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user2Test));
+
+    // WHEN
+    assertThatThrownBy(() -> connectionService.addToUser(1,requestDto))
+
+        // THEN
+        .isInstanceOf(ResourceAlreadyExistsException.class)
+        .hasMessageContaining("This connection already exists");
+    verify(userRepository, times(1)).findById(1);
+    verify(userRepository, times(1)).findByEmail("user2@mail.com");
+    verify(userRepository,times(0)).save(any(User.class));
+  }
+
+  @Test
+  void addToUserWithHimselfAsConnectionTest() {
+    // GIVEN
+    ConnectionDto requestDto = new ConnectionDto(0, null,null,"user1@mail.com");
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
+
+    // WHEN
+    assertThatThrownBy(() -> connectionService.addToUser(1,requestDto))
+
+        // THEN
+        .isInstanceOf(ForbbidenOperationException.class)
+        .hasMessageContaining("The user can't add himself as connection");
+    verify(userRepository, times(1)).findById(1);
+    verify(userRepository, times(0)).findByEmail(anyString());
+    verify(userRepository,times(0)).save(any(User.class));
   }
 
   @Test
