@@ -1,6 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.BankAccountService;
 import java.util.List;
@@ -40,11 +41,11 @@ public class BankAccountController {
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/users/{id}/bankaccounts")
-  public ResponseEntity<List<BankAccountDto>> getByUserId(@PathVariable int id)
+  public ResponseEntity<List<BankAccountDto>> getAllfromUser(@PathVariable int id)
       throws ResourceNotFoundException {
 
     LOGGER.info("Request: Get user {} bank accounts", id);
-    List<BankAccountDto> bankAccounts = bankAccountService.getAllByUserId(id);
+    List<BankAccountDto> bankAccounts = bankAccountService.getAllFromUser(id);
 
     LOGGER.info("Response: List of user bank accounts sent");
     return ResponseEntity.ok(bankAccounts);
@@ -58,17 +59,17 @@ public class BankAccountController {
    * @return HTTP 201
    * @throws ResourceNotFoundException when user not found
    */
-  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
+  @PreAuthorize("#id == authentication.principal.userId")
   @PostMapping("/users/{id}/bankaccounts")
-  public ResponseEntity<List<BankAccountDto>> deleteUser(@PathVariable int id, @Valid @RequestBody
+  public ResponseEntity<BankAccountDto> addToUser(@PathVariable int id, @Valid @RequestBody
       BankAccountDto bankAccount)
-      throws ResourceNotFoundException {
+      throws ResourceNotFoundException, ResourceAlreadyExistsException {
 
     LOGGER.info("Request: Add user {} new bank account", id);
-    List<BankAccountDto> bankAccounts = bankAccountService.addToUserId(id, bankAccount);
+    BankAccountDto bankAccountAdded = bankAccountService.addToUser(id, bankAccount);
 
     LOGGER.info("Response: User bank account added");
-    return ResponseEntity.status(HttpStatus.CREATED).body(bankAccounts);
+    return ResponseEntity.status(HttpStatus.CREATED).body(bankAccountAdded);
 
   }
 
@@ -82,11 +83,11 @@ public class BankAccountController {
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @DeleteMapping("/users/{id}/bankaccounts/{accountId}")
-  public ResponseEntity<Void> deleteUser(@PathVariable int id, @PathVariable int accountId)
+  public ResponseEntity<Void> removeFromUser(@PathVariable int id, @PathVariable int accountId)
       throws ResourceNotFoundException {
 
     LOGGER.info("Request: Delete user {} bank account {}", id, accountId);
-    bankAccountService.deleteById(id, accountId);
+    bankAccountService.removeFromUser(id, accountId);
 
     LOGGER.info("Response: user bank account deleted");
     return ResponseEntity.noContent().build();

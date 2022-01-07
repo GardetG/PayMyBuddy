@@ -9,14 +9,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
- * Service interface for users.
+ * Service Interface for managing users.
  */
 @Service
 public interface UserService {
 
   Page<UserInfoDto> getAll(Pageable pageable);
 
-  UserInfoDto getInfoById(int id) throws ResourceNotFoundException;
+  UserInfoDto getById(int id) throws ResourceNotFoundException;
 
   UserInfoDto register(UserRegistrationDto user) throws EmailAlreadyExistsException;
 

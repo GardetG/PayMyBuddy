@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,7 +24,7 @@ import org.springframework.util.Base64Utils;
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-class BankAccountControllerIntegrationTest {
+class ConnectionControllerIntegrationTest {
 
   @Autowired
   private MockMvc mockMvc;
@@ -36,26 +37,27 @@ class BankAccountControllerIntegrationTest {
   @Test
   void addBankAccountIntegrationTest() throws Exception {
     // GIVEN
-    BankAccountDto accountToCreate = new BankAccountDto(0, "My Account","1234567890abcdefghijklmnopqrstu456","12345678xyz");
+    JSONObject jsonParam = new JSONObject();
+    jsonParam.put("email","user2@mail.com");
+
     // WHEN
-    mockMvc.perform(post("/users/2/bankaccounts")
+    mockMvc.perform(post("/users/2/connections")
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password"))
             .contentType(MediaType.APPLICATION_JSON)
-            .content(JsonParser.asString(accountToCreate)))
+            .content(jsonParam.toString()))
 
         // THEN
         // Check response
         .andExpect(status().isCreated());
 
     // Check that user successfully registered
-    mockMvc.perform(get("/users/2/bankaccounts")
+    mockMvc.perform(get("/users/2/connections")
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(1)))
-        .andExpect(jsonPath("$[0].bankAccountId", is(2)))
-        .andExpect(jsonPath("$[0].title", is("My Account")))
-        .andExpect(jsonPath("$[0].iban", is("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456")))
-        .andExpect(jsonPath("$[0].bic", is("XXXXXXXXxyz")));
+        .andExpect(jsonPath("$[0].connectionId", is(3)))
+        .andExpect(jsonPath("$[0].firstname", is("test2")))
+        .andExpect(jsonPath("$[0].lastname", is("test2")));
   }
 
   @Test
@@ -63,7 +65,7 @@ class BankAccountControllerIntegrationTest {
     // GIVEN
 
     // WHEN
-    mockMvc.perform(delete("/users/3/bankaccounts/1")
+    mockMvc.perform(delete("/users/3/connections/2")
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user2@mail.com","password")))
 
         // THEN
@@ -71,7 +73,7 @@ class BankAccountControllerIntegrationTest {
         .andExpect(status().isNoContent());
 
     // Check that user successfully registered
-    mockMvc.perform(get("/users/3/bankaccounts")
+    mockMvc.perform(get("/users/3/connections")
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user2@mail.com","password")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(0)));
