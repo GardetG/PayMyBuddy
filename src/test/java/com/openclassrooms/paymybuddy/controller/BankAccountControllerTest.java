@@ -153,23 +153,6 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void addToUserWhenUserNotFoundTest() throws Exception {
-        // GIVEN
-        when(bankAccountService.addToUser(anyInt(), any(BankAccountDto.class))).thenThrow(
-            new ResourceNotFoundException("This user is not found"));
-
-        // WHEN
-        mockMvc.perform(post("/users/2/bankaccounts").with(user(adminTest))
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonParser.asString(UnmaskedBankAccountDtoTest)))
-
-            // THEN
-            .andExpect(status().isNotFound());
-        verify(bankAccountService, times(1)).addToUser(anyInt(), any(BankAccountDto.class));
-    }
-
-    @Test
     void addToUserWhenNotAuthenticateTest() throws Exception {
         // GIVEN
 

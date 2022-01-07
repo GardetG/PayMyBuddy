@@ -7,3 +7,6 @@ INSERT INTO user (user_id, email, password, firstname, lastname, wallet, role)
 
 INSERT INTO bank_account (bank_account_id, balance, bic, iban, title, user_id)
     values (1, 100, '12345678abc', '1234567890abcedfghijklmnopqrstu123', 'Primary Account', 3);
+
+INSERT INTO connection (user_id, connection_id)
+    values (3,2);

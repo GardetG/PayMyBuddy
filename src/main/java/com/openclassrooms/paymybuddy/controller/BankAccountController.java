@@ -59,7 +59,7 @@ public class BankAccountController {
    * @return HTTP 201
    * @throws ResourceNotFoundException when user not found
    */
-  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
+  @PreAuthorize("#id == authentication.principal.userId")
   @PostMapping("/users/{id}/bankaccounts")
   public ResponseEntity<BankAccountDto> addToUser(@PathVariable int id, @Valid @RequestBody
       BankAccountDto bankAccount)
