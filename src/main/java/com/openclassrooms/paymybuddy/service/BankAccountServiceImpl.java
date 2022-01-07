@@ -33,7 +33,6 @@ public class BankAccountServiceImpl implements BankAccountService {
   @Override
   public List<BankAccountDto> getAllFromUser(int userId) throws ResourceNotFoundException {
     User user = getUserById(userId);
-
     return user.getBankAccounts().stream()
         .map(BankAccountMapper::toDto)
         .collect(Collectors.toList());

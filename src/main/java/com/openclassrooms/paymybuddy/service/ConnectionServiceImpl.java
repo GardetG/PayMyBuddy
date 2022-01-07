@@ -29,12 +29,8 @@ public class ConnectionServiceImpl implements ConnectionService {
 
   @Override
   public List<ConnectionDto> getAllFromUser(int userId) throws ResourceNotFoundException {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
-      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
-      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
-    }
-    return user.get().getConnections().stream()
+    User user = getUserById(userId);
+    return user.getConnections().stream()
         .map(ConnectionMapper::toDto)
         .collect(Collectors.toList());
   }
@@ -43,41 +39,50 @@ public class ConnectionServiceImpl implements ConnectionService {
   public ConnectionDto addToUser(int userId, ConnectionDto connection)
       throws ResourceNotFoundException, ResourceAlreadyExistsException,
       ForbbidenOperationException {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
-      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
-      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
-    }
 
-    if (user.get().getEmail().equals(connection.getEmail())) {
+    User user = getUserById(userId);
+    if (user.getEmail().equals(connection.getEmail())) {
+      LOGGER.error("The user can't add himself as connection");
       throw new ForbbidenOperationException("The user can't add himself as connection");
     }
+    User connectionToAdd = getUserByEmail(connection.getEmail());
 
-    Optional<User> connectionToAdd = userRepository.findByEmail(connection.getEmail());
-    if (connectionToAdd.isEmpty()) {
-      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
-      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
-    }
+    user.addConnection(connectionToAdd);
+    userRepository.save(user);
 
-    user.get().addConnection(connectionToAdd.get());
-    userRepository.save(user.get());
-
-    return ConnectionMapper.toDto(connectionToAdd.get());
+    return ConnectionMapper.toDto(connectionToAdd);
   }
 
   @Override
   public void removeFromUser(int userId, int id) throws ResourceNotFoundException {
+    User user = getUserById(userId);
+    User connectionToDelete = user.getConnections().stream()
+        .filter(c -> c.getUserId() == id)
+        .findFirst()
+        .orElseThrow(() -> {
+          LOGGER.error("This connection is not found");
+          return new ResourceNotFoundException("This connection is not found");
+        });
+
+    user.removeConnection(connectionToDelete);
+    userRepository.save(user);
+  }
+
+  private User getUserById(int userId) throws ResourceNotFoundException {
     Optional<User> user = userRepository.findById(userId);
     if (user.isEmpty()) {
       LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
       throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
     }
-    User connection = user.get().getConnections().stream()
-        .filter(c -> c.getUserId() == id)
-        .findFirst()
-        .orElseThrow(() -> new ResourceNotFoundException("This connection is not found"));
+    return user.get();
+  }
 
-    user.get().removeConnection(connection);
-    userRepository.save(user.get());
+  private User getUserByEmail(String email) throws ResourceNotFoundException {
+    Optional<User> user = userRepository.findByEmail(email);
+    if (user.isEmpty()) {
+      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", email);
+      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
+    }
+    return user.get();
   }
 }
