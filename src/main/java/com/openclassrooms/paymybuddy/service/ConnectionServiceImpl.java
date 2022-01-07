@@ -46,6 +46,17 @@ public class ConnectionServiceImpl implements ConnectionService {
 
   @Override
   public void removeFromUser(int userId, int id) throws ResourceNotFoundException {
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) {
+      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
+      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
+    }
+    User connection = user.get().getConnections().stream()
+        .filter(c -> c.getUserId() == id)
+        .findFirst()
+        .orElseThrow(() -> new ResourceNotFoundException("This connection is not found"));
 
+    user.get().removeConnection(connection);
+    userRepository.save(user.get());
   }
 }
