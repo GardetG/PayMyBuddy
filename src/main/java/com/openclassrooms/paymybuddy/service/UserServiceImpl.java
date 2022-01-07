@@ -1,13 +1,14 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.constant.ErrorMessage;
-import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
+import com.openclassrooms.paymybuddy.dto.UserDto;
+import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.UserMapper;
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,19 +33,19 @@ public class UserServiceImpl implements UserService {
   private PasswordEncoder passwordEncoder;
 
   @Override
-  public Page<UserInfoDto> getAll(Pageable pageable) {
+  public Page<UserDto> getAll(Pageable pageable) {
     return userRepository.findAll(pageable)
         .map(UserMapper::toInfoDto);
   }
 
   @Override
-  public UserInfoDto getById(int id) throws ResourceNotFoundException {
+  public UserDto getById(int id) throws ResourceNotFoundException {
     User user = getUserById(id);
     return UserMapper.toInfoDto(user);
   }
 
   @Override
-  public UserInfoDto register(UserRegistrationDto user) throws ResourceAlreadyExistsException {
+  public UserDto register(UserDto user) throws ResourceAlreadyExistsException {
     checkEmail(user.getEmail());
 
     User userToCreate = UserMapper.toModel(user);
@@ -54,13 +55,16 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfoDto update(UserInfoDto userUpdate) throws ResourceNotFoundException,
+  public UserDto update(UserDto userUpdate) throws ResourceNotFoundException,
       ResourceAlreadyExistsException {
     User user = getUserById(userUpdate.getUserId());
 
     if (!userUpdate.getEmail().equals(user.getEmail())) {
       checkEmail(userUpdate.getEmail());
       user.setEmail(userUpdate.getEmail());
+    }
+    if (userUpdate.getPassword() != null && !userUpdate.getPassword().isBlank()) {
+      user.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
     }
     user.setFirstname(userUpdate.getFirstname());
     user.setLastname(userUpdate.getLastname());
@@ -70,8 +74,14 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void deleteById(int id) throws ResourceNotFoundException {
+  public void deleteById(int id) throws ResourceNotFoundException, ForbbidenOperationException {
     User user = getUserById(id);
+    if (!user.getWallet().equals(BigDecimal.ZERO)) {
+      LOGGER.error("The user {} can't delete account if wallet not empty", id);
+      throw new ForbbidenOperationException("The user can't delete account if wallet not empty");
+    }
+
+
     userRepository.delete(user);
   }
 
