@@ -38,8 +38,8 @@ class BankAccountControllerIntegrationTest {
     // GIVEN
     BankAccountDto accountToCreate = new BankAccountDto(0, "My Account","1234567890abcdefghijklmnopqrstu456","12345678xyz");
     // WHEN
-    mockMvc.perform(post("/users/2/bankaccounts")
-            .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password"))
+    mockMvc.perform(post("/users/3/bankaccounts")
+            .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user2@mail.com","password"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonParser.asString(accountToCreate)))
 
@@ -48,8 +48,8 @@ class BankAccountControllerIntegrationTest {
         .andExpect(status().isCreated());
 
     // Check that user successfully registered
-    mockMvc.perform(get("/users/2/bankaccounts")
-            .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password")))
+    mockMvc.perform(get("/users/3/bankaccounts")
+            .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user2@mail.com","password")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(1)))
         .andExpect(jsonPath("$[0].bankAccountId", is(2)))
@@ -63,16 +63,16 @@ class BankAccountControllerIntegrationTest {
     // GIVEN
 
     // WHEN
-    mockMvc.perform(delete("/users/3/bankaccounts/1")
-            .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user2@mail.com","password")))
+    mockMvc.perform(delete("/users/2/bankaccounts/1")
+            .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password")))
 
         // THEN
         // Check response
         .andExpect(status().isNoContent());
 
     // Check that user successfully registered
-    mockMvc.perform(get("/users/3/bankaccounts")
-            .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user2@mail.com","password")))
+    mockMvc.perform(get("/users/2/bankaccounts")
+            .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(0)));
   }

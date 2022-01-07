@@ -10,6 +10,7 @@ import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.UserMapper;
 import java.math.BigDecimal;
 import java.util.Optional;
+import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ public class UserServiceImpl implements UserService {
     return UserMapper.toInfoDto(user);
   }
 
+  @Transactional
   @Override
   public UserDto register(UserDto user) throws ResourceAlreadyExistsException {
     checkEmail(user.getEmail());
@@ -54,6 +56,7 @@ public class UserServiceImpl implements UserService {
     return UserMapper.toInfoDto(userRepository.save(userToCreate));
   }
 
+  @Transactional
   @Override
   public UserDto update(UserDto userUpdate) throws ResourceNotFoundException,
       ResourceAlreadyExistsException {
@@ -73,6 +76,7 @@ public class UserServiceImpl implements UserService {
     return UserMapper.toInfoDto(userRepository.save(user));
   }
 
+  @Transactional
   @Override
   public void deleteById(int id) throws ResourceNotFoundException, ForbbidenOperationException {
     User user = getUserById(id);
@@ -81,6 +85,13 @@ public class UserServiceImpl implements UserService {
       throw new ForbbidenOperationException("The user can't delete account if wallet not empty");
     }
 
+    user.getConnections().forEach(c -> {
+      try {
+        user.removeConnection(c);
+      } catch (ResourceNotFoundException e) {
+        LOGGER.error("Can't find connection to remove");
+      }
+    });
 
     userRepository.delete(user);
   }
