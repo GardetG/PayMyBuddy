@@ -60,7 +60,7 @@ class BankAccountControllerTest {
     @Test
     void getAllByIdTest() throws Exception {
         // GIVEN
-        when(bankAccountService.getAllByUserId(anyInt())).thenReturn(List.of(bankAccountDtoTest));
+        when(bankAccountService.getAllFromUser(anyInt())).thenReturn(List.of(bankAccountDtoTest));
 
         // WHEN
         mockMvc.perform(get("/users/1/bankaccounts").with(user(userTest)))
@@ -71,13 +71,13 @@ class BankAccountControllerTest {
             .andExpect(jsonPath("$[0].title", is("Primary Account")))
             .andExpect(jsonPath("$[0].iban", is("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456")))
             .andExpect(jsonPath("$[0].bic", is("XXXXXXXXxyz")));
-        verify(bankAccountService, times(1)).getAllByUserId(1);
+        verify(bankAccountService, times(1)).getAllFromUser(1);
     }
 
     @Test
     void getAllByIdWhenNotFoundTest() throws Exception {
         // GIVEN
-        when(bankAccountService.getAllByUserId(anyInt())).thenThrow(
+        when(bankAccountService.getAllFromUser(anyInt())).thenThrow(
             new ResourceNotFoundException("This user is not found"));
 
         // WHEN
@@ -86,7 +86,7 @@ class BankAccountControllerTest {
             // THEN
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$", is("This user is not found")));
-        verify(bankAccountService, times(1)).getAllByUserId(2);
+        verify(bankAccountService, times(1)).getAllFromUser(2);
     }
 
     @Test
@@ -98,7 +98,7 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isUnauthorized());
-        verify(bankAccountService, times(0)).getAllByUserId(anyInt());
+        verify(bankAccountService, times(0)).getAllFromUser(anyInt());
     }
 
     @Test
@@ -110,13 +110,13 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isForbidden());
-        verify(bankAccountService, times(0)).getAllByUserId(anyInt());
+        verify(bankAccountService, times(0)).getAllFromUser(anyInt());
     }
 
     @Test
     void addToUserTest() throws Exception {
         // GIVEN
-        when(bankAccountService.addToUserId(anyInt(), any(BankAccountDto.class))).thenReturn(bankAccountDtoTest);
+        when(bankAccountService.addToUser(anyInt(), any(BankAccountDto.class))).thenReturn(bankAccountDtoTest);
 
         // WHEN
         mockMvc.perform(post("/users/1/bankaccounts").with(user(userTest))
@@ -130,7 +130,7 @@ class BankAccountControllerTest {
             .andExpect(jsonPath("$.title", is("Primary Account")))
             .andExpect(jsonPath("$.iban", is("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456")))
             .andExpect(jsonPath("$.bic", is("XXXXXXXXxyz")));
-        verify(bankAccountService, times(1)).addToUserId(anyInt(),any(BankAccountDto.class));
+        verify(bankAccountService, times(1)).addToUser(anyInt(),any(BankAccountDto.class));
     }
 
     @Test
@@ -149,13 +149,13 @@ class BankAccountControllerTest {
             .andExpect(jsonPath("$.title", is("Title is mandatory")))
             .andExpect(jsonPath("$.iban", is("IBAN should have between 14 and 34 characters")))
             .andExpect(jsonPath("$.bic", is("BIC should have between 8 and 11 characters")));
-        verify(bankAccountService, times(0)).addToUserId(anyInt(),any(BankAccountDto.class));
+        verify(bankAccountService, times(0)).addToUser(anyInt(),any(BankAccountDto.class));
     }
 
     @Test
     void addToUserWhenUserNotFoundTest() throws Exception {
         // GIVEN
-        when(bankAccountService.addToUserId(anyInt(), any(BankAccountDto.class))).thenThrow(
+        when(bankAccountService.addToUser(anyInt(), any(BankAccountDto.class))).thenThrow(
             new ResourceNotFoundException("This user is not found"));
 
         // WHEN
@@ -166,7 +166,7 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isNotFound());
-        verify(bankAccountService, times(1)).addToUserId(anyInt(), any(BankAccountDto.class));
+        verify(bankAccountService, times(1)).addToUser(anyInt(), any(BankAccountDto.class));
     }
 
     @Test
@@ -181,7 +181,7 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isUnauthorized());
-        verify(bankAccountService, times(0)).getAllByUserId(anyInt());
+        verify(bankAccountService, times(0)).getAllFromUser(anyInt());
     }
 
     @Test
@@ -196,7 +196,7 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isForbidden());
-        verify(bankAccountService, times(0)).getAllByUserId(anyInt());
+        verify(bankAccountService, times(0)).getAllFromUser(anyInt());
     }
 
     @Test
@@ -208,14 +208,14 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isNoContent());
-        verify(bankAccountService, times(1)).deleteById(1,9);
+        verify(bankAccountService, times(1)).removeFromUser(1,9);
     }
 
     @Test
     void deleteByIdWhenAccountNotFoundTest() throws Exception {
         // GIVEN
         doThrow(new ResourceNotFoundException("This account is not found")).when(bankAccountService)
-            .deleteById(anyInt(),anyInt());
+            .removeFromUser(anyInt(),anyInt());
 
         // WHEN
         mockMvc.perform(delete("/users/1/bankaccounts/99").with(user(userTest)))
@@ -223,14 +223,14 @@ class BankAccountControllerTest {
             // THEN
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$", is("This account is not found")));
-        verify(bankAccountService, times(1)).deleteById(1,99);
+        verify(bankAccountService, times(1)).removeFromUser(1,99);
     }
 
     @Test
     void deleteByIdWhenUserNotFoundTest() throws Exception {
         // GIVEN
         doThrow(new ResourceNotFoundException("This user is not found")).when(bankAccountService)
-            .deleteById(anyInt(),anyInt());
+            .removeFromUser(anyInt(),anyInt());
 
         // WHEN
         mockMvc.perform(delete("/users/2/bankaccounts/9").with(user(adminTest)))
@@ -238,7 +238,7 @@ class BankAccountControllerTest {
             // THEN
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$", is("This user is not found")));
-        verify(bankAccountService, times(1)).deleteById(2,9);
+        verify(bankAccountService, times(1)).removeFromUser(2,9);
     }
 
     @Test
@@ -250,7 +250,7 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isUnauthorized());
-        verify(bankAccountService, times(0)).deleteById(anyInt(),anyInt());
+        verify(bankAccountService, times(0)).removeFromUser(anyInt(),anyInt());
     }
 
     @Test
@@ -262,6 +262,6 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isForbidden());
-        verify(bankAccountService, times(0)).deleteById(anyInt(),anyInt());
+        verify(bankAccountService, times(0)).removeFromUser(anyInt(),anyInt());
     }
 }

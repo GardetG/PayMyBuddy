@@ -9,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.openclassrooms.paymybuddy.constant.ApplicationValue;
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
 import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
@@ -92,7 +91,7 @@ class UserServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
 
     // WHEN
-    UserInfoDto actualUserinfoDto = userService.getInfoById(1);
+    UserInfoDto actualUserinfoDto = userService.getById(1);
 
     // THEN
     assertThat(actualUserinfoDto).usingRecursiveComparison().isEqualTo(userInfoDto);
@@ -105,7 +104,7 @@ class UserServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
-    assertThatThrownBy(() -> userService.getInfoById(2))
+    assertThatThrownBy(() -> userService.getById(2))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)

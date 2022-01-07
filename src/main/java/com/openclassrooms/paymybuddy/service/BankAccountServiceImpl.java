@@ -31,7 +31,7 @@ public class BankAccountServiceImpl implements BankAccountService {
   private UserRepository userRepository;
 
   @Override
-  public List<BankAccountDto> getAllByUserId(int userId) throws ResourceNotFoundException {
+  public List<BankAccountDto> getAllFromUser(int userId) throws ResourceNotFoundException {
     User user = getUserById(userId);
 
     return user.getBankAccounts().stream()
@@ -41,7 +41,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
   @Override
   @Transactional
-  public BankAccountDto addToUserId(int userId, BankAccountDto account)
+  public BankAccountDto addToUser(int userId, BankAccountDto account)
       throws ResourceNotFoundException, ResourceAlreadyExistsException {
 
     User user = getUserById(userId);
@@ -56,7 +56,7 @@ public class BankAccountServiceImpl implements BankAccountService {
   }
 
   @Override
-  public void deleteById(int userId, int id) throws ResourceNotFoundException {
+  public void removeFromUser(int userId, int id) throws ResourceNotFoundException {
 
     User user = getUserById(userId);
     BankAccount bankAccountToDelete = findBankAccount(user.getBankAccounts(),

@@ -45,7 +45,7 @@ public class BankAccountController {
       throws ResourceNotFoundException {
 
     LOGGER.info("Request: Get user {} bank accounts", id);
-    List<BankAccountDto> bankAccounts = bankAccountService.getAllByUserId(id);
+    List<BankAccountDto> bankAccounts = bankAccountService.getAllFromUser(id);
 
     LOGGER.info("Response: List of user bank accounts sent");
     return ResponseEntity.ok(bankAccounts);
@@ -66,7 +66,7 @@ public class BankAccountController {
       throws ResourceNotFoundException, ResourceAlreadyExistsException {
 
     LOGGER.info("Request: Add user {} new bank account", id);
-    BankAccountDto bankAccountAdded = bankAccountService.addToUserId(id, bankAccount);
+    BankAccountDto bankAccountAdded = bankAccountService.addToUser(id, bankAccount);
 
     LOGGER.info("Response: User bank account added");
     return ResponseEntity.status(HttpStatus.CREATED).body(bankAccountAdded);
@@ -87,7 +87,7 @@ public class BankAccountController {
       throws ResourceNotFoundException {
 
     LOGGER.info("Request: Delete user {} bank account {}", id, accountId);
-    bankAccountService.deleteById(id, accountId);
+    bankAccountService.removeFromUser(id, accountId);
 
     LOGGER.info("Response: user bank account deleted");
     return ResponseEntity.noContent().build();

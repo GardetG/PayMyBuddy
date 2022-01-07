@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfoDto getInfoById(int id) throws ResourceNotFoundException {
+  public UserInfoDto getById(int id) throws ResourceNotFoundException {
     User user = getUserById(id);
     return UserMapper.toInfoDto(user);
   }

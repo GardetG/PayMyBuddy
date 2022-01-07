@@ -66,7 +66,7 @@ public class UserController {
       throws ResourceNotFoundException {
 
     LOGGER.info("Request: Get user {} information", id);
-    UserInfoDto userInfo = userService.getInfoById(id);
+    UserInfoDto userInfo = userService.getById(id);
 
     LOGGER.info("Response: user information sent");
     return ResponseEntity.ok(userInfo);

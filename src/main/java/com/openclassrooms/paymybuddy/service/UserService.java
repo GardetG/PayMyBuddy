@@ -16,7 +16,7 @@ public interface UserService {
 
   Page<UserInfoDto> getAll(Pageable pageable);
 
-  UserInfoDto getInfoById(int id) throws ResourceNotFoundException;
+  UserInfoDto getById(int id) throws ResourceNotFoundException;
 
   UserInfoDto register(UserRegistrationDto user) throws EmailAlreadyExistsException;
 

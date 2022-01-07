@@ -15,9 +15,7 @@ import com.openclassrooms.paymybuddy.model.BankAccount;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +53,7 @@ class BankAccountServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
 
     // WHEN
-    List<BankAccountDto> actualListBankAccountDto = bankAccountService.getAllByUserId(1);
+    List<BankAccountDto> actualListBankAccountDto = bankAccountService.getAllFromUser(1);
 
     // THEN
     assertThat(actualListBankAccountDto).usingRecursiveComparison().isEqualTo(List.of(account1DtoTest));
@@ -69,7 +67,7 @@ class BankAccountServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
 
     // WHEN
-    List<BankAccountDto> actualListBankAccountDto = bankAccountService.getAllByUserId(1);
+    List<BankAccountDto> actualListBankAccountDto = bankAccountService.getAllFromUser(1);
 
     // THEN
     assertThat(actualListBankAccountDto).usingRecursiveComparison().isEqualTo(new ArrayList<>());
@@ -82,7 +80,7 @@ class BankAccountServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
-    assertThatThrownBy(() -> bankAccountService.getAllByUserId(2))
+    assertThatThrownBy(() -> bankAccountService.getAllFromUser(2))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
@@ -99,7 +97,7 @@ class BankAccountServiceTest {
     when(userRepository.save(any(User.class))).thenReturn(userTest);
 
     // WHEN
-    BankAccountDto actualBankAccountDto = bankAccountService.addToUserId(1,accountToAddDto);
+    BankAccountDto actualBankAccountDto = bankAccountService.addToUser(1,accountToAddDto);
 
     // THEN
     assertThat(actualBankAccountDto).usingRecursiveComparison().isEqualTo(maskedAccountDto);
@@ -115,7 +113,7 @@ class BankAccountServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
-    assertThatThrownBy(() -> bankAccountService.addToUserId(2,accountToAddDto))
+    assertThatThrownBy(() -> bankAccountService.addToUser(2,accountToAddDto))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
@@ -132,7 +130,7 @@ class BankAccountServiceTest {
     when(userRepository.save(any(User.class))).thenReturn(userTest);
 
     // WHEN
-    assertThatThrownBy(() -> bankAccountService.addToUserId(2,accountToAddDto))
+    assertThatThrownBy(() -> bankAccountService.addToUser(2,accountToAddDto))
 
         // THEN
         .isInstanceOf(ResourceAlreadyExistsException.class)
@@ -148,7 +146,7 @@ class BankAccountServiceTest {
     when(userRepository.save(any(User.class))).thenReturn(userTest);
 
     // WHEN
-    bankAccountService.deleteById(1,1);
+    bankAccountService.removeFromUser(1,1);
 
     // THEN
     verify(userRepository, times(1)).findById(1);
@@ -161,7 +159,7 @@ class BankAccountServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
-    assertThatThrownBy(() -> bankAccountService.deleteById(2,1))
+    assertThatThrownBy(() -> bankAccountService.removeFromUser(2,1))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
@@ -176,7 +174,7 @@ class BankAccountServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
 
     // WHEN
-    assertThatThrownBy(() -> bankAccountService.deleteById(1,2))
+    assertThatThrownBy(() -> bankAccountService.removeFromUser(1,2))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)

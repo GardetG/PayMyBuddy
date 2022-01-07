@@ -102,7 +102,7 @@ class UserControllerTest {
   @Test
   void getInfoByIdTest() throws Exception {
     // GIVEN
-    when(userService.getInfoById(anyInt())).thenReturn(userInfoDto);
+    when(userService.getById(anyInt())).thenReturn(userInfoDto);
 
     // WHEN
     mockMvc.perform(get("/users/1").with(user(adminTest)))
@@ -114,13 +114,13 @@ class UserControllerTest {
         .andExpect(jsonPath("$.lastname", is("test")))
         .andExpect(jsonPath("$.email", is("test@mail.com")))
         .andExpect(jsonPath("$.wallet", is(0)));
-    verify(userService, times(1)).getInfoById(1);
+    verify(userService, times(1)).getById(1);
   }
 
   @Test
   void getInfoByIdWhenNotFoundTest() throws Exception {
     // GIVEN
-    when(userService.getInfoById(anyInt())).thenThrow(
+    when(userService.getById(anyInt())).thenThrow(
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
@@ -129,33 +129,33 @@ class UserControllerTest {
         // THEN
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$", is("This user is not found")));
-    verify(userService, times(1)).getInfoById(2);
+    verify(userService, times(1)).getById(2);
   }
 
   @Test
   void getInfoWhenNotAuthenticateTest() throws Exception {
     // GIVEN
-    when(userService.getInfoById(anyInt())).thenReturn(userInfoDto);
+    when(userService.getById(anyInt())).thenReturn(userInfoDto);
 
     // WHEN
     mockMvc.perform(get("/users/1"))
 
         // THEN
         .andExpect(status().isUnauthorized());
-    verify(userService, times(0)).getInfoById(1);
+    verify(userService, times(0)).getById(1);
   }
 
   @Test
   void getInfoWhenAuthenticateButIdNotMatchingTest() throws Exception {
     // GIVEN
-    when(userService.getInfoById(anyInt())).thenReturn(userInfoDto);
+    when(userService.getById(anyInt())).thenReturn(userInfoDto);
 
     // WHEN
     mockMvc.perform(get("/users/2").with(user(userTest)))
 
         // THEN
         .andExpect(status().isForbidden());
-    verify(userService, times(0)).getInfoById(1);
+    verify(userService, times(0)).getById(1);
   }
 
   @Test
