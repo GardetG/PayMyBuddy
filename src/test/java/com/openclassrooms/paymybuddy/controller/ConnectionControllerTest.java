@@ -2,10 +2,12 @@ package com.openclassrooms.paymybuddy.controller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -102,6 +104,74 @@ class ConnectionControllerTest {
         // THEN
         .andExpect(status().isForbidden());
     verify(connectionService, times(0)).getAllFromUser(anyInt());
+  }
+
+
+  @Test
+  void removeFromUserTest() throws Exception {
+    // GIVEN
+
+    // WHEN
+    mockMvc.perform(delete("/users/1/connections/2").with(user(userTest)))
+
+        // THEN
+        .andExpect(status().isNoContent());
+    verify(connectionService, times(1)).removeFromUser(1,2);
+  }
+
+  @Test
+  void removeFromUserWhenUserNotFoundTest() throws Exception {
+    // GIVEN
+    doThrow(new ResourceNotFoundException("This user is not found")).when(connectionService)
+        .removeFromUser(anyInt(),anyInt());
+
+    // WHEN
+    mockMvc.perform(delete("/users/9/connections/1").with(user(adminTest)))
+
+        // THEN
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$", is("This user is not found")));
+    verify(connectionService, times(1)).removeFromUser(9,1);
+  }
+
+
+  @Test
+  void removeFromUserWhenAccountNotFoundTest() throws Exception {
+    // GIVEN
+    doThrow(new ResourceNotFoundException("This account is not found")).when(connectionService)
+        .removeFromUser(anyInt(),anyInt());
+
+    // WHEN
+    mockMvc.perform(delete("/users/1/connections/9").with(user(userTest)))
+
+        // THEN
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$", is("This account is not found")));
+    verify(connectionService, times(1)).removeFromUser(1,9);
+  }
+
+  @Test
+  void removeFromUserWhenNotAuthenticateTest() throws Exception {
+    // GIVEN
+
+    // WHEN
+    mockMvc.perform(delete("/users/1/bankaccounts/9"))
+
+        // THEN
+        .andExpect(status().isUnauthorized());
+    verify(connectionService, times(0)).removeFromUser(anyInt(),anyInt());
+  }
+
+  @Test
+  void removeFromUserWhenAuthenticateButIdNotMatchingTest() throws Exception {
+    // GIVEN
+
+    // WHEN
+    mockMvc.perform(delete("/users/2/bankaccounts/9").with(user(userTest)))
+
+        // THEN
+        .andExpect(status().isForbidden());
+    verify(connectionService, times(0)).removeFromUser(anyInt(),anyInt());
   }
 
 }
