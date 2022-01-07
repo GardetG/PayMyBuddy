@@ -9,8 +9,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
+import com.openclassrooms.paymybuddy.dto.UserDto;
+import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
@@ -48,13 +48,13 @@ class UserServiceTest {
   ArgumentCaptor<User> userCaptor;
 
   private User userTest;
-  private UserInfoDto userInfoDto;
+  private UserDto userInfoDto;
 
   @BeforeEach
   void setUp() {
     userTest = new User("user","test","user@mail.com","EncodedPwd", Role.USER);
     userTest.setUserId(1);
-    userInfoDto = new UserInfoDto(1, "user","test","user@mail.com",BigDecimal.ZERO, "USER");
+    userInfoDto = new UserDto(1, "user","test","user@mail.com",null,BigDecimal.ZERO, "USER");
   }
 
   @Test
@@ -64,7 +64,7 @@ class UserServiceTest {
     when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(userTest)));
 
     // WHEN
-    Page<UserInfoDto> actualPageUserinfoDto = userService.getAll(pageable);
+    Page<UserDto> actualPageUserinfoDto = userService.getAll(pageable);
 
     // THEN
     assertThat(actualPageUserinfoDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(userInfoDto));
@@ -78,7 +78,7 @@ class UserServiceTest {
     when(userRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
 
     // WHEN
-    Page<UserInfoDto> actualPageUserinfoDto = userService.getAll(pageable);
+    Page<UserDto> actualPageUserinfoDto = userService.getAll(pageable);
 
     // THEN
     assertThat(actualPageUserinfoDto.getContent()).isEmpty();
@@ -91,7 +91,7 @@ class UserServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
 
     // WHEN
-    UserInfoDto actualUserinfoDto = userService.getById(1);
+    UserDto actualUserinfoDto = userService.getById(1);
 
     // THEN
     assertThat(actualUserinfoDto).usingRecursiveComparison().isEqualTo(userInfoDto);
@@ -115,14 +115,13 @@ class UserServiceTest {
   @Test
   void registerTest() throws Exception {
     // GIVEN
-    UserRegistrationDto
-        subscriptionDto = new UserRegistrationDto("user","test", "user@mail.com", "12345678");
+    UserDto userDto = new UserDto(0,"user","test", "user@mail.com", "12345678", null, null);
     when(userRepository.existsByEmail(anyString())).thenReturn(false);
     when(passwordEncoder.encode(anyString())).thenReturn("EncodedPwd");
     when(userRepository.save(any(User.class))).thenReturn(userTest);
 
     // WHEN
-    UserInfoDto actualUserinfoDto = userService.register(subscriptionDto);
+    UserDto actualUserinfoDto = userService.register(userDto);
 
     // THEN
     assertThat(actualUserinfoDto).usingRecursiveComparison().isEqualTo(userInfoDto);
@@ -136,12 +135,11 @@ class UserServiceTest {
   @Test
   void registerWhenEmailAlreadyExistTest() {
     // GIVEN
-    UserRegistrationDto
-        subscriptionDto = new UserRegistrationDto("test","test", "existing@mail.com", "12345678");
+    UserDto userDto = new UserDto(0,"user","test", "existing@mail.com", "12345678", null, null);
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
     // WHEN
-    assertThatThrownBy(() -> userService.register(subscriptionDto))
+    assertThatThrownBy(() -> userService.register(userDto))
 
         // THEN
         .isInstanceOf(ResourceAlreadyExistsException.class)
@@ -154,14 +152,15 @@ class UserServiceTest {
   @Test
   void updateInfoWithSameEmailTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "user@mail.com", BigDecimal.ZERO, "USER");
+    UserDto userDto = new UserDto(1, "update","test", "user@mail.com",null, null, null);
+    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, Role.USER.toString());
     User updatedUser = new User("update", "test", "user@mail.com", "EncodedPwd", Role.USER);
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.save(any(User.class))).thenReturn(updatedUser);
 
     // WHEN
-    UserInfoDto actualUserinfoDto = userService.update(updateDto);
+    UserDto actualUserinfoDto = userService.update(userDto);
 
     // THEN
     assertThat(actualUserinfoDto).usingRecursiveComparison().isEqualTo(updateDto);
@@ -173,7 +172,9 @@ class UserServiceTest {
   @Test
   void updateInfoWithNewEmailTest() throws Exception {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "update@mail.com", BigDecimal.ZERO, "USER");
+    UserDto userDto = new UserDto(1, "update","test", "update@mail.com",null, null, null);
+    UserDto
+        updateDto = new UserDto(1, "update","test", "update@mail.com",null, BigDecimal.ZERO, Role.USER.toString());
     User updatedUser = new User("update", "test", "update@mail.com", "EncodedPwd", Role.USER);
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
@@ -181,7 +182,7 @@ class UserServiceTest {
     when(userRepository.save(any(User.class))).thenReturn(updatedUser);
 
     // WHEN
-    UserInfoDto actualUserinfoDto = userService.update(updateDto);
+    UserDto actualUserinfoDto = userService.update(userDto);
 
     // THEN
     assertThat(actualUserinfoDto).usingRecursiveComparison().isEqualTo(updateDto);
@@ -192,18 +193,40 @@ class UserServiceTest {
   }
 
   @Test
+  void updateInfoWithNewPasswordEmailTest() throws Exception {
+    // GIVEN
+    UserDto userDto = new UserDto(1, "update","test", "user@mail.com","NewPassword", null, null);
+    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, Role.USER.toString());
+    User updatedUser = new User("update", "test", "user@mail.com", "NewEncoded", Role.USER);
+    updatedUser.setUserId(1);
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
+    when(passwordEncoder.encode(anyString())).thenReturn("NewEncoded");
+    when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+
+    // WHEN
+    UserDto actualUserinfoDto = userService.update(userDto);
+
+    // THEN
+    assertThat(actualUserinfoDto).usingRecursiveComparison().isEqualTo(updateDto);
+    verify(userRepository, times(1)).findById(1);
+    verify(passwordEncoder, times(1)).encode("NewPassword");
+    verify(userRepository, times(1)).save(userCaptor.capture());
+    assertThat(userCaptor.getValue()).usingRecursiveComparison().isEqualTo(updatedUser);
+  }
+
+  @Test
   void updateInfoWhenNotFoundTest() {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(2, "update","test", "update@mail.com", BigDecimal.ZERO, "USER");
+    UserDto userDto = new UserDto(9, "update","test", "update@mail.com",null, null, null);
     when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
-    assertThatThrownBy(() -> userService.update(updateDto))
+    assertThatThrownBy(() -> userService.update(userDto))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userRepository, times(1)).findById(2);
+    verify(userRepository, times(1)).findById(9);
     verify(userRepository, times(0)).existsByEmail(anyString());
     verify(userRepository, times(0)).save(any(User.class));
   }
@@ -211,12 +234,12 @@ class UserServiceTest {
   @Test
   void updateInfoWhenNewEmailAlreadyExistsTest() {
     // GIVEN
-    UserInfoDto updateDto = new UserInfoDto(1, "update","test", "existing@mail.com",BigDecimal.ZERO, "USER");
+    UserDto userDto = new UserDto(1, "update","test", "existing@mail.com",null, null, null);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
     // WHEN
-    assertThatThrownBy(() -> userService.update(updateDto))
+    assertThatThrownBy(() -> userService.update(userDto))
 
         // THEN
         .isInstanceOf(ResourceAlreadyExistsException.class)
@@ -237,6 +260,22 @@ class UserServiceTest {
     // THEN
     verify(userRepository, times(1)).findById(1);
     verify(userRepository, times(1)).delete(userTest);
+  }
+
+  @Test
+  void deleteByIdWhenWalletNotEmptyTest() {
+    // GIVEN
+    userTest.setWallet(BigDecimal.ONE);
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
+
+    // WHEN
+    assertThatThrownBy(() -> userService.deleteById(1))
+
+        // THEN
+        .isInstanceOf(ForbbidenOperationException.class)
+        .hasMessageContaining("The user can't delete account if wallet not empty");
+    verify(userRepository, times(1)).findById(1);
+    verify(userRepository, times(0)).delete(any(User.class));
   }
 
   @Test

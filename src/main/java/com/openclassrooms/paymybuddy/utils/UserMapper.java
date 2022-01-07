@@ -1,7 +1,6 @@
 package com.openclassrooms.paymybuddy.utils;
 
-import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
+import com.openclassrooms.paymybuddy.dto.UserDto;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 
@@ -21,8 +20,8 @@ public class UserMapper {
    * @param user to map
    * @return userDto
    */
-  public static UserInfoDto toInfoDto(User user) {
-    UserInfoDto userDto = new UserInfoDto();
+  public static UserDto toInfoDto(User user) {
+    UserDto userDto = new UserDto();
     userDto.setUserId(user.getUserId());
     userDto.setFirstname(user.getFirstname());
     userDto.setLastname(user.getLastname());
@@ -39,7 +38,7 @@ public class UserMapper {
    * @param subscription to map
    * @return user to create
    */
-  public static User toModel(UserRegistrationDto subscription) {
+  public static User toModel(UserDto subscription) {
     return new User(
         subscription.getFirstname(),
         subscription.getLastname(),

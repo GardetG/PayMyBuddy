@@ -91,7 +91,7 @@ public class User implements UserDetails {
   private Role role;
 
   @Column(name = "wallet")
-  @Getter
+  @Getter @Setter
   private BigDecimal wallet = ApplicationValue.INITIAL_USER_WALLET;
 
   @OneToMany(
