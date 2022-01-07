@@ -1,6 +1,5 @@
 package com.openclassrooms.paymybuddy.controller;
 
-import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
@@ -36,19 +35,6 @@ public class GlobalControllerExceptionHandler {
     String error = ex.getMessage();
     LOGGER.info("Response : 404 {}", error);
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-  }
-
-  /**
-   * Handle EmailAlreadyExistsException thrown when the email already exists.
-   *
-   * @param ex instance of the exception
-   * @return HTTP 409 response
-   */
-  @ExceptionHandler(EmailAlreadyExistsException.class)
-  public ResponseEntity<String> handleEmailAlreadyExistsExceptions(EmailAlreadyExistsException ex) {
-    String error = ex.getMessage();
-    LOGGER.info("Response : 409 {}", error);
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
   }
 
   /**

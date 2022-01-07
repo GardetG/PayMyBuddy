@@ -3,7 +3,7 @@ package com.openclassrooms.paymybuddy.service;
 import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
-import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfoDto register(UserRegistrationDto user) throws EmailAlreadyExistsException {
+  public UserInfoDto register(UserRegistrationDto user) throws ResourceAlreadyExistsException {
     checkEmail(user.getEmail());
 
     User userToCreate = UserMapper.toModel(user);
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserInfoDto update(UserInfoDto userUpdate) throws ResourceNotFoundException,
-      EmailAlreadyExistsException {
+      ResourceAlreadyExistsException {
     User user = getUserById(userUpdate.getUserId());
 
     if (!userUpdate.getEmail().equals(user.getEmail())) {
@@ -84,10 +84,10 @@ public class UserServiceImpl implements UserService {
     return user.get();
   }
 
-  private void checkEmail(String email) throws EmailAlreadyExistsException {
+  private void checkEmail(String email) throws ResourceAlreadyExistsException {
     if (userRepository.existsByEmail(email)) {
       LOGGER.error(ErrorMessage.EMAIL_ALREADY_EXIST + ": {}", email);
-      throw new EmailAlreadyExistsException(ErrorMessage.EMAIL_ALREADY_EXIST);
+      throw new ResourceAlreadyExistsException(ErrorMessage.EMAIL_ALREADY_EXIST);
     }
   }
 

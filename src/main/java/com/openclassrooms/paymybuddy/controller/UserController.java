@@ -2,7 +2,7 @@ package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
-import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.UserService;
 import javax.validation.Valid;
@@ -77,12 +77,12 @@ public class UserController {
    *
    * @param userSubscription of the registering user
    * @return HTTP 201 Response with registered user's information
-   * @throws EmailAlreadyExistsException when requesting email already exists
+   * @throws ResourceAlreadyExistsException when requested email already exists
    */
   @PostMapping("/register")
   public ResponseEntity<UserInfoDto> register(
       @Valid @RequestBody UserRegistrationDto userSubscription)
-      throws EmailAlreadyExistsException {
+      throws ResourceAlreadyExistsException {
 
     LOGGER.info("Request: Registering user");
     UserInfoDto userInfo = userService.register(userSubscription);
@@ -96,13 +96,13 @@ public class UserController {
    *
    * @param userUpdate user's information to update
    * @return HTTP 201 Response with updated user's information
-   * @throws EmailAlreadyExistsException when updating whith an already existing email
+   * @throws ResourceAlreadyExistsException when updating whith an already existing email
    * @throws ResourceNotFoundException when user not found
    */
   @PreAuthorize("hasRole('ADMIN') or #userUpdate.userId == authentication.principal.userId")
   @PutMapping("/users")
   public ResponseEntity<UserInfoDto> update(@Valid @RequestBody UserInfoDto userUpdate)
-      throws EmailAlreadyExistsException, ResourceNotFoundException {
+      throws ResourceAlreadyExistsException, ResourceNotFoundException {
 
     LOGGER.info("Request: Update user {}", userUpdate.getUserId());
     UserInfoDto userInfo = userService.update(userUpdate);

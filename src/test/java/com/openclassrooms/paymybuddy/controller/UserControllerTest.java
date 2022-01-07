@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
-import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
@@ -159,72 +159,6 @@ class UserControllerTest {
   }
 
   @Test
-  void postSubscriptionTest() throws Exception {
-    // GIVEN
-    UserRegistrationDto
-        subscriptionDto = new UserRegistrationDto("test","test", "test@mail.com","12345678");
-    when(userService.register(any(UserRegistrationDto.class))).thenReturn(userInfoDto);
-
-    // WHEN
-    mockMvc.perform(post("/register")
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(JsonParser.asString(subscriptionDto)))
-
-        // THEN
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.userId", is(1)))
-        .andExpect(jsonPath("$.firstname", is("test")))
-        .andExpect(jsonPath("$.lastname", is("test")))
-        .andExpect(jsonPath("$.email", is("test@mail.com")))
-        .andExpect(jsonPath("$.wallet", is(0)));
-    verify(userService, times(1)).register(subscriptionCaptor.capture());
-    assertThat(subscriptionCaptor.getValue()).usingRecursiveComparison().isEqualTo(subscriptionDto);
-
-  }
-
-  @Test
-  void postSubscriptionWithAlreadyUsedEmailTest() throws Exception {
-    // GIVEN
-    UserRegistrationDto
-        subscriptionDto = new UserRegistrationDto("test","test", "test@mail.com","12345678");
-    when(userService.register(any(UserRegistrationDto.class))).thenThrow(
-        new EmailAlreadyExistsException("This email is already used"));
-
-    // WHEN
-    mockMvc.perform(post("/register")
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(JsonParser.asString(subscriptionDto)))
-
-        // THEN
-        .andExpect(status().isConflict())
-        .andExpect(jsonPath("$", is("This email is already used")));
-    verify(userService, times(1)).register(subscriptionCaptor.capture());
-    assertThat(subscriptionCaptor.getValue()).usingRecursiveComparison().isEqualTo(subscriptionDto);
-  }
-
-  @Test
-  void postInvalidSubscriptionTest() throws Exception {
-    // GIVEN
-    UserRegistrationDto
-        invalidSubscriptionDto = new UserRegistrationDto("","test", "testmail.com","1234");
-
-    // WHEN
-    mockMvc.perform(post("/register")
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(JsonParser.asString(invalidSubscriptionDto)))
-
-        // THEN
-        .andExpect(status().isUnprocessableEntity())
-        .andExpect(jsonPath("$.firstname", is("Firstname is mandatory")))
-        .andExpect(jsonPath("$.email", is("Email should be a valid email address")))
-        .andExpect(jsonPath("$.password", is("Password should have at least 8 characters")));
-    verify(userService, times(0)).register(any(UserRegistrationDto.class));
-  }
-
-  @Test
   void putUpdateTest() throws Exception {
     // GIVEN
     UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "update@mail.com", BigDecimal.ZERO, "USER");
@@ -253,7 +187,7 @@ class UserControllerTest {
     // GIVEN
     UserInfoDto updateDto = new UserInfoDto(1,"update", "test", "existing@mail.com", BigDecimal.ZERO, "USER");
     when(userService.update(any(UserInfoDto.class))).thenThrow(
-        new EmailAlreadyExistsException("This email is already used"));
+        new ResourceAlreadyExistsException("This email is already used"));
 
     // WHEN
     mockMvc.perform(put("/users").with(user(userTest))

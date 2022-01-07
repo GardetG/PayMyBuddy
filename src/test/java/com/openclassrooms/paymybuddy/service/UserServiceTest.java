@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
-import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
@@ -144,7 +144,7 @@ class UserServiceTest {
     assertThatThrownBy(() -> userService.register(subscriptionDto))
 
         // THEN
-        .isInstanceOf(EmailAlreadyExistsException.class)
+        .isInstanceOf(ResourceAlreadyExistsException.class)
         .hasMessageContaining("This email is already used");
     verify(userRepository, times(1)).existsByEmail("existing@mail.com");
     verify(passwordEncoder, times(0)).encode(anyString());
@@ -219,7 +219,7 @@ class UserServiceTest {
     assertThatThrownBy(() -> userService.update(updateDto))
 
         // THEN
-        .isInstanceOf(EmailAlreadyExistsException.class)
+        .isInstanceOf(ResourceAlreadyExistsException.class)
         .hasMessageContaining("This email is already used");
     verify(userRepository, times(1)).findById(1);
     verify(userRepository, times(1)).existsByEmail("existing@mail.com");

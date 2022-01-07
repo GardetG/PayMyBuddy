@@ -2,7 +2,7 @@ package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.dto.UserInfoDto;
 import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
-import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +18,10 @@ public interface UserService {
 
   UserInfoDto getById(int id) throws ResourceNotFoundException;
 
-  UserInfoDto register(UserRegistrationDto user) throws EmailAlreadyExistsException;
+  UserInfoDto register(UserRegistrationDto user) throws ResourceAlreadyExistsException;
 
   UserInfoDto update(UserInfoDto user) throws ResourceNotFoundException,
-      EmailAlreadyExistsException;
+      ResourceAlreadyExistsException;
 
   void deleteById(int id) throws ResourceNotFoundException;
 
