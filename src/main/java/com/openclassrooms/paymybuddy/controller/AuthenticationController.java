@@ -1,11 +1,17 @@
 package com.openclassrooms.paymybuddy.controller;
 
+import com.openclassrooms.paymybuddy.dto.UserDto;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * Controller Class for managing authentication and subscription.
@@ -19,4 +25,22 @@ public class AuthenticationController {
   @Autowired
   UserService userService;
 
+  /**
+   * Handle HTTP POST user registration.
+   *
+   * @param subscriptionDto of the registering user
+   * @return HTTP 201 Response with registered user's information
+   * @throws ResourceAlreadyExistsException when requested email already exists
+   */
+  @PostMapping("/register")
+  public ResponseEntity<UserDto> register(
+      @Validated(UserDto.SubsciptionValidation.class) @RequestBody UserDto subscriptionDto)
+      throws ResourceAlreadyExistsException {
+
+    LOGGER.info("Request: Registering user");
+    UserDto userInfo = userService.register(subscriptionDto);
+
+    LOGGER.info("Response: User successfully registered");
+    return ResponseEntity.status(HttpStatus.CREATED).body(userInfo);
+  }
 }

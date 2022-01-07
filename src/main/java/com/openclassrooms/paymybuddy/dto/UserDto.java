@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import javax.validation.groups.Default;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,12 +29,17 @@ public class UserDto {
   @Email(message = "Email should be a valid email address")
   private String email;
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-  @NotBlank(message = "Password is mandatory")
+  @NotBlank(message = "Password is mandatory", groups = SubsciptionValidation.class)
   @Size(min = 8, message = "Password should have at least 8 characters")
   private String password;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private BigDecimal wallet;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String role;
+
+  /**
+   * Interface definition of Subscription validation to validate subscribe only constraints.
+   */
+  public interface SubsciptionValidation extends Default {}
 
 }
