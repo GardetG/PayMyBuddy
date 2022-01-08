@@ -33,7 +33,7 @@ CREATE TABLE `bank_transfer` (
   `bank_transfer_id` int NOT NULL AUTO_INCREMENT,
   `amount` decimal(19,2) DEFAULT NULL,
   `date` datetime DEFAULT NULL,
-  `operation` varchar(255) DEFAULT NULL,
+  `is_income` bit(1),
   `bank_account_id` int DEFAULT NULL,
   `user_id` int DEFAULT NULL,
   PRIMARY KEY (`bank_transfer_id`)
