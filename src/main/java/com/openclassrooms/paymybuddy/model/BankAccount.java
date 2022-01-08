@@ -1,5 +1,6 @@
 package com.openclassrooms.paymybuddy.model;
 
+import com.openclassrooms.paymybuddy.constant.ApplicationValue;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,6 +34,7 @@ public class BankAccount extends ComptableEntity {
    * @param bic of bank account
    */
   public BankAccount(String title, String iban, String bic) {
+    super(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE);
     this.title = title;
     this.iban = iban;
     this.bic = bic;

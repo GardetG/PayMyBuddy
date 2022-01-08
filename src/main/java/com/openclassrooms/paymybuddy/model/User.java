@@ -57,6 +57,7 @@ public class User extends ComptableEntity implements UserDetails {
    * @param role authorization of the user
    */
   public User(String firstname, String lastname, String email, String password, Role role) {
+    super(ApplicationValue.INITIAL_USER_BALANCE);
     this.firstname = firstname;
     this.lastname = lastname;
     this.email = email;
