@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Model Class of a transaction with id, emitter and receiver id, amount and date.
+ * Model Class of a transaction with id, emitter and receiver , amount, description and date.
  */
 @Entity
 @Table(name = "transaction")
