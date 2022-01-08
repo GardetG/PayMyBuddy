@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public void deleteById(int id) throws ResourceNotFoundException, ForbiddenOperationException {
     User user = getUserById(id);
-    if (!user.getWallet().equals(BigDecimal.ZERO)) {
+    if (!user.getBalance().equals(BigDecimal.ZERO)) {
       LOGGER.error("The user {} can't delete account if wallet not empty", id);
       throw new ForbiddenOperationException("The user can't delete account if wallet not empty");
     }

@@ -265,7 +265,7 @@ class UserServiceTest {
   @Test
   void deleteByIdWhenWalletNotEmptyTest() {
     // GIVEN
-    userTest.setWallet(BigDecimal.ONE);
+    userTest.setBalance(BigDecimal.ONE);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
 
     // WHEN

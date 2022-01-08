@@ -90,9 +90,9 @@ public class User implements UserDetails {
   @Getter @Setter
   private Role role;
 
-  @Column(name = "wallet")
+  @Column(name = "balance")
   @Getter @Setter
-  private BigDecimal wallet = ApplicationValue.INITIAL_USER_WALLET;
+  private BigDecimal balance = ApplicationValue.INITIAL_USER_BALANCE;
 
   @OneToMany(
       mappedBy = "user",
