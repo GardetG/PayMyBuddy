@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS `bank_transfer` cascade;
+DROP TABLE IF EXISTS `transaction` cascade;
 DROP TABLE IF EXISTS `bank_account` cascade;
 DROP TABLE IF EXISTS `connection` cascade;
 DROP TABLE IF EXISTS `user` cascade;
@@ -35,6 +36,15 @@ CREATE TABLE `bank_transfer` (
   `date` datetime DEFAULT NULL,
   `is_income` bit(1),
   `bank_account_id` int DEFAULT NULL,
-  `user_id` int DEFAULT NULL,
   PRIMARY KEY (`bank_transfer_id`)
+);
+
+CREATE TABLE `transaction` (
+  `transaction_id` int NOT NULL AUTO_INCREMENT,
+  `amount` decimal(19,2) DEFAULT NULL,
+  `date` datetime DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `emitter_id` int DEFAULT NULL,
+  `receiver_id` int DEFAULT NULL,
+  PRIMARY KEY (`transaction_id`)
 );

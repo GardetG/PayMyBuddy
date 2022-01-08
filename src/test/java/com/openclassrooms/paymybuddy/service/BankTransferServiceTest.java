@@ -21,10 +21,8 @@ import com.openclassrooms.paymybuddy.repository.BankTransferRepository;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +43,11 @@ class BankTransferServiceTest {
   private BankTransferRepository bankTransferRepository;
 
   @MockBean
-  private UserRepository userRepository;
+  private UserService userService;
 
   private User user;
   private BankAccount bankAccount;
+  LocalDateTime date;
   private BigDecimal amount;
   private BankTransfer bankTransferTest;
   private BankTransferDto bankTransferDtoTest;
@@ -60,7 +59,7 @@ class BankTransferServiceTest {
     bankAccount = new BankAccount("Primary Account", "1234567890abcdefghijklmnopqrstu123","12345678abc");
     bankAccount.setBankAccountId(1);
     user.addBankAccount(bankAccount);
-    LocalDateTime date = LocalDateTime.now();
+    date = LocalDateTime.now();
     amount = BigDecimal.TEN;
     bankTransferTest = new BankTransfer(bankAccount, date, amount, false);
     bankTransferTest.setBankTransferId(1);
@@ -99,7 +98,7 @@ class BankTransferServiceTest {
   void getAllFromUserTest() throws Exception {
     // GIVEN
     Pageable pageable = PageRequest.of(0,1);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+    when(userService.getUserById(anyInt())).thenReturn(user);
     when(bankTransferRepository.findByBankAccountIn(anySet(),any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of(bankTransferTest)));
 
@@ -108,7 +107,7 @@ class BankTransferServiceTest {
 
     // THEN
     assertThat(actualPageBankTransferDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(bankTransferDtoTest));
-    verify(userRepository, times(1)).findById(1);
+    verify(userService, times(1)).getUserById(1);
     verify(bankTransferRepository, times(1)).findByBankAccountIn(user.getBankAccounts(),pageable);
   }
 
@@ -116,7 +115,7 @@ class BankTransferServiceTest {
   void getAllFromUserWhenEmptyTest() throws Exception {
     // GIVEN
     Pageable pageable = PageRequest.of(0,1);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+    when(userService.getUserById(anyInt())).thenReturn(user);
     when(bankTransferRepository.findByBankAccountIn(anySet(), any(Pageable.class)))
         .thenReturn(Page.empty());
 
@@ -125,15 +124,16 @@ class BankTransferServiceTest {
 
     // THEN
     assertThat(actualPageBankTransferDto.getContent()).isEmpty();
-    verify(userRepository, times(1)).findById(1);
+    verify(userService, times(1)).getUserById(1);
     verify(bankTransferRepository, times(1)).findByBankAccountIn(user.getBankAccounts(),pageable);
   }
 
   @Test
-  void getAllFromUserWhenUserNotFoundTest() {
+  void getAllFromUserWhenUserNotFoundTest() throws Exception {
     // GIVEN
     Pageable pageable = PageRequest.of(0,1);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+    when(userService.getUserById(anyInt())).thenThrow(
+        new ResourceNotFoundException("This user is not found"));
 
     // WHEN
     assertThatThrownBy(() ->  bankTransferService.getFromUser(9,pageable))
@@ -141,7 +141,7 @@ class BankTransferServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userRepository, times(1)).findById(9);
+    verify(userService, times(1)).getUserById(9);
     verify(bankTransferRepository, times(0)).existsById(anyInt());
   }
 
@@ -150,7 +150,7 @@ class BankTransferServiceTest {
     // GIVEN
     user.credit(amount);
     BankTransferDto request = new BankTransferDto(1,1,BigDecimal.TEN,false,null,null,null,null);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+    when(userService.getUserById(anyInt())).thenReturn(user);
     when(bankTransferRepository.save(any(BankTransfer.class))).thenReturn(bankTransferTest);
 
     // WHEN
@@ -160,15 +160,15 @@ class BankTransferServiceTest {
     assertThat(actualDto).usingRecursiveComparison().ignoringFields("date").isEqualTo(bankTransferDtoTest);
     assertThat(user.getBalance()).isEqualTo(BigDecimal.ZERO);
     assertThat(bankAccount.getBalance()).isEqualTo(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE.add(amount));
-    verify(userRepository, times(1)).findById(1);
+    verify(userService, times(1)).getUserById(1);
     verify(bankTransferRepository, times(1)).save(any(BankTransfer.class));
   }
 
   @Test
-  void requestExitingTransferWithInsufficientProvisionTest() {
+  void requestExitingTransferWithInsufficientProvisionTest() throws Exception {
     // GIVEN
     BankTransferDto request = new BankTransferDto(1,1,BigDecimal.TEN,false,null,null,null,null);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+    when(userService.getUserById(anyInt())).thenReturn(user);
 
     // WHEN
     assertThatThrownBy(() ->  bankTransferService.requestTransfer(request))
@@ -178,7 +178,7 @@ class BankTransferServiceTest {
         .hasMessageContaining("Insufficient provision to debit the amount");
     assertThat(user.getBalance()).isEqualTo(ApplicationValue.INITIAL_USER_BALANCE);
     assertThat(bankAccount.getBalance()).isEqualTo(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE);
-    verify(userRepository, times(1)).findById(1);
+    verify(userService, times(1)).getUserById(1);
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }
 
@@ -186,9 +186,10 @@ class BankTransferServiceTest {
   void requestIncomingTransferTest() throws Exception {
     // GIVEN
     BankTransferDto request = new BankTransferDto(1,1,BigDecimal.TEN,true,null,null,null,null);
-    bankTransferTest.setIsIncome(true);
-    bankTransferDtoTest.setIncome(true);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+    bankTransferTest = new BankTransfer(bankAccount, date, amount, true);
+    bankTransferTest.setBankTransferId(1);
+    bankTransferDtoTest = new BankTransferDto(1,1, amount,true,date,"user","test", "Primary Account");
+    when(userService.getUserById(anyInt())).thenReturn(user);
     when(bankTransferRepository.save(any(BankTransfer.class))).thenReturn(bankTransferTest);
 
     // WHEN
@@ -198,7 +199,7 @@ class BankTransferServiceTest {
     assertThat(actualDto).usingRecursiveComparison().ignoringFields("date").isEqualTo(bankTransferDtoTest);
     assertThat(user.getBalance()).isEqualTo(ApplicationValue.INITIAL_USER_BALANCE.add(amount));
     assertThat(bankAccount.getBalance()).isEqualTo(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE.subtract(amount));
-    verify(userRepository, times(1)).findById(1);
+    verify(userService, times(1)).getUserById(1);
     verify(bankTransferRepository, times(1)).save(any(BankTransfer.class));
   }
 
@@ -207,9 +208,10 @@ class BankTransferServiceTest {
     // GIVEN
     bankAccount.debit(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE);
     BankTransferDto request = new BankTransferDto(1,1,BigDecimal.TEN,false,null,null,null,null);
-    bankTransferTest.setIsIncome(true);
-    bankTransferDtoTest.setIncome(true);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+    bankTransferTest = new BankTransfer(bankAccount, date, amount, true);
+    bankTransferTest.setBankTransferId(1);
+    bankTransferDtoTest = new BankTransferDto(1,1, amount,true,date,"user","test", "Primary Account");
+    when(userService.getUserById(anyInt())).thenReturn(user);
 
     // WHEN
     assertThatThrownBy(() ->  bankTransferService.requestTransfer(request))
@@ -219,15 +221,16 @@ class BankTransferServiceTest {
         .hasMessageContaining("Insufficient provision to debit the amount");
     assertThat(user.getBalance()).isEqualTo(ApplicationValue.INITIAL_USER_BALANCE);
     assertThat(bankAccount.getBalance()).isEqualTo(BigDecimal.ZERO);
-    verify(userRepository, times(1)).findById(1);
+    verify(userService, times(1)).getUserById(1);
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }
 
   @Test
-  void requestTransferWhenUserNotFoundTest() {
+  void requestTransferWhenUserNotFoundTest() throws Exception {
     // GIVEN
     BankTransferDto request = new BankTransferDto(9,1,BigDecimal.TEN,false,null,null,null,null);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+    when(userService.getUserById(anyInt())).thenThrow(
+        new ResourceNotFoundException("This user is not found"));
 
     // WHEN
     assertThatThrownBy(() ->  bankTransferService.requestTransfer(request))
@@ -235,15 +238,15 @@ class BankTransferServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userRepository, times(1)).findById(9);
+    verify(userService, times(1)).getUserById(9);
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }
 
   @Test
-  void requestTransferWhenAccountNotFoundTest() {
+  void requestTransferWhenAccountNotFoundTest() throws Exception {
     // GIVEN
     BankTransferDto request = new BankTransferDto(1,9,BigDecimal.TEN,false,null,null,null,null);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+    when(userService.getUserById(anyInt())).thenReturn(user);
 
     // WHEN
     assertThatThrownBy(() ->  bankTransferService.requestTransfer(request))
@@ -251,15 +254,15 @@ class BankTransferServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This account is not found");
-    verify(userRepository, times(1)).findById(1);
+    verify(userService, times(1)).getUserById(1);
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }
 
   @Test
-  void requestTransferWithNegativeAmountTest() {
+  void requestTransferWithNegativeAmountTest() throws Exception {
     // GIVEN
     BankTransferDto request = new BankTransferDto(1,1,BigDecimal.valueOf(-25),false,null,null,null,null);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+    when(userService.getUserById(anyInt())).thenReturn(user);
 
     // WHEN
     assertThatThrownBy(() ->  bankTransferService.requestTransfer(request))
@@ -267,7 +270,7 @@ class BankTransferServiceTest {
         // THEN
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("The amount to debit can't be negative");
-    verify(userRepository, times(1)).findById(1);
+    verify(userService, times(1)).getUserById(1);
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }
 }

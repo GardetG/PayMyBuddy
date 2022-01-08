@@ -55,18 +55,18 @@ public class BankTransfer {
       fetch = FetchType.EAGER)
   @JoinColumn(name = "bank_account_id")
   @OnDelete(action = OnDeleteAction.CASCADE)
-  @Getter @Setter
+  @Getter
   private BankAccount bankAccount;
 
   @Column(name = "date")
-  @Getter @Setter
+  @Getter
   private LocalDateTime date;
 
   @Column(name = "amount")
-  @Getter @Setter
+  @Getter
   private BigDecimal amount;
 
   @Column(name = "is_income")
-  @Getter @Setter
+  @Getter
   private Boolean isIncome;
 }

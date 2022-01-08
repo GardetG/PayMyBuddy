@@ -4,6 +4,7 @@ import com.openclassrooms.paymybuddy.dto.UserDto;
 import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
+import com.openclassrooms.paymybuddy.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,8 @@ public interface UserService {
   Page<UserDto> getAll(Pageable pageable);
 
   UserDto getById(int id) throws ResourceNotFoundException;
+
+  User getUserById(int id) throws ResourceNotFoundException;
 
   UserDto register(UserDto user) throws ResourceAlreadyExistsException;
 

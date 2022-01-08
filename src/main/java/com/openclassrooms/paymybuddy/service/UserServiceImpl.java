@@ -8,8 +8,6 @@ import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.UserMapper;
-import java.math.BigDecimal;
-import java.util.Optional;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +78,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public void deleteById(int id) throws ResourceNotFoundException, ForbiddenOperationException {
     User user = getUserById(id);
-    if (!user.getBalance().equals(BigDecimal.ZERO)) {
+    if (user.getBalance().signum() != 0) {
       LOGGER.error("The user {} can't delete account if wallet not empty", id);
       throw new ForbiddenOperationException("The user can't delete account if wallet not empty");
     }
@@ -96,13 +94,19 @@ public class UserServiceImpl implements UserService {
     userRepository.delete(user);
   }
 
-  private User getUserById(int userId) throws ResourceNotFoundException {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
-      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
-      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
-    }
-    return user.get();
+  /**
+   * Return a User by the id or throw an exception.
+   *
+   * @param userId of the user
+   * @return User
+   * @throws ResourceNotFoundException if user not found
+   */
+  public User getUserById(int userId) throws ResourceNotFoundException {
+    return userRepository.findById(userId)
+        .orElseThrow(() -> {
+          LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
+          return new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
+        });
   }
 
   private void checkEmail(String email) throws ResourceAlreadyExistsException {
