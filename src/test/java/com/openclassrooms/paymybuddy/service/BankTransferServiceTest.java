@@ -49,6 +49,7 @@ class BankTransferServiceTest {
 
   private User user;
   private BankAccount bankAccount;
+  LocalDateTime date;
   private BigDecimal amount;
   private BankTransfer bankTransferTest;
   private BankTransferDto bankTransferDtoTest;
@@ -60,7 +61,7 @@ class BankTransferServiceTest {
     bankAccount = new BankAccount("Primary Account", "1234567890abcdefghijklmnopqrstu123","12345678abc");
     bankAccount.setBankAccountId(1);
     user.addBankAccount(bankAccount);
-    LocalDateTime date = LocalDateTime.now();
+    date = LocalDateTime.now();
     amount = BigDecimal.TEN;
     bankTransferTest = new BankTransfer(bankAccount, date, amount, false);
     bankTransferTest.setBankTransferId(1);
@@ -186,8 +187,9 @@ class BankTransferServiceTest {
   void requestIncomingTransferTest() throws Exception {
     // GIVEN
     BankTransferDto request = new BankTransferDto(1,1,BigDecimal.TEN,true,null,null,null,null);
-    bankTransferTest.setIsIncome(true);
-    bankTransferDtoTest.setIncome(true);
+    bankTransferTest = new BankTransfer(bankAccount, date, amount, true);
+    bankTransferTest.setBankTransferId(1);
+    bankTransferDtoTest = new BankTransferDto(1,1, amount,true,date,"user","test", "Primary Account");
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
     when(bankTransferRepository.save(any(BankTransfer.class))).thenReturn(bankTransferTest);
 
@@ -207,8 +209,9 @@ class BankTransferServiceTest {
     // GIVEN
     bankAccount.debit(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE);
     BankTransferDto request = new BankTransferDto(1,1,BigDecimal.TEN,false,null,null,null,null);
-    bankTransferTest.setIsIncome(true);
-    bankTransferDtoTest.setIncome(true);
+    bankTransferTest = new BankTransfer(bankAccount, date, amount, true);
+    bankTransferTest.setBankTransferId(1);
+    bankTransferDtoTest = new BankTransferDto(1,1, amount,true,date,"user","test", "Primary Account");
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
 
     // WHEN

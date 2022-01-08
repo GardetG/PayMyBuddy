@@ -8,7 +8,6 @@ import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.UserMapper;
-import java.math.BigDecimal;
 import java.util.Optional;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
@@ -80,7 +79,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public void deleteById(int id) throws ResourceNotFoundException, ForbiddenOperationException {
     User user = getUserById(id);
-    if (!user.getBalance().equals(BigDecimal.ZERO)) {
+    if (user.getBalance().signum() != 0) {
       LOGGER.error("The user {} can't delete account if wallet not empty", id);
       throw new ForbiddenOperationException("The user can't delete account if wallet not empty");
     }

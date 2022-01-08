@@ -62,7 +62,7 @@ class UserControllerIntegrationTest {
         .andExpect(jsonPath("$.firstname", is("test")))
         .andExpect(jsonPath("$.lastname", is("test")))
         .andExpect(jsonPath("$.email", is("test@mail.com")))
-        .andExpect(jsonPath("$.wallet", is(0)));
+        .andExpect(jsonPath("$.wallet", is(0.0)));
   }
 
   @Test
@@ -86,7 +86,7 @@ class UserControllerIntegrationTest {
         .andExpect(jsonPath("$.firstname", is("update")))
         .andExpect(jsonPath("$.lastname", is("test")))
         .andExpect(jsonPath("$.email", is("update@mail.com")))
-        .andExpect(jsonPath("$.wallet", is(100)));
+        .andExpect(jsonPath("$.wallet", is(100.0)));
   }
 
   @Test

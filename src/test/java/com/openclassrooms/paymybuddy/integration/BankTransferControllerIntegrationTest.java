@@ -82,7 +82,7 @@ class BankTransferControllerIntegrationTest {
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password")))
 
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.wallet", is(10)));
+        .andExpect(jsonPath("$.wallet", is(10.0)));
 
   }
 }
