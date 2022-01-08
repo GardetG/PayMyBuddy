@@ -149,7 +149,7 @@ class TransactionServiceTest {
     when(transactionRepository.save(any(Transaction.class))).thenReturn(transactionTest);
 
     // WHEN
-    TransactionDto actualDto = transactionService.requestTansaction(request);
+    TransactionDto actualDto = transactionService.requestTransaction(request);
 
     // THEN
     assertThat(actualDto).usingRecursiveComparison().ignoringFields("date").isEqualTo(transactionDtoTest);
@@ -166,7 +166,7 @@ class TransactionServiceTest {
     when(userService.getUserById(anyInt())).thenReturn(emitter).thenReturn(receiver);
 
     // WHEN
-    assertThatThrownBy(() ->  transactionService.requestTansaction(request))
+    assertThatThrownBy(() ->  transactionService.requestTransaction(request))
 
         // THEN
         .isInstanceOf(InsufficientProvisionException.class)
@@ -185,7 +185,7 @@ class TransactionServiceTest {
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
-    assertThatThrownBy(() ->  transactionService.requestTansaction(request))
+    assertThatThrownBy(() ->  transactionService.requestTransaction(request))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
@@ -202,7 +202,7 @@ class TransactionServiceTest {
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
-    assertThatThrownBy(() ->  transactionService.requestTansaction(request))
+    assertThatThrownBy(() ->  transactionService.requestTransaction(request))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
@@ -218,7 +218,7 @@ class TransactionServiceTest {
     when(userService.getUserById(anyInt())).thenReturn(emitter).thenReturn(receiver);
 
     // WHEN
-    assertThatThrownBy(() ->  transactionService.requestTansaction(request))
+    assertThatThrownBy(() ->  transactionService.requestTransaction(request))
 
         // THEN
         .isInstanceOf(IllegalArgumentException.class)

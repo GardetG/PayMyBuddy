@@ -42,7 +42,7 @@ public class TransactionServiceImpl implements TransactionService {
 
   @Override
   @Transactional
-  public TransactionDto requestTansaction(TransactionDto request)
+  public TransactionDto requestTransaction(TransactionDto request)
       throws ResourceNotFoundException, InsufficientProvisionException {
     User emitter = userService.getUserById(request.getEmitterId());
     User receiver = userService.getUserById(request.getReceiverId());

@@ -1,6 +1,5 @@
 package com.openclassrooms.paymybuddy.service;
 
-import com.openclassrooms.paymybuddy.dto.BankTransferDto;
 import com.openclassrooms.paymybuddy.dto.TransactionDto;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
@@ -18,7 +17,7 @@ public interface TransactionService {
 
   Page<TransactionDto> getFromUser(int userId, Pageable pageable) throws ResourceNotFoundException;
 
-  TransactionDto requestTansaction(TransactionDto request)
+  TransactionDto requestTransaction(TransactionDto request)
       throws ResourceNotFoundException, InsufficientProvisionException;
 
 }

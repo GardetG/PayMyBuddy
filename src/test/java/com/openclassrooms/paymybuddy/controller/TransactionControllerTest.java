@@ -156,7 +156,7 @@ class TransactionControllerTest {
     // GIVEN
     jsonParam.put("emitterId",1).put("receiverId",2)
         .put("description","Gift for a friend").put("amount",10);
-    when(transactionService.requestTansaction(any(TransactionDto.class))).thenReturn(transactionDtoTest);
+    when(transactionService.requestTransaction(any(TransactionDto.class))).thenReturn(transactionDtoTest);
 
     // WHEN
     mockMvc.perform(post("/transactions").with(user(userTest))
@@ -174,7 +174,7 @@ class TransactionControllerTest {
         .andExpect(jsonPath("$.emitterLastname", is("test")))
         .andExpect(jsonPath("$.receiverFirstname", is("user2")))
         .andExpect(jsonPath("$.receiverLastname", is("test")));
-    verify(transactionService, times(1)).requestTansaction(transactionDtoCaptor.capture());
+    verify(transactionService, times(1)).requestTransaction(transactionDtoCaptor.capture());
     TransactionDto expectedDto = new TransactionDto(1,2,"Gift for a friend",BigDecimal.TEN,null,null,null,null,null);
     assertThat(transactionDtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
   }
@@ -184,7 +184,7 @@ class TransactionControllerTest {
     // GIVEN
     jsonParam.put("emitterId",1).put("receiverId",2)
         .put("description","Gift for a friend").put("amount",100);
-    when(transactionService.requestTansaction(any(TransactionDto.class))).thenThrow(
+    when(transactionService.requestTransaction(any(TransactionDto.class))).thenThrow(
         new InsufficientProvisionException("Insufficient provision to debit the amount"));
 
     // WHEN
@@ -196,7 +196,7 @@ class TransactionControllerTest {
         // THEN
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$", is("Insufficient provision to debit the amount")));
-    verify(transactionService, times(1)).requestTansaction(transactionDtoCaptor.capture());
+    verify(transactionService, times(1)).requestTransaction(transactionDtoCaptor.capture());
     TransactionDto expectedDto = new TransactionDto(1,2,"Gift for a friend",BigDecimal.valueOf(100),null,null,null,null,null);
     assertThat(transactionDtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
   }
@@ -217,7 +217,7 @@ class TransactionControllerTest {
         .andExpect(status().isUnprocessableEntity())
         .andExpect(jsonPath("$.description", is("Description is mandatory")))
         .andExpect(jsonPath("$.amount", is("Amount can't be negative")));
-    verify(transactionService, times(0)).requestTansaction(any(TransactionDto.class));
+    verify(transactionService, times(0)).requestTransaction(any(TransactionDto.class));
   }
 
   @Test
@@ -234,6 +234,6 @@ class TransactionControllerTest {
 
         // THEN
         .andExpect(status().isForbidden());
-    verify(transactionService, times(0)).requestTansaction(any(TransactionDto.class));
+    verify(transactionService, times(0)).requestTransaction(any(TransactionDto.class));
   }
 }
