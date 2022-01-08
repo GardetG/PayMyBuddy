@@ -1,5 +1,6 @@
 package com.openclassrooms.paymybuddy.service;
 
+import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.dto.BankTransferDto;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
@@ -10,6 +11,7 @@ import com.openclassrooms.paymybuddy.repository.BankTransferRepository;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.BankTransferMapper;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +43,8 @@ public class BankTransferServiceImpl implements BankTransferService {
   @Override
   public Page<BankTransferDto> getFromUser(int userId, Pageable pageable)
       throws ResourceNotFoundException {
-    if (!userRepository.existsById(userId)) {
-      LOGGER.error("This user is not found");
-      throw new ResourceNotFoundException("This user is not found");
-    }
-    return bankTransferRepository.findByBankAccountUserUserId(userId, pageable)
+    User user = getUserById(userId);
+    return bankTransferRepository.findByBankAccountIn(user.getBankAccounts(), pageable)
         .map(BankTransferMapper::toDto);
   }
 
@@ -54,18 +53,8 @@ public class BankTransferServiceImpl implements BankTransferService {
   public BankTransferDto requestTransfer(BankTransferDto request)
       throws ResourceNotFoundException, InsufficientProvisionException {
 
-    User user = userRepository.findById(request.getUserId())
-        .orElseThrow(() -> {
-          LOGGER.error("This user is not found");
-          return new ResourceNotFoundException("This user is not found");
-        });
-    BankAccount account = user.getBankAccounts().stream()
-        .filter(a -> a.getBankAccountId() == request.getBankAccountId())
-        .findFirst()
-        .orElseThrow(() -> {
-          LOGGER.error("This account is not found");
-          return new ResourceNotFoundException("This account is not found");
-        });
+    User user = getUserById(request.getUserId());
+    BankAccount account = findAccountById(user, request.getBankAccountId());
 
     if (request.isIncome()) {
       account.debit(request.getAmount());
@@ -84,5 +73,25 @@ public class BankTransferServiceImpl implements BankTransferService {
 
     BankTransfer savedBankTransfer =  bankTransferRepository.save(bankTransfer);
     return BankTransferMapper.toDto(savedBankTransfer);
+  }
+
+  private BankAccount findAccountById(User user, int accountId)
+      throws ResourceNotFoundException {
+    return user.getBankAccounts().stream()
+        .filter(a -> a.getBankAccountId() == accountId)
+        .findFirst()
+        .orElseThrow(() -> {
+          LOGGER.error("This account is not found");
+          return new ResourceNotFoundException("This account is not found");
+        });
+  }
+
+  private User getUserById(int userId) throws ResourceNotFoundException {
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) {
+      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
+      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
+    }
+    return user.get();
   }
 }

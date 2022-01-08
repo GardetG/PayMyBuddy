@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,8 +21,10 @@ import com.openclassrooms.paymybuddy.repository.BankTransferRepository;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,11 +96,11 @@ class BankTransferServiceTest {
   }
 
   @Test
-  void getALLFromUserTest() throws Exception {
+  void getAllFromUserTest() throws Exception {
     // GIVEN
     Pageable pageable = PageRequest.of(0,1);
-    when(userRepository.existsById(anyInt())).thenReturn(true);
-    when(bankTransferRepository.findByBankAccountUserUserId(anyInt(),any(Pageable.class)))
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+    when(bankTransferRepository.findByBankAccountIn(anySet(),any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of(bankTransferTest)));
 
     // WHEN
@@ -105,15 +108,16 @@ class BankTransferServiceTest {
 
     // THEN
     assertThat(actualPageBankTransferDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(bankTransferDtoTest));
-    verify(bankTransferRepository, times(1)).findByBankAccountUserUserId(1,pageable);
+    verify(userRepository, times(1)).findById(1);
+    verify(bankTransferRepository, times(1)).findByBankAccountIn(user.getBankAccounts(),pageable);
   }
 
   @Test
   void getAllFromUserWhenEmptyTest() throws Exception {
     // GIVEN
     Pageable pageable = PageRequest.of(0,1);
-    when(userRepository.existsById(anyInt())).thenReturn(true);
-    when(bankTransferRepository.findByBankAccountUserUserId(anyInt(),any(Pageable.class)))
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
+    when(bankTransferRepository.findByBankAccountIn(anySet(), any(Pageable.class)))
         .thenReturn(Page.empty());
 
     // WHEN
@@ -121,15 +125,15 @@ class BankTransferServiceTest {
 
     // THEN
     assertThat(actualPageBankTransferDto.getContent()).isEmpty();
-    verify(userRepository, times(1)).existsById(1);
-    verify(bankTransferRepository, times(1)).findByBankAccountUserUserId(1,pageable);
+    verify(userRepository, times(1)).findById(1);
+    verify(bankTransferRepository, times(1)).findByBankAccountIn(user.getBankAccounts(),pageable);
   }
 
   @Test
   void getAllFromUserWhenUserNotFoundTest() {
     // GIVEN
     Pageable pageable = PageRequest.of(0,1);
-    when(userRepository.existsById(anyInt())).thenReturn(false);
+    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
     assertThatThrownBy(() ->  bankTransferService.getFromUser(9,pageable))
@@ -137,7 +141,7 @@ class BankTransferServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userRepository, times(1)).existsById(9);
+    verify(userRepository, times(1)).findById(9);
     verify(bankTransferRepository, times(0)).existsById(anyInt());
   }
 
