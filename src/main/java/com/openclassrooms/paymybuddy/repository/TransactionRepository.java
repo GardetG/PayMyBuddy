@@ -15,7 +15,7 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
 
   Page<Transaction> findAll(Pageable pageable);
 
-  Page<Transaction> findByEmitterOrReceive(User emitter, User receiver,
-                                           Pageable pageable);
+  Page<Transaction> findByEmitterOrReceiver(User emitter, User receiver,
+                                            Pageable pageable);
 
 }
