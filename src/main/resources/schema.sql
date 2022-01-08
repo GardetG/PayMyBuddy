@@ -9,7 +9,7 @@ CREATE TABLE user (
   password VARCHAR(60) NOT NULL,
   firstname VARCHAR(50) NOT NULL,
   lastname VARCHAR(50) NOT NULL,
-  wallet DECIMAL,
+  balance DECIMAL,
   role INTEGER NOT NULL,
   PRIMARY KEY (user_id)
 );

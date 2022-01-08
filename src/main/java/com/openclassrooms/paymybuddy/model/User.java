@@ -39,7 +39,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "user")
-public class User implements UserDetails {
+public class User extends ComptableEntity implements UserDetails {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(User.class);
 
@@ -89,10 +89,6 @@ public class User implements UserDetails {
   @Column(name = "role")
   @Getter @Setter
   private Role role;
-
-  @Column(name = "balance")
-  @Getter @Setter
-  private BigDecimal balance = ApplicationValue.INITIAL_USER_BALANCE;
 
   @OneToMany(
       mappedBy = "user",

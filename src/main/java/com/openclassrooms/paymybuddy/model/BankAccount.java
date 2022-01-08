@@ -1,7 +1,5 @@
 package com.openclassrooms.paymybuddy.model;
 
-import com.openclassrooms.paymybuddy.constant.ApplicationValue;
-import java.math.BigDecimal;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,7 +19,7 @@ import lombok.Setter;
 @Table(name = "bank_account")
 @Getter
 @Setter
-public class BankAccount {
+public class BankAccount extends ComptableEntity {
 
   private BankAccount() {
     // Private default constructor for hibernate
@@ -53,9 +51,6 @@ public class BankAccount {
 
   @Column(name = "bic",  length = 11)
   private String bic;
-
-  @Column(name = "balance")
-  private BigDecimal balance = ApplicationValue.INITIAL_BANKACCOUNT_BALANCE;
 
   @ManyToOne()
   @JoinColumn(name = "user_id")
