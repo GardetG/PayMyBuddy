@@ -22,8 +22,8 @@ public class BankTransferDto {
 
   private int userId;
   private int bankAccountId;
-  @DecimalMin(value = "0.00", inclusive = false)
-  @Digits(integer = 10, fraction = 2)
+  @DecimalMin(value = "0.00", inclusive = false, message = "Amount can't be negative")
+  @Digits(integer = 10, fraction = 2, message = "Amount can't have more than 2 decimals")
   private BigDecimal amount;
   private boolean isIncome;
 
