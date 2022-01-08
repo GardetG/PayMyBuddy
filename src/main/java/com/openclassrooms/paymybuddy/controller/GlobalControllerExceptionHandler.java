@@ -1,6 +1,6 @@
 package com.openclassrooms.paymybuddy.controller;
 
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import java.util.HashMap;
@@ -59,8 +59,8 @@ public class GlobalControllerExceptionHandler {
    * @param ex instance of the exception
    * @return HTTP 409 response
    */
-  @ExceptionHandler(ForbbidenOperationException.class)
-  public ResponseEntity<String> handleForbbidenOperationException(ForbbidenOperationException ex) {
+  @ExceptionHandler(ForbiddenOperationException.class)
+  public ResponseEntity<String> handleForbbidenOperationException(ForbiddenOperationException ex) {
     String error = ex.getMessage();
     LOGGER.info("Response : 409 {}", error);
     return ResponseEntity.status(HttpStatus.CONFLICT).body(error);

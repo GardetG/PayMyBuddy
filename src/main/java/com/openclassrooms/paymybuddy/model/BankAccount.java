@@ -1,13 +1,14 @@
 package com.openclassrooms.paymybuddy.model;
 
 import com.openclassrooms.paymybuddy.constant.ApplicationValue;
-import java.math.BigDecimal;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +20,7 @@ import lombok.Setter;
 @Table(name = "bank_account")
 @Getter
 @Setter
-public class BankAccount {
+public class BankAccount extends ComptableEntity {
 
   private BankAccount() {
     // Private default constructor for hibernate
@@ -33,6 +34,7 @@ public class BankAccount {
    * @param bic of bank account
    */
   public BankAccount(String title, String iban, String bic) {
+    super(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE);
     this.title = title;
     this.iban = iban;
     this.bic = bic;
@@ -52,8 +54,9 @@ public class BankAccount {
   @Column(name = "bic",  length = 11)
   private String bic;
 
-  @Column(name = "balance")
-  private BigDecimal balance = ApplicationValue.INITIAL_BANKACCOUNT_BALANCE;
+  @ManyToOne()
+  @JoinColumn(name = "user_id")
+  private User user;
 
   @Override
   public boolean equals(Object o) {

@@ -1,7 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.dto.UserDto;
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.UserService;
@@ -100,7 +100,7 @@ public class UserController {
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @DeleteMapping("/users/{id}")
   public ResponseEntity<Void> deleteUser(@PathVariable int id)
-      throws ResourceNotFoundException, ForbbidenOperationException {
+      throws ResourceNotFoundException, ForbiddenOperationException {
 
     LOGGER.info("Request: Delete user {}", id);
     userService.deleteById(id);

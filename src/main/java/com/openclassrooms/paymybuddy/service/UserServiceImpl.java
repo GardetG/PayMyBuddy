@@ -2,7 +2,7 @@ package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.dto.UserDto;
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
@@ -78,11 +78,11 @@ public class UserServiceImpl implements UserService {
 
   @Transactional
   @Override
-  public void deleteById(int id) throws ResourceNotFoundException, ForbbidenOperationException {
+  public void deleteById(int id) throws ResourceNotFoundException, ForbiddenOperationException {
     User user = getUserById(id);
-    if (!user.getWallet().equals(BigDecimal.ZERO)) {
+    if (!user.getBalance().equals(BigDecimal.ZERO)) {
       LOGGER.error("The user {} can't delete account if wallet not empty", id);
-      throw new ForbbidenOperationException("The user can't delete account if wallet not empty");
+      throw new ForbiddenOperationException("The user can't delete account if wallet not empty");
     }
 
     user.getConnections().forEach(c -> {

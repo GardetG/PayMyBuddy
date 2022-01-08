@@ -11,7 +11,7 @@ public class ApplicationValue {
     throw new IllegalStateException("Utility class");
   }
 
-  public static final BigDecimal INITIAL_USER_WALLET = BigDecimal.ZERO;
+  public static final BigDecimal INITIAL_USER_BALANCE = BigDecimal.ZERO;
   public static final BigDecimal INITIAL_BANKACCOUNT_BALANCE = BigDecimal.valueOf(500);
 
 }

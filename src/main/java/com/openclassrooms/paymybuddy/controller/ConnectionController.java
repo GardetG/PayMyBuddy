@@ -1,7 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.dto.ConnectionDto;
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.ConnectionService;
@@ -65,7 +65,7 @@ public class ConnectionController {
   public ResponseEntity<ConnectionDto> addToUser(@PathVariable int id, @Valid @RequestBody
       ConnectionDto connection)
       throws ResourceNotFoundException, ResourceAlreadyExistsException,
-      ForbbidenOperationException {
+      ForbiddenOperationException {
 
     LOGGER.info("Request: Add user {} new connection", id);
     ConnectionDto connectionAdded = connectionService.addToUser(id, connection);

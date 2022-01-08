@@ -26,7 +26,7 @@ public class UserMapper {
     userDto.setFirstname(user.getFirstname());
     userDto.setLastname(user.getLastname());
     userDto.setEmail(user.getEmail());
-    userDto.setWallet(user.getWallet());
+    userDto.setWallet(user.getBalance());
     userDto.setRole(user.getRole().toString());
     return userDto;
   }

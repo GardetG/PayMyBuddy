@@ -39,7 +39,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "user")
-public class User implements UserDetails {
+public class User extends ComptableEntity implements UserDetails {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(User.class);
 
@@ -57,6 +57,7 @@ public class User implements UserDetails {
    * @param role authorization of the user
    */
   public User(String firstname, String lastname, String email, String password, Role role) {
+    super(ApplicationValue.INITIAL_USER_BALANCE);
     this.firstname = firstname;
     this.lastname = lastname;
     this.email = email;
@@ -90,15 +91,11 @@ public class User implements UserDetails {
   @Getter @Setter
   private Role role;
 
-  @Column(name = "wallet")
-  @Getter @Setter
-  private BigDecimal wallet = ApplicationValue.INITIAL_USER_WALLET;
-
   @OneToMany(
+      mappedBy = "user",
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       fetch = FetchType.EAGER)
-  @JoinColumn(name = "user_id")
   private Set<BankAccount> bankAccounts = new HashSet<>();
 
   @ManyToMany(fetch = FetchType.LAZY)
@@ -142,6 +139,7 @@ public class User implements UserDetails {
       throw new ResourceAlreadyExistsException(ErrorMessage.BANKACCOUNT_ALREADY_EXIST);
     }
     bankAccounts.add(bankAccount);
+    bankAccount.setUser(this);
   }
 
   /**
@@ -156,6 +154,7 @@ public class User implements UserDetails {
       throw new ResourceNotFoundException(ErrorMessage.BANKACCOUNT_NOT_FOUND);
     }
     bankAccounts.remove(bankAccount);
+    bankAccount.setUser(null);
   }
 
   public Set<User> getConnections() {

@@ -30,6 +30,7 @@ class UserTest {
 
     // THEN
     assertThat(userTest.getBankAccounts()).usingRecursiveComparison().isEqualTo(Set.of(accountToAdd));
+    assertThat(accountToAdd.getUser()).isEqualTo(userTest);
   }
 
   @Test
@@ -57,6 +58,7 @@ class UserTest {
 
     // THEN
     assertThat(userTest.getBankAccounts()).isEmpty();
+    assertThat(accountToRemove.getUser()).isNull();
   }
 
   @Test
