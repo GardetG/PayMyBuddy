@@ -15,7 +15,7 @@ public interface BankTransferService {
 
   Page<BankTransferDto> getAll(Pageable pageable);
 
-  Page<BankTransferDto> getByUserId(int userId, Pageable pageable) throws ResourceNotFoundException;
+  Page<BankTransferDto> getFromUser(int userId, Pageable pageable) throws ResourceNotFoundException;
 
   BankTransferDto requestTransfer(BankTransferDto request)
       throws ResourceNotFoundException, InsufficientProvisionException;
