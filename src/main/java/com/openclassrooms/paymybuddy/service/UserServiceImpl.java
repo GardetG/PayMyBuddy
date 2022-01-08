@@ -1,14 +1,16 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.constant.ErrorMessage;
-import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
-import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
+import com.openclassrooms.paymybuddy.dto.UserDto;
+import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.UserMapper;
+import java.math.BigDecimal;
 import java.util.Optional;
+import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,19 +34,20 @@ public class UserServiceImpl implements UserService {
   private PasswordEncoder passwordEncoder;
 
   @Override
-  public Page<UserInfoDto> getAll(Pageable pageable) {
+  public Page<UserDto> getAll(Pageable pageable) {
     return userRepository.findAll(pageable)
         .map(UserMapper::toInfoDto);
   }
 
   @Override
-  public UserInfoDto getById(int id) throws ResourceNotFoundException {
+  public UserDto getById(int id) throws ResourceNotFoundException {
     User user = getUserById(id);
     return UserMapper.toInfoDto(user);
   }
 
+  @Transactional
   @Override
-  public UserInfoDto register(UserRegistrationDto user) throws EmailAlreadyExistsException {
+  public UserDto register(UserDto user) throws ResourceAlreadyExistsException {
     checkEmail(user.getEmail());
 
     User userToCreate = UserMapper.toModel(user);
@@ -53,14 +56,18 @@ public class UserServiceImpl implements UserService {
     return UserMapper.toInfoDto(userRepository.save(userToCreate));
   }
 
+  @Transactional
   @Override
-  public UserInfoDto update(UserInfoDto userUpdate) throws ResourceNotFoundException,
-      EmailAlreadyExistsException {
+  public UserDto update(UserDto userUpdate) throws ResourceNotFoundException,
+      ResourceAlreadyExistsException {
     User user = getUserById(userUpdate.getUserId());
 
     if (!userUpdate.getEmail().equals(user.getEmail())) {
       checkEmail(userUpdate.getEmail());
       user.setEmail(userUpdate.getEmail());
+    }
+    if (userUpdate.getPassword() != null && !userUpdate.getPassword().isBlank()) {
+      user.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
     }
     user.setFirstname(userUpdate.getFirstname());
     user.setLastname(userUpdate.getLastname());
@@ -69,9 +76,23 @@ public class UserServiceImpl implements UserService {
     return UserMapper.toInfoDto(userRepository.save(user));
   }
 
+  @Transactional
   @Override
-  public void deleteById(int id) throws ResourceNotFoundException {
+  public void deleteById(int id) throws ResourceNotFoundException, ForbbidenOperationException {
     User user = getUserById(id);
+    if (!user.getWallet().equals(BigDecimal.ZERO)) {
+      LOGGER.error("The user {} can't delete account if wallet not empty", id);
+      throw new ForbbidenOperationException("The user can't delete account if wallet not empty");
+    }
+
+    user.getConnections().forEach(c -> {
+      try {
+        user.removeConnection(c);
+      } catch (ResourceNotFoundException e) {
+        LOGGER.error("Can't find connection to remove");
+      }
+    });
+
     userRepository.delete(user);
   }
 
@@ -84,10 +105,10 @@ public class UserServiceImpl implements UserService {
     return user.get();
   }
 
-  private void checkEmail(String email) throws EmailAlreadyExistsException {
+  private void checkEmail(String email) throws ResourceAlreadyExistsException {
     if (userRepository.existsByEmail(email)) {
       LOGGER.error(ErrorMessage.EMAIL_ALREADY_EXIST + ": {}", email);
-      throw new EmailAlreadyExistsException(ErrorMessage.EMAIL_ALREADY_EXIST);
+      throw new ResourceAlreadyExistsException(ErrorMessage.EMAIL_ALREADY_EXIST);
     }
   }
 

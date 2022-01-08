@@ -1,8 +1,8 @@
 package com.openclassrooms.paymybuddy.controller;
 
-import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
-import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
+import com.openclassrooms.paymybuddy.dto.UserDto;
+import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.UserService;
 import javax.validation.Valid;
@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -19,7 +18,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -43,10 +41,10 @@ public class UserController {
    */
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/users")
-  public ResponseEntity<Page<UserInfoDto>> getInfoById(Pageable pageable) {
+  public ResponseEntity<Page<UserDto>> getInfoById(Pageable pageable) {
 
     LOGGER.info("Request: Get all users information");
-    Page<UserInfoDto> userInfo = userService.getAll(pageable);
+    Page<UserDto> userInfo = userService.getAll(pageable);
 
     LOGGER.info("Response: All users information sent");
     return ResponseEntity.ok(userInfo);
@@ -62,33 +60,14 @@ public class UserController {
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/users/{id}")
-  public ResponseEntity<UserInfoDto> getInfoById(@PathVariable int id)
+  public ResponseEntity<UserDto> getInfoById(@PathVariable int id)
       throws ResourceNotFoundException {
 
     LOGGER.info("Request: Get user {} information", id);
-    UserInfoDto userInfo = userService.getById(id);
+    UserDto userInfo = userService.getById(id);
 
     LOGGER.info("Response: user information sent");
     return ResponseEntity.ok(userInfo);
-  }
-
-  /**
-   * Handle HTTP POST user registration.
-   *
-   * @param userSubscription of the registering user
-   * @return HTTP 201 Response with registered user's information
-   * @throws EmailAlreadyExistsException when requesting email already exists
-   */
-  @PostMapping("/register")
-  public ResponseEntity<UserInfoDto> register(
-      @Valid @RequestBody UserRegistrationDto userSubscription)
-      throws EmailAlreadyExistsException {
-
-    LOGGER.info("Request: Registering user");
-    UserInfoDto userInfo = userService.register(userSubscription);
-
-    LOGGER.info("Response: user successfully registered");
-    return ResponseEntity.status(HttpStatus.CREATED).body(userInfo);
   }
 
   /**
@@ -96,16 +75,16 @@ public class UserController {
    *
    * @param userUpdate user's information to update
    * @return HTTP 201 Response with updated user's information
-   * @throws EmailAlreadyExistsException when updating whith an already existing email
+   * @throws ResourceAlreadyExistsException when updating whith an already existing email
    * @throws ResourceNotFoundException when user not found
    */
   @PreAuthorize("hasRole('ADMIN') or #userUpdate.userId == authentication.principal.userId")
   @PutMapping("/users")
-  public ResponseEntity<UserInfoDto> update(@Valid @RequestBody UserInfoDto userUpdate)
-      throws EmailAlreadyExistsException, ResourceNotFoundException {
+  public ResponseEntity<UserDto> update(@Valid @RequestBody UserDto userUpdate)
+      throws ResourceAlreadyExistsException, ResourceNotFoundException {
 
     LOGGER.info("Request: Update user {}", userUpdate.getUserId());
-    UserInfoDto userInfo = userService.update(userUpdate);
+    UserDto userInfo = userService.update(userUpdate);
 
     LOGGER.info("Response: user successfully updated");
     return ResponseEntity.ok(userInfo);
@@ -121,7 +100,7 @@ public class UserController {
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @DeleteMapping("/users/{id}")
   public ResponseEntity<Void> deleteUser(@PathVariable int id)
-      throws ResourceNotFoundException {
+      throws ResourceNotFoundException, ForbbidenOperationException {
 
     LOGGER.info("Request: Delete user {}", id);
     userService.deleteById(id);

@@ -35,10 +35,10 @@ class ConnectionControllerIntegrationTest {
   }
 
   @Test
-  void addBankAccountIntegrationTest() throws Exception {
+  void addConnectionIntegrationTest() throws Exception {
     // GIVEN
     JSONObject jsonParam = new JSONObject();
-    jsonParam.put("email","user2@mail.com");
+    jsonParam.put("email","admin@mail.com");
 
     // WHEN
     mockMvc.perform(post("/users/2/connections")
@@ -55,9 +55,9 @@ class ConnectionControllerIntegrationTest {
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(1)))
-        .andExpect(jsonPath("$[0].connectionId", is(3)))
-        .andExpect(jsonPath("$[0].firstname", is("test2")))
-        .andExpect(jsonPath("$[0].lastname", is("test2")));
+        .andExpect(jsonPath("$[0].connectionId", is(1)))
+        .andExpect(jsonPath("$[0].firstname", is("test")))
+        .andExpect(jsonPath("$[0].lastname", is("test")));
   }
 
   @Test

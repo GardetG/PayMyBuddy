@@ -95,7 +95,8 @@ class UserTest {
     userTest.addConnection(userToAdd);
 
     // THEN
-    assertThat(userTest.getConnections()).usingRecursiveComparison().isEqualTo(Set.of(userToAdd));
+    assertThat(userTest.getConnections()).contains(userToAdd);
+    assertThat(userToAdd.getConnections()).contains(userTest);
   }
 
   @Test
@@ -123,6 +124,7 @@ class UserTest {
 
     // THEN
     assertThat(userTest.getConnections()).isEmpty();
+    assertThat(userToRemove.getConnections()).isEmpty();
   }
 
   @Test

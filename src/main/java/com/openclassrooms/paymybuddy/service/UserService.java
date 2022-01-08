@@ -1,8 +1,8 @@
 package com.openclassrooms.paymybuddy.service;
 
-import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
-import com.openclassrooms.paymybuddy.exception.EmailAlreadyExistsException;
+import com.openclassrooms.paymybuddy.dto.UserDto;
+import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,15 +14,15 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UserService {
 
-  Page<UserInfoDto> getAll(Pageable pageable);
+  Page<UserDto> getAll(Pageable pageable);
 
-  UserInfoDto getById(int id) throws ResourceNotFoundException;
+  UserDto getById(int id) throws ResourceNotFoundException;
 
-  UserInfoDto register(UserRegistrationDto user) throws EmailAlreadyExistsException;
+  UserDto register(UserDto user) throws ResourceAlreadyExistsException;
 
-  UserInfoDto update(UserInfoDto user) throws ResourceNotFoundException,
-      EmailAlreadyExistsException;
+  UserDto update(UserDto user) throws ResourceNotFoundException,
+      ResourceAlreadyExistsException;
 
-  void deleteById(int id) throws ResourceNotFoundException;
+  void deleteById(int id) throws ResourceNotFoundException, ForbbidenOperationException;
 
 }

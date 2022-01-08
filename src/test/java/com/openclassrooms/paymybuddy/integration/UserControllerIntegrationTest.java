@@ -11,9 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
-import com.openclassrooms.paymybuddy.dto.UserInfoDto;
-import com.openclassrooms.paymybuddy.dto.UserRegistrationDto;
+import com.openclassrooms.paymybuddy.dto.UserDto;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -41,13 +41,14 @@ class UserControllerIntegrationTest {
   @Test
   void subscribeIntegrationTest() throws Exception {
     // GIVEN
-    UserRegistrationDto
-        subscriptionDto = new UserRegistrationDto("test", "test", "test@mail.com", "12345678");
+    JSONObject jsonParam = new JSONObject();
+    jsonParam.put("firstname","test").put("lastname","test")
+        .put("email","test@mail.com").put("password","12345678");
 
     // WHEN
     MvcResult result = mockMvc.perform(post("/register")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(JsonParser.asString(subscriptionDto)))
+            .content(jsonParam.toString()))
 
         // THEN
         // Check response
@@ -67,7 +68,7 @@ class UserControllerIntegrationTest {
   @Test
   void updateTest() throws Exception {
     // GIVEN
-    UserInfoDto updatedUser = new UserInfoDto(3, "update", "test", "update@mail.com", null, "USER");
+    UserDto updatedUser = new UserDto(3, "update", "test", "update@mail.com", null,null, "USER");
 
     // WHEN
     mockMvc.perform(put("/users")

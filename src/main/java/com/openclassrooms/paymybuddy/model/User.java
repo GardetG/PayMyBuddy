@@ -91,7 +91,7 @@ public class User implements UserDetails {
   private Role role;
 
   @Column(name = "wallet")
-  @Getter
+  @Getter @Setter
   private BigDecimal wallet = ApplicationValue.INITIAL_USER_WALLET;
 
   @OneToMany(
@@ -174,6 +174,7 @@ public class User implements UserDetails {
       throw new ResourceAlreadyExistsException(ErrorMessage.CONNECTION_ALREADY_EXIST);
     }
     connections.add(connection);
+    connection.connections.add(this);
   }
 
   /**
@@ -188,6 +189,7 @@ public class User implements UserDetails {
       throw new ResourceNotFoundException(ErrorMessage.CONNECTION_NOT_FOUND);
     }
     connections.remove(connection);
+    connection.connections.remove(this);
   }
 
   @Override
