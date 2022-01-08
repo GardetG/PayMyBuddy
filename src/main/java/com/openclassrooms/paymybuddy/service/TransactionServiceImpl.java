@@ -3,10 +3,13 @@ package com.openclassrooms.paymybuddy.service;
 import com.openclassrooms.paymybuddy.dto.TransactionDto;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
+import com.openclassrooms.paymybuddy.model.Transaction;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.TransactionRepository;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.TransactionMapper;
+import java.time.LocalDateTime;
+import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +48,26 @@ public class TransactionServiceImpl implements TransactionService {
   }
 
   @Override
+  @Transactional
   public TransactionDto requestTansaction(TransactionDto request)
       throws ResourceNotFoundException, InsufficientProvisionException {
-    return null;
+    User emitter = userRepository.findById(request.getEmitterId())
+        .orElseThrow(() -> new ResourceNotFoundException("This user is not found"));
+    User receiver = userRepository.findById(request.getReceiverId())
+        .orElseThrow(() -> new ResourceNotFoundException("This user is not found"));
+
+    emitter.debit(request.getAmount());
+    receiver.credit(request.getAmount());
+
+    Transaction transaction = new Transaction(
+        emitter,
+        receiver,
+        LocalDateTime.now(),
+        request.getAmount(),
+        request.getDescription()
+    );
+
+    Transaction savedTransaction = transactionRepository.save(transaction);
+    return TransactionMapper.toDto(savedTransaction);
   }
 }
