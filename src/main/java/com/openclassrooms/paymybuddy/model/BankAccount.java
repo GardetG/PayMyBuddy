@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,6 +56,10 @@ public class BankAccount {
 
   @Column(name = "balance")
   private BigDecimal balance = ApplicationValue.INITIAL_BANKACCOUNT_BALANCE;
+
+  @ManyToOne()
+  @JoinColumn(name = "user_id")
+  private User user;
 
   @Override
   public boolean equals(Object o) {

@@ -95,10 +95,10 @@ public class User implements UserDetails {
   private BigDecimal wallet = ApplicationValue.INITIAL_USER_WALLET;
 
   @OneToMany(
+      mappedBy = "user",
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       fetch = FetchType.EAGER)
-  @JoinColumn(name = "user_id")
   private Set<BankAccount> bankAccounts = new HashSet<>();
 
   @ManyToMany(fetch = FetchType.LAZY)
@@ -142,6 +142,7 @@ public class User implements UserDetails {
       throw new ResourceAlreadyExistsException(ErrorMessage.BANKACCOUNT_ALREADY_EXIST);
     }
     bankAccounts.add(bankAccount);
+    bankAccount.setUser(this);
   }
 
   /**
@@ -156,6 +157,7 @@ public class User implements UserDetails {
       throw new ResourceNotFoundException(ErrorMessage.BANKACCOUNT_NOT_FOUND);
     }
     bankAccounts.remove(bankAccount);
+    bankAccount.setUser(null);
   }
 
   public Set<User> getConnections() {
