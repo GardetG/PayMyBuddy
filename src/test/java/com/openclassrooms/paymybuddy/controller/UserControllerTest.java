@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.openclassrooms.paymybuddy.dto.UserDto;
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
@@ -293,7 +293,7 @@ class UserControllerTest {
   @Test
   void deleteUserWithNotEmptyWalletTest() throws Exception {
     // GIVEN
-    doThrow(new ForbbidenOperationException("Can't delete user if wallet not empty")).when(userService)
+    doThrow(new ForbiddenOperationException("Can't delete user if wallet not empty")).when(userService)
         .deleteById(anyInt());
 
     // WHEN

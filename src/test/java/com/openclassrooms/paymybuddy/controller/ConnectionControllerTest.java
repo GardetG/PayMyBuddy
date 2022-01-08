@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.openclassrooms.paymybuddy.dto.ConnectionDto;
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
@@ -177,7 +177,7 @@ class ConnectionControllerTest {
     // GIVEN
     JSONparam.put("email","user1@mail.com");
     when(connectionService.addToUser(anyInt(), any(ConnectionDto.class))).thenThrow(
-        new ForbbidenOperationException("The user can't add himself as connection"));
+        new ForbiddenOperationException("The user can't add himself as connection"));
 
     // WHEN
     mockMvc.perform(post("/users/1/connections").with(user(userTest))

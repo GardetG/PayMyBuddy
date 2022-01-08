@@ -1,7 +1,7 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.dto.UserDto;
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
@@ -23,6 +23,6 @@ public interface UserService {
   UserDto update(UserDto user) throws ResourceNotFoundException,
       ResourceAlreadyExistsException;
 
-  void deleteById(int id) throws ResourceNotFoundException, ForbbidenOperationException;
+  void deleteById(int id) throws ResourceNotFoundException, ForbiddenOperationException;
 
 }

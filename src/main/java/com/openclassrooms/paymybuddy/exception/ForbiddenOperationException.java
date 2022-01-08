@@ -3,9 +3,9 @@ package com.openclassrooms.paymybuddy.exception;
 /**
  * Exception Class thrown when requesting an operation forbidden by business rules.
  */
-public class ForbbidenOperationException extends Exception {
+public class ForbiddenOperationException extends Exception {
 
-  public ForbbidenOperationException(String s) {
+  public ForbiddenOperationException(String s) {
     super(s);
   }
 

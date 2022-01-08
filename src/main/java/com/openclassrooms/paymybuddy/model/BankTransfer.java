@@ -18,7 +18,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 /**
- * Model Class of a bank transfer between an user and a bank account.
+ * Model Class of a bank transfer between a user and a bank account.
  */
 @Entity
 @Table(name = "bank_transfer")
@@ -49,6 +49,7 @@ public class BankTransfer {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "bank_transfer_id")
+  @Getter @Setter
   private int bankTransferId;
 
   @ManyToOne(
@@ -56,8 +57,7 @@ public class BankTransfer {
       fetch = FetchType.EAGER)
   @JoinColumn(name = "bank_account_id")
   @OnDelete(action = OnDeleteAction.CASCADE)
-  @Getter
-  @Setter
+  @Getter @Setter
   private BankAccount bankAccount;
 
   @ManyToOne(

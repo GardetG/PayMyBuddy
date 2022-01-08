@@ -34,7 +34,5 @@ public class BankTransferDto {
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String lastname;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String iban;
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String bic;
+  private String title;
 }

@@ -13,10 +13,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends CrudRepository<User, Integer> {
 
+  Page<User> findAll(Pageable pageable);
+
   Optional<User> findByEmail(String email);
 
   boolean existsByEmail(String email);
-
-  Page<User> findAll(Pageable pageable);
 
 }

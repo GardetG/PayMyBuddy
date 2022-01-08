@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.openclassrooms.paymybuddy.dto.ConnectionDto;
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
@@ -170,7 +170,7 @@ class ConnectionServiceTest {
     assertThatThrownBy(() -> connectionService.addToUser(1,requestDto))
 
         // THEN
-        .isInstanceOf(ForbbidenOperationException.class)
+        .isInstanceOf(ForbiddenOperationException.class)
         .hasMessageContaining("The user can't add himself as connection");
     verify(userRepository, times(1)).findById(1);
     verify(userRepository, times(0)).findByEmail(anyString());

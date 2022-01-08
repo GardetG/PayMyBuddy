@@ -2,7 +2,7 @@ package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.dto.ConnectionDto;
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
@@ -38,12 +38,12 @@ public class ConnectionServiceImpl implements ConnectionService {
   @Override
   public ConnectionDto addToUser(int userId, ConnectionDto connection)
       throws ResourceNotFoundException, ResourceAlreadyExistsException,
-      ForbbidenOperationException {
+      ForbiddenOperationException {
 
     User user = getUserById(userId);
     if (user.getEmail().equals(connection.getEmail())) {
       LOGGER.error("The user can't add himself as connection");
-      throw new ForbbidenOperationException("The user can't add himself as connection");
+      throw new ForbiddenOperationException("The user can't add himself as connection");
     }
     User connectionToAdd = getUserByEmail(connection.getEmail());
 

@@ -1,7 +1,7 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.dto.ConnectionDto;
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import java.util.List;
@@ -16,7 +16,7 @@ public interface ConnectionService {
   List<ConnectionDto> getAllFromUser(int userId) throws ResourceNotFoundException;
 
   ConnectionDto addToUser(int userId, ConnectionDto connection)
-      throws ResourceNotFoundException, ResourceAlreadyExistsException, ForbbidenOperationException;
+      throws ResourceNotFoundException, ResourceAlreadyExistsException, ForbiddenOperationException;
 
   void removeFromUser(int userId, int id) throws ResourceNotFoundException;
 

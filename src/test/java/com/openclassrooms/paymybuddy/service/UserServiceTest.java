@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.openclassrooms.paymybuddy.dto.UserDto;
-import com.openclassrooms.paymybuddy.exception.ForbbidenOperationException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
@@ -272,7 +272,7 @@ class UserServiceTest {
     assertThatThrownBy(() -> userService.deleteById(1))
 
         // THEN
-        .isInstanceOf(ForbbidenOperationException.class)
+        .isInstanceOf(ForbiddenOperationException.class)
         .hasMessageContaining("The user can't delete account if wallet not empty");
     verify(userRepository, times(1)).findById(1);
     verify(userRepository, times(0)).delete(any(User.class));
