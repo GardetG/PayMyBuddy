@@ -25,7 +25,7 @@ public class TransactionMapper {
     transactionDto.setDate(transaction.getDate());
     transactionDto.setEmitterId(transaction.getEmitter().getUserId());
     transactionDto.setEmitterFirstname(transaction.getEmitter().getFirstname());
-    transactionDto.setEmitterLastName(transaction.getEmitter().getLastname());
+    transactionDto.setEmitterLastname(transaction.getEmitter().getLastname());
     transactionDto.setReceiverId(transaction.getReceiver().getUserId());
     transactionDto.setReceiverFirstname(transaction.getReceiver().getFirstname());
     transactionDto.setReceiverLastname(transaction.getReceiver().getLastname());

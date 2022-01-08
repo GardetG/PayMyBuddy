@@ -33,7 +33,7 @@ public class TransactionDto {
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String emitterFirstname;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String emitterLastName;
+  private String emitterLastname;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String receiverFirstname;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
