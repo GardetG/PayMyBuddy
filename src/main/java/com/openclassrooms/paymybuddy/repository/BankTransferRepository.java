@@ -14,6 +14,6 @@ public interface BankTransferRepository extends CrudRepository<BankTransfer, Int
 
   Page<BankTransfer> findAll(Pageable pageable);
 
-  Page<BankTransfer> findByUser(int userId, Pageable pageable);
+  Page<BankTransfer> findByBankAccountUserUserId(int userId, Pageable pageable);
 
 }

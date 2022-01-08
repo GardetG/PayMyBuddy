@@ -32,15 +32,13 @@ public class BankTransfer {
    * Parametric constructor with required value to instantiate a valid BankTransfer.
    *
    * @param bankAccount of the transfer
-   * @param user        of the transfer
    * @param date        of the transfer
    * @param amount      transferred
    * @param isIncome    if transferred to user wallet
    */
-  public BankTransfer(BankAccount bankAccount, User user, LocalDateTime date, BigDecimal amount,
+  public BankTransfer(BankAccount bankAccount, LocalDateTime date, BigDecimal amount,
                       boolean isIncome) {
     this.bankAccount = bankAccount;
-    this.user = user;
     this.date = date;
     this.amount = amount;
     this.isIncome = isIncome;
@@ -59,13 +57,6 @@ public class BankTransfer {
   @OnDelete(action = OnDeleteAction.CASCADE)
   @Getter @Setter
   private BankAccount bankAccount;
-
-  @ManyToOne(
-      cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-      fetch = FetchType.EAGER)
-  @JoinColumn(name = "user_id")
-  @Getter @Setter
-  private User user;
 
   @Column(name = "date")
   @Getter @Setter
