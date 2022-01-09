@@ -5,9 +5,9 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AuthenticationService } from './authentication.service';
-import { LoginComponent } from './login/login.component';
-import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './component/login/login.component';
+import { HomeComponent } from './component/home/home.component';
+import { AuthenticationService } from './service/authentication.service';
 
 @NgModule({
   declarations: [
