@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationService } from 'src/app/service/authentication.service';
 
@@ -9,26 +10,35 @@ import { AuthenticationService } from 'src/app/service/authentication.service';
 })
 export class LoginComponent implements OnInit {
 
-  email:string = "";
-  password:string = "";
   error:string="";
+  form:FormGroup= this.fb.group({
+    "email": ["", Validators.required],
+    "password": ["", Validators.required]
+  });
 
-  constructor(private service: AuthenticationService, private router:Router) { }
+  constructor(private auth: AuthenticationService, private router:Router, private fb:FormBuilder) { }
 
   ngOnInit(): void {
   }
 
+  get email() {
+    return this.form.get('email');
+  }
+
+  get password() {
+    return this.form.get('password');
+  }
+
   doLogin() {
-    this.service.login(this.email, this.password)
+    this.auth.login(this.email?.value, this.password?.value)
       .subscribe({
         next: (v) => {
           this.router.navigate(["home"]);
         },
         error: (e) => {
-          this.error = "Email ou mot de passe incorrect."
+          this.error = "Wrong email or password, please try again.";
+          this.form.reset();
         }
       });
-
   }
-
 }

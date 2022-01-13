@@ -13,7 +13,10 @@ export class AuthenticationService {
   constructor(private http:HttpClient) { }
 
   public login(email:string, password:string): Observable<Identity> {
-    const headers = new HttpHeaders({Authorization: 'Basic ' + btoa(email+":"+password)});
+    const headers = new HttpHeaders({
+      "X-Requested-With": "XMLHttpRequest",
+      Authorization: 'Basic ' + btoa(email+":"+password)
+    });
     return this.http.get<Identity>("http://localhost:8080/login", {headers})
     .pipe(map(resp => {
       this.identity = resp;
