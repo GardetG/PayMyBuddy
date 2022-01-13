@@ -1,6 +1,6 @@
 <div class="container">
-    <div class="row justify-content-center">
-      <div class="border border-2 rounded-xl mt-5 p-3 col-12 col-sm-6 col-lg-4">
+    <div class="row mx-1 justify-content-center">
+      <div class="border border-2 rounded-xl my-5 p-3 col-12 col-sm-6 col-lg-4">
         <div class="logo m-auto mt-2">Pay My Buddy</div>
         <form class="mt-5" [formGroup]="form" (ngSubmit)="doRegister()">
 
@@ -17,7 +17,7 @@
               </div>
               <input type="text" class="form-control border-0 rounded-xl" formControlName="firstname" placeholder="Firstname">
             </div>
-            <small *ngIf="firstname?.invalid && (firstname?.dirty || firstname?.touched)" class="text-danger">
+            <small *ngIf="firstname?.errors?.['required'] && (firstname?.dirty || firstname?.touched)" class="text-danger">
               Firstname is required to register
             </small>
           </div>
@@ -61,9 +61,12 @@
               <input type="password" class="form-control border-0 rounded-xl" formControlName="password"
                 placeholder="Password">
             </div>
-            <small *ngIf="password?.invalid && (password?.dirty || password?.touched)" class="text-danger">
+            <small *ngIf="password?.hasError('required') && (password?.dirty || password?.touched)" class="text-danger">
               Password is required to register
             </small>
+            <small *ngIf="password?.hasError('minlength') && (password?.touched)" class="text-danger">
+                Password must be at least 8 characters
+              </small>
           </div>
 
           <div class="mb-4">
