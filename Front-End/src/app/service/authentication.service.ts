@@ -2,6 +2,7 @@ import { HttpClient, HttpHandler, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Identity } from '../model/Identity/identity.model';
+import { User } from '../model/User/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,4 +24,9 @@ export class AuthenticationService {
       return resp;
     }))
   }
+
+  public register(user:User): Observable<User> {
+    return this.http.post<User>("http://localhost:8080/register",user)
+  }
+
 }

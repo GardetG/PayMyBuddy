@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { User } from 'src/app/model/User/user.model';
 import { AuthenticationService } from 'src/app/service/authentication.service';
 import { MustMatch } from 'src/app/Validator/confirmpassword.validator';
 
@@ -53,6 +54,35 @@ export class RegisterComponent implements OnInit {
     return this.form.get('confirmpassword');
   }
 
-  doRegister() {}
+
+  doRegister() {
+    let user:User = new User(this.form.value)
+    this.auth.register(user)
+    .subscribe({
+      next: (v) => {
+        this.doLogin(user.email, user.password);
+      },
+      error: (e) => {
+        if (e.status == 409) {
+          this.error = e.error;
+        } else {
+          this.error = "An error occured, please try again."
+        }
+      }
+    });
+  }
+
+
+  doLogin(email:string, password:string) {
+    this.auth.login(email,password)
+      .subscribe({
+        next: (v) => {
+          this.router.navigate(["home"]);
+        },
+        error: (e) => {
+          console.log(e);
+        }
+      });
+  }
 
 }

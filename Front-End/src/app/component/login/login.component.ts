@@ -36,8 +36,12 @@ export class LoginComponent implements OnInit {
           this.router.navigate(["home"]);
         },
         error: (e) => {
-          this.error = "Wrong email or password, please try again.";
-          this.form.reset();
+          if (e.status == 401) {
+            this.error = "Wrong email or password, please try again.";
+            this.form.reset();
+          } else {
+            this.error = "An error occured, please try again."
+          }
         }
       });
   }

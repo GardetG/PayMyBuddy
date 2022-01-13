@@ -4,7 +4,7 @@
         <div class="logo m-auto mt-2">Pay My Buddy</div>
         <form class="mt-5" [formGroup]="form" (ngSubmit)="doRegister()">
 
-          <div *ngIf="error != ''" class="alert alert-danger pb-4">
+          <div *ngIf="error != ''" class="alert alert-danger pb-4 text-center">
             {{error}}
           </div>
 
