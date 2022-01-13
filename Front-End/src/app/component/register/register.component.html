@@ -1,0 +1,112 @@
+<div class="container">
+    <div class="row justify-content-center">
+      <div class="border border-2 rounded-xl mt-5 p-3 col-12 col-sm-6 col-lg-4">
+        <div class="logo m-auto mt-2">Pay My Buddy</div>
+        <form class="mt-5" [formGroup]="form" (ngSubmit)="doRegister()">
+
+          <div *ngIf="error != ''" class="alert alert-danger pb-4">
+            {{error}}
+          </div>
+
+          <div class="mb-4">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-user"></i>
+                </span>
+              </div>
+              <input type="text" class="form-control border-0 rounded-xl" formControlName="firstname" placeholder="Firstname">
+            </div>
+            <small *ngIf="firstname?.invalid && (firstname?.dirty || firstname?.touched)" class="text-danger">
+              Firstname is required to register
+            </small>
+          </div>
+
+          <div class="mb-4">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-user"></i>
+                </span>
+              </div>
+              <input type="text" class="form-control border-0 rounded-xl" formControlName="lastname"
+                placeholder="Lastname">
+            </div>
+            <small *ngIf="lastname?.invalid && (lastname?.dirty || lastname?.touched)" class="text-danger">
+              Lastname is required to register
+            </small>
+          </div>
+
+          <div class="mb-4">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-envelope"></i>
+                </span>
+              </div>
+              <input type="email" class="form-control border-0 rounded-xl" formControlName="email" placeholder="Email">
+            </div>
+            <small *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="text-danger">
+              Email is required to register
+            </small>
+          </div>
+
+          <div class="mb-4">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-asterisk"></i>
+                </span>
+              </div>
+              <input type="password" class="form-control border-0 rounded-xl" formControlName="password"
+                placeholder="Password">
+            </div>
+            <small *ngIf="password?.invalid && (password?.dirty || password?.touched)" class="text-danger">
+              Password is required to register
+            </small>
+          </div>
+
+          <div class="mb-4">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-asterisk"></i>
+                </span>
+              </div>
+              <input type="password" class="form-control border-0 rounded-xl" formControlName="confirmpassword"
+                placeholder="Confirm Password">
+            </div>
+            <small *ngIf="confirmpassword?.invalid && (confirmpassword?.dirty || confirmpassword?.touched)" class="text-danger">
+              Password confirmation doesn't match
+            </small>
+          </div>
+
+          <div class="text-left">
+          <div class="form-check-inline">
+            <input class="form-check-input mx-2" type="checkbox" id="acceptterms" formControlName="termsAgreement">
+            <label class="form-check-label" for="acceptterms">
+              I agree to the Terms and Conditions.
+            </label>
+          </div>
+          <div class="form-check-inline">
+            <input class="form-check-input mx-2" type="checkbox" id="acceptprivacy" formControlName="privacyAgreement">
+            <label class="form-check-label" for="acceptprivacy">
+              I agree to the Privacy Policy.
+            </label>
+            <label>
+              I consent to the processing of the personal data that I have provided and I am aware of my right on my personal data according to the GDPR.
+            </label>
+          </div>
+          </div>
+
+          <div class="text-center mt-5">
+            <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Register</button>
+          </div>
+          <div class="text-center mt-2 mb-4">
+            <button class="btn btn-primary" type='button' routerLink="/login">Back</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
