@@ -1,6 +1,7 @@
 package com.openclassrooms.paymybuddy.model;
 
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * Abstract Class for comptable entity with a balance to handle financial operations.
  */
 @MappedSuperclass
-public abstract class ComptableEntity {
+public abstract class ComptableEntity implements Serializable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ComptableEntity.class);
 
