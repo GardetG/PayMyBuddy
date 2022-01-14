@@ -11,16 +11,19 @@ export class HomepageComponent implements OnInit {
 
   user: User = new User();
 
-  constructor(private service:ApiPaymybuddyService) {
-    service.getUser()
-    .subscribe({
-      next: (v) => {
-        this.user = v;
-      }
-    });
-  }
+  constructor(private apiService: ApiPaymybuddyService) { }
 
   ngOnInit(): void {
+    this.loadUser();
+  }
+
+  loadUser() {
+    this.apiService.getUser()
+      .subscribe({
+        next: (v) => {
+          this.user = v;
+        }
+      });
   }
 
 }

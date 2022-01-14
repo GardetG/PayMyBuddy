@@ -1,0 +1,122 @@
+<div class="container">
+    <div class="row justify-content-center mt-1  mx-1">
+        <div class="col-12 col-sm-10 col-lg-8">
+
+            <div *ngIf="!isEditing">
+                <div class="row mt-2">
+                    <div class="col p-0">
+                        <h5 class="pt-2">My Profile</h5>
+                    </div>
+                    <div class="col-6 p-0">
+                        <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Edit Profile</button>
+                    </div>
+                </div>
+                <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
+                    <div class="col-4 text-center">
+                        <span class="icon">
+                            <i class="fas fa-user fa-5x"></i>
+                        </span>
+                    </div>
+                    <div class="col-8 align-self-center">
+                        <div class="border border-2 rounded-xl">
+                        <p class="m-0">{{user.firstname}}</p>
+                        <p class="m-0">{{user.lastname}}</p>
+                        <p class="m-0">{{user.email}}</p>
+                        </div>
+                    <p class="text-end small m-0">Register since {{user.registerDate}}</p>
+                     </div>
+                </div>
+            </div>
+
+            <div *ngIf="isEditing">
+                <div class="row mt-2">
+                    <div class="col p-0">
+                        <h5 class="pt-2">My Profile</h5>
+                    </div>
+                    <div class="col-6 p-0">
+                        <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Save Profile</button>
+                    </div>
+                </div>
+                <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
+                    <div class="col-4 text-center">
+                        <span class="icon">
+                            <i class="fas fa-user fa-5x"></i>
+                        </span>
+                            <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Change Password</button>
+                    </div>
+                    <div class="col-8 align-self-center border border-2 rounded-xl">
+                        <div class="mt-1">
+                            <div class="input-group">
+                                <input type="text" class="form-control rounded-xl" formControlName="firstname"
+                                    placeholder="Firstname">
+                            </div>
+                        </div>
+
+                        <div class="mt-1">
+                            <div class="input-group">
+                                <input type="text" class="form-control rounded-xl" formControlName="lastname"
+                                    placeholder="Lastname">
+                            </div>
+                        </div>
+
+                        <div class="my-1">
+                            <div class="input-group">
+                                <input type="email" class="form-control rounded-xl" formControlName="email"
+                                    placeholder="Email">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col p-0">
+                    <h5 class="pt-2">My Bank Accounts</h5>
+                </div>
+            </div>
+            <div class="row border border-dark ">
+                <div class="table-responsive-md p-0">
+                    <table class="table mytable table-striped table-borderless m-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Title</th>
+                                <th scope="col">Iban</th>
+                                <th scope="col">Bic</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr scope="row" *ngIf="bankAccounts.length==0">
+                                <td colspan="4">You don't have any bank accounts at this moment.</td>
+                            </tr>
+                            <tr scope="row" *ngFor="let bankAccount of bankAccounts">
+                                <td>{{bankAccount.title}}</td>
+                                <td>{{bankAccount.iban}}</td>
+                                <td>{{bankAccount.bic}}</td>
+                                <td>
+                                    <button class="btn btn-danger rounded-xl" (click)="doDeleteAccount(bankAccount.bankAccountId)" >X</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <ul class="nav nav-pills justify-content-center">
+                        <li class="nav-item border">
+                            <a class="nav-link" (click)="onPrec()">&lt;&lt;</a>
+                        </li>
+                        <li class="nav-item border" *ngFor="let p of pages; let i=index">
+                            <a class="nav-link" [ngClass]="{'active': i==currentPage}" (click)="onPage(i)">{{i+1}}</a>
+                        </li>
+                        <li class="nav-item border">
+                            <a class="nav-link" (click)="onNext()">&gt;&gt;</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
