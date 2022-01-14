@@ -1,13 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
 
-.container{
+body{
     font-family: "Montserrat", Arial, Helvetica, sans-serif;
 }
 
 .rounded-xl {
     border-radius: .5rem;
 }
+
+.btn-success {
+    background-color: #5cb95c;
+} 
 
 .logo {
     color: white;

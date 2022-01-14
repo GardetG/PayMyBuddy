@@ -1,0 +1,12 @@
+.mytable>tbody>tr>td, .mytable>tbody>tr>th, .mytable>tfoot>tr>td, .mytable>tfoot>tr>th, .mytable>thead>tr>td, .mytable>thead>tr>th {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    text-align: center;
+}
+
+.mytable>thead>tr>td, .mytable>thead>tr>th {
+    padding-left: 30px;
+    padding-right: 30px;
+    color: white;
+    background-color: #5cb95c;
+}

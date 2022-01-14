@@ -1,0 +1,81 @@
+<div class="container">
+    <div class="row justify-content-center m-1">
+        <div class="col-12 col-sm-10 col-lg-8">
+
+            <div class="row mt-2">
+                <div class="col-6 p-0">
+                    <h5 class="pt-2">Send Money</h5>
+                </div>
+                <div class="col-6 p-0">
+                    <button class="btn btn-primary rounded-xl float-end">Add Connection</button>
+                </div>
+            </div>
+            <form>
+                <div class="row bg-light py-5 px-sm-3 px-lg-5">
+                    <div class="col-5">
+                        <select name="receiver" class="form-select">
+                            <option [ngValue]="null" disabled selected>Select a Connection</option>
+                            <option *ngFor="let connection of connections" [value]="connection.connectionId">
+                                {{connection.firstname}}
+                              </option>
+                        </select>
+                    </div>
+                    <div class="col-3">
+                        <input type="number" class="form-control" placeholder="0.00" aria-label="Amount">
+                    </div>
+                    <div class="col-4">
+                        <button type="submit" class="btn btn-success rounded-xl w-100">Pay</button>
+                    </div>
+
+                </div>
+            </form>
+
+            <div class="row mt-3">
+                <div class="col p-0">
+                    <h5 class="pt-2">My Transactions</h5>
+                </div>
+            </div>
+            <div class="row border border-dark ">
+                <div class="table-responsive-md p-0">
+                    <table class="table mytable table-striped table-borderless m-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Connections</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr scope="row" *ngIf="transactions.length==0">
+                                <td colspan="4">You don't have any transaction at this moment.</td>
+                            </tr>
+                            <tr scope="row" *ngFor="let transaction of transactions">
+                                <td>{{transaction.emitterFirstname}}</td>
+                                <td>{{transaction.date}}</td>
+                                <td>{{transaction.description}}</td>
+                                <td>{{transaction.amount}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <ul class="nav nav-pills justify-content-center">
+                        <li class="nav-item border">
+                            <a class="nav-link" (click)="onPrec()">&lt;&lt;</a>
+                        </li>
+                        <li class="nav-item border" *ngFor="let p of pages; let i=index">
+                            <a class="nav-link" [ngClass]="{'active': i==currentPage}" (click)="onPage(i)">{{i+1}}</a>
+                        </li>
+                        <li class="nav-item border">
+                            <a class="nav-link" (click)="onNext()">&gt;&gt;</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
