@@ -29,4 +29,14 @@ export class AuthenticationService {
     return this.http.post<User>("http://localhost:8080/register",user)
   }
 
+  public logoff() {
+    const headers = new HttpHeaders({
+      "X-Requested-With": "XMLHttpRequest"})
+    return this.http.post<User>("http://localhost:8080/logout",{headers})
+    .pipe(map(resp => {
+      this.identity = new Identity();
+      return resp
+    }));
+  }
+
 }
