@@ -1,0 +1,29 @@
+<div class="container">
+    <div class="row justify-content-center mt-1  mx-1">
+      <div class="col-12 col-sm-10 col-lg-8">
+  
+        <div class="row">
+          <div class="col p-0">
+            <h4 class="pt-2">Welcome {{user.firstname}}</h4>
+          </div>
+        </div>
+  
+        <div class="row">
+          <div class="col p-0">
+            <h5 class="pt-2">My Wallet</h5>
+          </div>
+        </div>
+        <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
+          <div class="col-4 text-center">
+            <span class="icon">
+              <i class="fas fa-euro-sign fa-5x"></i>
+            </span>
+          </div>
+          <div class="col-8 align-self-center border border-2 rounded-xl">
+            <h3 class="pt-2 text-center">{{user.wallet | number : '1.2-2' }} &euro;</h3>
+          </div>
+        </div>
+  
+      </div>
+    </div>
+  </div>

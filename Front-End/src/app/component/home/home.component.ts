@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { User } from 'src/app/model/User/user.model';
-import { ApiPaymybuddyService } from 'src/app/service/api-paymybuddy.service';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -9,18 +9,13 @@ import { ApiPaymybuddyService } from 'src/app/service/api-paymybuddy.service';
 })
 export class HomeComponent implements OnInit {
 
-  user!: User;
-
-  constructor(private service:ApiPaymybuddyService) { 
-    service.getUser()
-    .subscribe({
-      next: (v) => {
-        this.user = v;
-      }
-    });
-  }
+  constructor(private activatedRoute: ActivatedRoute, private router: Router) { }
 
   ngOnInit(): void {
+    this.router.events.pipe
+      (filter(value => value instanceof NavigationEnd)).subscribe((value: any) => {
+          console.log(this.router.url) // ['home']
+      });
   }
 
 }
