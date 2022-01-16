@@ -21,6 +21,7 @@ import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.service.UserService;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,8 +54,8 @@ class AuthenticationControllerTest {
 
   @BeforeEach
   void setUp() {
-    userInfoDto = new UserDto(1, "test", "test", "test@mail.com", null,BigDecimal.ZERO, "USER");
-    userTest = new User("test", "test", "test@mail.com", "password", Role.USER);
+    userInfoDto = new UserDto(1, "test", "test", "test@mail.com", null,BigDecimal.ZERO, "USER", LocalDateTime.now());
+    userTest = new User("test", "test", "test@mail.com", "password", Role.USER, LocalDateTime.now());
     userTest.setUserId(1);
     jsonParam = new JSONObject();
   }
@@ -82,7 +83,7 @@ class AuthenticationControllerTest {
         .andExpect(jsonPath("$.wallet", is(0)))
         .andExpect(jsonPath("$.role", is("USER")));
     verify(userService, times(1)).register(subscriptionCaptor.capture());
-    UserDto expectedDto = new UserDto(0,"test","test", "test@mail.com","password",null,null);
+    UserDto expectedDto = new UserDto(0,"test","test", "test@mail.com","password",null,null, null);
     assertThat(subscriptionCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
   }
 
@@ -104,7 +105,7 @@ class AuthenticationControllerTest {
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$", is("This email is already used")));
     verify(userService, times(1)).register(subscriptionCaptor.capture());
-    UserDto expectedDto = new UserDto(0,"test","test", "existing@mail.com","password",null,null);
+    UserDto expectedDto = new UserDto(0,"test","test", "existing@mail.com","password",null,null, null);
     assertThat(subscriptionCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
   }
 

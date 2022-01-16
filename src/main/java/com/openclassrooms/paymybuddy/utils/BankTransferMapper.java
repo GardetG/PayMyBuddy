@@ -26,7 +26,6 @@ public class BankTransferMapper {
     bankTransferDto.setIncome(bankTransfer.getIsIncome());
     bankTransferDto.setBankAccountId(bankTransfer.getBankAccount().getBankAccountId());
     bankTransferDto.setTitle(bankTransfer.getBankAccount().getTitle());
-
     User user = bankTransfer.getBankAccount().getUser();
     bankTransferDto.setUserId(user.getUserId());
     bankTransferDto.setFirstname(user.getFirstname());

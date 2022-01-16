@@ -48,7 +48,7 @@ class BankTransferControllerIntegrationTest {
         .andExpect(jsonPath("$.content[0].userId", is(2)))
         .andExpect(jsonPath("$.content[0].bankAccountId", is(1)))
         .andExpect(jsonPath("$.content[0].amount", is(25.0)))
-        .andExpect(jsonPath("$.content[0].date", is("2022-01-07T20:34:04" )))
+        .andExpect(jsonPath("$.content[0].date", is("2022-01-07 at 20:34" )))
         .andExpect(jsonPath("$.content[0].income", is(false)))
         .andExpect(jsonPath("$.content[0].firstname", is("test" )))
         .andExpect(jsonPath("$.content[0].lastname", is("test")))

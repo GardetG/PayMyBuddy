@@ -16,6 +16,7 @@ import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,9 +42,9 @@ class ConnectionServiceTest {
 
   @BeforeEach
   void setUp() {
-    user1Test = new User("user1","test","user1@mail.com","12345678", Role.USER);
+    user1Test = new User("user1","test","user1@mail.com","12345678", Role.USER, LocalDateTime.now());
     user1Test.setUserId(1);
-    user2Test = new User("user2","test","user2@mail.com","12345678", Role.USER);
+    user2Test = new User("user2","test","user2@mail.com","12345678", Role.USER, LocalDateTime.now());
     user2Test.setUserId(2);
     connectionDto = new ConnectionDto(2,"user2","test","user2@mail.com");
   }

@@ -25,6 +25,7 @@ import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.service.UserService;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,10 +63,10 @@ class UserControllerTest {
 
   @BeforeEach
   void setUp() {
-    userInfoDto = new UserDto(1, "test","test","test@mail.com",null, BigDecimal.ZERO, "USER");
-    userTest = new User("test","test","user1@mail.com","password", Role.USER);
+    userInfoDto = new UserDto(1, "test","test","test@mail.com",null, BigDecimal.ZERO, "USER", LocalDateTime.now());
+    userTest = new User("test","test","user1@mail.com","password", Role.USER, LocalDateTime.now());
     userTest.setUserId(1);
-    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN);
+    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, LocalDateTime.now());
     jsonParam = new JSONObject();
   }
 
@@ -163,7 +164,7 @@ class UserControllerTest {
     // GIVEN
     jsonParam.put("userId",1).put("firstname","update")
         .put("lastname","test").put("email","new@mail.com");
-    UserDto updateDto = new UserDto(1,"update", "test", "new@mail.com", null,BigDecimal.ZERO, "USER");
+    UserDto updateDto = new UserDto(1,"update", "test", "new@mail.com", null,BigDecimal.ZERO, "USER", LocalDateTime.now());
     when(userService.update(any(UserDto.class))).thenReturn(updateDto);
 
     // WHEN
@@ -183,7 +184,7 @@ class UserControllerTest {
         .andExpect(jsonPath("$.password").doesNotExist())
         .andExpect(jsonPath("$.role", is("USER")));
     verify(userService, times(1)).update(infoCaptor.capture());
-    UserDto expected = new UserDto(1,"update", "test", "new@mail.com", null,null, null);
+    UserDto expected = new UserDto(1,"update", "test", "new@mail.com", null,null, null,null);
     assertThat(infoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expected);
   }
 
@@ -205,7 +206,7 @@ class UserControllerTest {
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$", is("This email is already used")));
     verify(userService, times(1)).update(infoCaptor.capture());
-    UserDto expected = new UserDto(1,"update", "test", "existing@mail.com", null,null, null);
+    UserDto expected = new UserDto(1,"update", "test", "existing@mail.com", null,null, null,null);
     assertThat(infoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expected);
   }
 

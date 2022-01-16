@@ -24,6 +24,7 @@ import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.ConnectionService;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,9 +59,9 @@ class ConnectionControllerTest {
   @BeforeEach
   void setUp() {
     connectionDtoTest = new ConnectionDto(2,"user2","test","user2@mail.com");
-    userTest = new User("user1","test","user1@mail.com","password", Role.USER);
+    userTest = new User("user1","test","user1@mail.com","password", Role.USER, LocalDateTime.now());
     userTest.setUserId(1);
-    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN);
+    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, LocalDateTime.now());
     JSONparam = new JSONObject();
   }
 

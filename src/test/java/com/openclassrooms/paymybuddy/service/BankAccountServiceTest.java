@@ -15,6 +15,7 @@ import com.openclassrooms.paymybuddy.model.BankAccount;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +42,7 @@ class BankAccountServiceTest {
 
   @BeforeEach
   void setUp() throws Exception {
-    userTest = new User("test","test","test@mail.com","12345678", Role.USER);
+    userTest = new User("test","test","test@mail.com","12345678", Role.USER, LocalDateTime.now());
     userTest.setUserId(1);
     bankAccountTest = new BankAccount("PrimaryAccount", "1234567890abcdefghijklmnopqrstu123","12345678abc");
     bankAccountTest.setBankAccountId(1);
@@ -65,7 +66,7 @@ class BankAccountServiceTest {
   @Test
   void getAllByUserIdWhenEmptyTest() throws Exception {
     // GIVEN
-    userTest = new User("test","test","test@mail.com","12345678", Role.USER);
+    userTest = new User("test","test","test@mail.com","12345678", Role.USER, LocalDateTime.now());
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
 
     // WHEN

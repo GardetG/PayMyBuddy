@@ -52,9 +52,9 @@ class TransactionServiceTest {
 
   @BeforeEach
   void setUp() {
-    emitter = new User("user1","test","user1@mail.com","password", Role.USER);
+    emitter = new User("user1","test","user1@mail.com","password", Role.USER, LocalDateTime.now());
     emitter.setUserId(1);
-    receiver = new User("user2","test","user2@mail.com","password", Role.USER);
+    receiver = new User("user2","test","user2@mail.com","password", Role.USER, LocalDateTime.now());
     receiver.setUserId(2);
     LocalDateTime date = LocalDateTime.now();
     amount = BigDecimal.TEN;

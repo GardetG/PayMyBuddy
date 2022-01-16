@@ -63,9 +63,9 @@ class BankTransferControllerTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User("test","test","user1@mail.com","password", Role.USER);
+    userTest = new User("test","test","user1@mail.com","password", Role.USER, LocalDateTime.now());
     userTest.setUserId(1);
-    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN);
+    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, LocalDateTime.now());
     bankTransferDtoTest = new BankTransferDto(1,1, BigDecimal.TEN,false, LocalDateTime.now(),"user","test", "Primary Account");
     jsonParam = new JSONObject();
   }

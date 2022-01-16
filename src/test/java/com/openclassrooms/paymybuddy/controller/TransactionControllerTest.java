@@ -60,9 +60,9 @@ class TransactionControllerTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User("test","test","user1@mail.com","password", Role.USER);
+    userTest = new User("test","test","user1@mail.com","password", Role.USER, LocalDateTime.now());
     userTest.setUserId(1);
-    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN);
+    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, LocalDateTime.now());
     transactionDtoTest = new TransactionDto(1,2,"Gift for a friend",BigDecimal.TEN,LocalDateTime.now(),"user1","test","user2","test");
     jsonParam = new JSONObject();
   }

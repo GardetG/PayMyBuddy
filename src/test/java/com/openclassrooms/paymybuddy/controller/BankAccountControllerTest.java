@@ -23,6 +23,7 @@ import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.BankAccountService;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,9 +58,9 @@ class BankAccountControllerTest {
     void setUp() {
         UnmaskedBankAccountDtoTest = new BankAccountDto(1, "Primary Account","1234567890abcdefghijklmnopqrstu456","12345678xyz");
         bankAccountDtoTest = new BankAccountDto(1, "Primary Account","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456","XXXXXXXXxyz");
-        userTest = new User("test","test","user1@mail.com","password", Role.USER);
+        userTest = new User("test","test","user1@mail.com","password", Role.USER, LocalDateTime.now());
         userTest.setUserId(1);
-        adminTest = new User("test","test","test@mail.com","password", Role.ADMIN);
+        adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, LocalDateTime.now());
     }
 
     @Test

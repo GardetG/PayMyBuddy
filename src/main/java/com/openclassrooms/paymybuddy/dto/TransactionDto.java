@@ -1,5 +1,6 @@
 package com.openclassrooms.paymybuddy.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ public class TransactionDto {
   private BigDecimal amount;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  @JsonFormat(pattern = "yyyy-MM-dd' at 'HH:mm")
   private LocalDateTime date;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String emitterFirstname;

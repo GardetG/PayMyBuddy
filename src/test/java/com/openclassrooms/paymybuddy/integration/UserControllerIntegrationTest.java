@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.jayway.jsonpath.JsonPath;
 import com.openclassrooms.paymybuddy.dto.UserDto;
 import com.openclassrooms.paymybuddy.utils.JsonParser;
+import java.time.LocalDateTime;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +69,7 @@ class UserControllerIntegrationTest {
   @Test
   void updateTest() throws Exception {
     // GIVEN
-    UserDto updatedUser = new UserDto(3, "update", "test", "update@mail.com", null,null, "USER");
+    UserDto updatedUser = new UserDto(3, "update", "test", "update@mail.com", null,null, "USER", LocalDateTime.now());
 
     // WHEN
     mockMvc.perform(put("/users")

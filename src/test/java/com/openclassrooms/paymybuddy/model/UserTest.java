@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
+import java.time.LocalDateTime;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ class UserTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User("test","test","test@mail.com","12345678", Role.USER);
+    userTest = new User("test","test","test@mail.com","12345678", Role.USER, LocalDateTime.now());
   }
 
   @Test
@@ -91,7 +92,7 @@ class UserTest {
   @Test
   void addConnectionTest() throws Exception {
     // GIVEN
-    User userToAdd = new User("Test","Test","contact@mail.com", "12345678", Role.USER);
+    User userToAdd = new User("Test","Test","contact@mail.com", "12345678", Role.USER, LocalDateTime.now());
 
     // WHEN
     userTest.addConnection(userToAdd);
@@ -104,7 +105,7 @@ class UserTest {
   @Test
   void addAlreadyAddedConnectionTest() throws Exception {
     // GIVEN
-    User userToAdd = new User("Test","Test","contact@mail.com", "12345678", Role.USER);
+    User userToAdd = new User("Test","Test","contact@mail.com", "12345678", Role.USER, LocalDateTime.now());
     userTest.addConnection(userToAdd);
 
     // WHEN
@@ -118,7 +119,7 @@ class UserTest {
   @Test
   void removeConnectionTest() throws Exception {
     // GIVEN
-    User userToRemove = new User("Test","Test","contact@mail.com", "12345678", Role.USER);
+    User userToRemove = new User("Test","Test","contact@mail.com", "12345678", Role.USER, LocalDateTime.now());
     userTest.addConnection(userToRemove);
 
     // WHEN
@@ -132,7 +133,7 @@ class UserTest {
   @Test
   void removeNotAddedConnectionTest() {
     // GIVEN
-    User userToRemove = new User("Test","Test","contact@mail.com", "12345678", Role.USER);
+    User userToRemove = new User("Test","Test","contact@mail.com", "12345678", Role.USER, LocalDateTime.now());
 
     // WHEN
     assertThatThrownBy(() -> userTest.removeConnection(userToRemove))
@@ -145,7 +146,7 @@ class UserTest {
   @Test
   void getConnectionsReturnImmutableTest() {
     // GIVEN
-    User userToAdd = new User("Test","Test","contact@mail.com", "12345678", Role.USER);
+    User userToAdd = new User("Test","Test","contact@mail.com", "12345678", Role.USER, LocalDateTime.now());
     Set<User> connections = userTest.getConnections();
 
     // WHEN

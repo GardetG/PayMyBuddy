@@ -18,11 +18,9 @@ import com.openclassrooms.paymybuddy.model.BankTransfer;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.BankTransferRepository;
-import com.openclassrooms.paymybuddy.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +52,7 @@ class BankTransferServiceTest {
 
   @BeforeEach
   void setUp() throws Exception {
-    user = new User("user","test","user@mail.com","password",Role.USER);
+    user = new User("user","test","user@mail.com","password",Role.USER, LocalDateTime.now());
     user.setUserId(1);
     bankAccount = new BankAccount("Primary Account", "1234567890abcdefghijklmnopqrstu123","12345678abc");
     bankAccount.setBankAccountId(1);

@@ -17,6 +17,7 @@ import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,9 +53,9 @@ class UserServiceTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User("user","test","user@mail.com","EncodedPwd", Role.USER);
+    userTest = new User("user","test","user@mail.com","EncodedPwd", Role.USER, LocalDateTime.now());
     userTest.setUserId(1);
-    userInfoDto = new UserDto(1, "user","test","user@mail.com",null,BigDecimal.ZERO, "USER");
+    userInfoDto = new UserDto(1, "user","test","user@mail.com",null,BigDecimal.ZERO, "USER", LocalDateTime.now());
   }
 
   @Test
@@ -115,7 +116,7 @@ class UserServiceTest {
   @Test
   void registerTest() throws Exception {
     // GIVEN
-    UserDto userDto = new UserDto(0,"user","test", "user@mail.com", "12345678", null, null);
+    UserDto userDto = new UserDto(0,"user","test", "user@mail.com", "12345678", null, null,null);
     when(userRepository.existsByEmail(anyString())).thenReturn(false);
     when(passwordEncoder.encode(anyString())).thenReturn("EncodedPwd");
     when(userRepository.save(any(User.class))).thenReturn(userTest);
@@ -129,13 +130,13 @@ class UserServiceTest {
     verify(passwordEncoder, times(1)).encode("12345678");
     verify(userRepository, times(1)).save(userCaptor.capture());
     userTest.setUserId(0);
-    assertThat(userCaptor.getValue()).usingRecursiveComparison().isEqualTo(userTest);
+    assertThat(userCaptor.getValue()).usingRecursiveComparison().ignoringFields("registrationDate").isEqualTo(userTest);
   }
 
   @Test
   void registerWhenEmailAlreadyExistTest() {
     // GIVEN
-    UserDto userDto = new UserDto(0,"user","test", "existing@mail.com", "12345678", null, null);
+    UserDto userDto = new UserDto(0,"user","test", "existing@mail.com", "12345678", null, null,null);
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
     // WHEN
@@ -152,9 +153,9 @@ class UserServiceTest {
   @Test
   void updateInfoWithSameEmailTest() throws Exception {
     // GIVEN
-    UserDto userDto = new UserDto(1, "update","test", "user@mail.com",null, null, null);
-    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, Role.USER.toString());
-    User updatedUser = new User("update", "test", "user@mail.com", "EncodedPwd", Role.USER);
+    UserDto userDto = new UserDto(1, "update","test", "user@mail.com",null, null, null,null);
+    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, Role.USER.toString(), LocalDateTime.now());
+    User updatedUser = new User("update", "test", "user@mail.com", "EncodedPwd", Role.USER, LocalDateTime.now());
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.save(any(User.class))).thenReturn(updatedUser);
@@ -166,16 +167,16 @@ class UserServiceTest {
     assertThat(actualUserinfoDto).usingRecursiveComparison().isEqualTo(updateDto);
     verify(userRepository, times(1)).findById(1);
     verify(userRepository, times(1)).save(userCaptor.capture());
-    assertThat(userCaptor.getValue()).usingRecursiveComparison().isEqualTo(updatedUser);
+    assertThat(userCaptor.getValue()).usingRecursiveComparison().ignoringFields("registrationDate").isEqualTo(updatedUser);
   }
 
   @Test
   void updateInfoWithNewEmailTest() throws Exception {
     // GIVEN
-    UserDto userDto = new UserDto(1, "update","test", "update@mail.com",null, null, null);
+    UserDto userDto = new UserDto(1, "update","test", "update@mail.com",null, null, null, null);
     UserDto
-        updateDto = new UserDto(1, "update","test", "update@mail.com",null, BigDecimal.ZERO, Role.USER.toString());
-    User updatedUser = new User("update", "test", "update@mail.com", "EncodedPwd", Role.USER);
+        updateDto = new UserDto(1, "update","test", "update@mail.com",null, BigDecimal.ZERO, Role.USER.toString(), LocalDateTime.now());
+    User updatedUser = new User("update", "test", "update@mail.com", "EncodedPwd", Role.USER, LocalDateTime.now());
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.existsByEmail(anyString())).thenReturn(false);
@@ -195,9 +196,9 @@ class UserServiceTest {
   @Test
   void updateInfoWithNewPasswordEmailTest() throws Exception {
     // GIVEN
-    UserDto userDto = new UserDto(1, "update","test", "user@mail.com","NewPassword", null, null);
-    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, Role.USER.toString());
-    User updatedUser = new User("update", "test", "user@mail.com", "NewEncoded", Role.USER);
+    UserDto userDto = new UserDto(1, "update","test", "user@mail.com","NewPassword", null, null,null);
+    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, Role.USER.toString(), LocalDateTime.now());
+    User updatedUser = new User("update", "test", "user@mail.com", "NewEncoded", Role.USER, LocalDateTime.now());
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(passwordEncoder.encode(anyString())).thenReturn("NewEncoded");
@@ -211,13 +212,13 @@ class UserServiceTest {
     verify(userRepository, times(1)).findById(1);
     verify(passwordEncoder, times(1)).encode("NewPassword");
     verify(userRepository, times(1)).save(userCaptor.capture());
-    assertThat(userCaptor.getValue()).usingRecursiveComparison().isEqualTo(updatedUser);
+    assertThat(userCaptor.getValue()).usingRecursiveComparison().ignoringFields("registrationDate").isEqualTo(updatedUser);
   }
 
   @Test
   void updateInfoWhenNotFoundTest() {
     // GIVEN
-    UserDto userDto = new UserDto(9, "update","test", "update@mail.com",null, null, null);
+    UserDto userDto = new UserDto(9, "update","test", "update@mail.com",null, null, null,null);
     when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
@@ -234,7 +235,7 @@ class UserServiceTest {
   @Test
   void updateInfoWhenNewEmailAlreadyExistsTest() {
     // GIVEN
-    UserDto userDto = new UserDto(1, "update","test", "existing@mail.com",null, null, null);
+    UserDto userDto = new UserDto(1, "update","test", "existing@mail.com",null, null, null,null);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
