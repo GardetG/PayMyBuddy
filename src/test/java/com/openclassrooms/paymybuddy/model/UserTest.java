@@ -155,4 +155,20 @@ class UserTest {
         // THEN
         .isInstanceOf(UnsupportedOperationException.class);
   }
+
+  @Test
+  void clearConnectionTest() throws Exception {
+    // GIVEN
+    User addedUser = new User("Test","Test","contact@mail.com", "12345678", Role.USER, LocalDateTime.now());
+    userTest.addConnection(addedUser);
+
+    // WHEN
+    userTest.clearConnection();
+
+    // THEN
+    assertThat(userTest.getConnections()).isEmpty();
+    assertThat(addedUser.getConnections()).isEmpty();
+  }
+
 }
+

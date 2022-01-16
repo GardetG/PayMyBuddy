@@ -198,6 +198,16 @@ public class User extends ComptableEntity implements UserDetails {
     connection.connections.remove(this);
   }
 
+  /**
+   * Clear all connections of the user.
+   */
+  public void clearConnection() {
+    connections.forEach(connection -> {
+      this.connections.remove(connection);
+      connection.connections.remove(this);
+    });
+  }
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     Collection<GrantedAuthority> authorities = new ArrayList<>();

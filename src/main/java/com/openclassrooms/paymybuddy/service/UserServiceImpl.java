@@ -70,7 +70,6 @@ public class UserServiceImpl implements UserService {
     user.setFirstname(userUpdate.getFirstname());
     user.setLastname(userUpdate.getLastname());
 
-
     return UserMapper.toInfoDto(userRepository.save(user));
   }
 
@@ -82,15 +81,7 @@ public class UserServiceImpl implements UserService {
       LOGGER.error("The user {} can't delete account if wallet not empty", id);
       throw new ForbiddenOperationException("The user can't delete account if wallet not empty");
     }
-
-    user.getConnections().forEach(c -> {
-      try {
-        user.removeConnection(c);
-      } catch (ResourceNotFoundException e) {
-        LOGGER.error("Can't find connection to remove");
-      }
-    });
-
+    user.clearConnection();
     userRepository.delete(user);
   }
 

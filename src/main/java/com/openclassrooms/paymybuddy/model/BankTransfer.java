@@ -14,8 +14,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * Model Class of a bank transfer between a user and a bank account.
@@ -54,7 +52,6 @@ public class BankTransfer {
       cascade = {CascadeType.PERSIST, CascadeType.MERGE},
       fetch = FetchType.EAGER)
   @JoinColumn(name = "bank_account_id")
-  @OnDelete(action = OnDeleteAction.CASCADE)
   @Getter
   private BankAccount bankAccount;
 
