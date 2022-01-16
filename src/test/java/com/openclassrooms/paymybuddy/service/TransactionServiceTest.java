@@ -17,10 +17,13 @@ import com.openclassrooms.paymybuddy.model.Transaction;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.TransactionRepository;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -143,7 +146,7 @@ class TransactionServiceTest {
   @Test
   void requestTransactionTest() throws Exception {
     // GIVEN
-    emitter.credit(amount);
+    emitter.credit(BigDecimal.valueOf(10.05));
     TransactionDto request = new TransactionDto(1,2, "Gift to a friend",amount,null,null,null,null,null);
     when(userService.getUserById(anyInt())).thenReturn(emitter).thenReturn(receiver);
     when(transactionRepository.save(any(Transaction.class))).thenReturn(transactionTest);
@@ -153,7 +156,7 @@ class TransactionServiceTest {
 
     // THEN
     assertThat(actualDto).usingRecursiveComparison().ignoringFields("date").isEqualTo(transactionDtoTest);
-    assertThat(emitter.getBalance()).isEqualTo(BigDecimal.ZERO);
+    assertThat(emitter.getBalance()).isEqualTo(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
     assertThat(receiver.getBalance()).isEqualTo(amount);
     verify(userService, times(2)).getUserById(anyInt());
     verify(transactionRepository, times(1)).save(any(Transaction.class));
@@ -222,8 +225,33 @@ class TransactionServiceTest {
 
         // THEN
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("The amount to debit can't be negative");
+        .hasMessageContaining("The amount can't be negative");
     verify(userService, times(2)).getUserById(anyInt());
     verify(transactionRepository, times(0)).save(any(Transaction.class));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"0,0.00","0.1,0.00", "1,0.01","5,0.03","10,0.05"})
+  void calculateFareVariousAmountTest(BigDecimal input, BigDecimal expected) {
+    // GIVEN
+
+    // WHEN
+    BigDecimal actual = transactionService.calculateFare(input);
+
+        // THEN
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void calculateFareWithNegativeAmountTest() {
+    // GIVEN
+    BigDecimal amount = BigDecimal.valueOf(-10);
+
+    // WHEN
+    assertThatThrownBy(() ->  transactionService.calculateFare(amount))
+
+        // THEN
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("The amount can't be negative");
   }
 }
