@@ -5,6 +5,7 @@ import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,13 +57,15 @@ public class User extends ComptableEntity implements UserDetails {
    * @param password of user
    * @param role authorization of the user
    */
-  public User(String firstname, String lastname, String email, String password, Role role) {
+  public User(String firstname, String lastname, String email, String password, Role role,
+              LocalDateTime registrationDate) {
     super(ApplicationValue.INITIAL_USER_BALANCE);
     this.firstname = firstname;
     this.lastname = lastname;
     this.email = email;
     this.password = password;
     this.role = role;
+    this.registrationDate = registrationDate;
   }
 
   @Id
@@ -91,18 +94,22 @@ public class User extends ComptableEntity implements UserDetails {
   @Getter @Setter
   private Role role;
 
+  @Column(name = "registration_date")
+  @Getter
+  private LocalDateTime registrationDate;
+
   @OneToMany(
       mappedBy = "user",
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       fetch = FetchType.EAGER)
-  private Set<BankAccount> bankAccounts = new HashSet<>();
+  private final Set<BankAccount> bankAccounts = new HashSet<>();
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "connection",
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "connection_id"))
-  private Set<User> connections = new HashSet<>();
+  private final Set<User> connections = new HashSet<>();
 
   public Set<BankAccount> getBankAccounts() {
     return Collections.unmodifiableSet(bankAccounts);
@@ -223,5 +230,3 @@ public class User extends ComptableEntity implements UserDetails {
     return true;
   }
 }
-
-

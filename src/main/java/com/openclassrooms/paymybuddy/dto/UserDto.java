@@ -2,6 +2,7 @@ package com.openclassrooms.paymybuddy.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -36,6 +37,8 @@ public class UserDto {
   private BigDecimal wallet;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String role;
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private LocalDateTime registrationDate;
 
   /**
    * Interface definition of Subscription validation to validate subscribe only constraints.
