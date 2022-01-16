@@ -3,6 +3,7 @@ package com.openclassrooms.paymybuddy.service;
 import com.openclassrooms.paymybuddy.dto.TransactionDto;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
+import java.math.BigDecimal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,5 +20,7 @@ public interface TransactionService {
 
   TransactionDto requestTransaction(TransactionDto request)
       throws ResourceNotFoundException, InsufficientProvisionException;
+
+  BigDecimal calculateFare(BigDecimal amount);
 
 }

@@ -1,5 +1,6 @@
 package com.openclassrooms.paymybuddy.service;
 
+import com.openclassrooms.paymybuddy.constant.ApplicationValue;
 import com.openclassrooms.paymybuddy.dto.TransactionDto;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
@@ -7,6 +8,8 @@ import com.openclassrooms.paymybuddy.model.Transaction;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.TransactionRepository;
 import com.openclassrooms.paymybuddy.utils.TransactionMapper;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,18 +50,30 @@ public class TransactionServiceImpl implements TransactionService {
     User emitter = userService.getUserById(request.getEmitterId());
     User receiver = userService.getUserById(request.getReceiverId());
 
-    emitter.debit(request.getAmount());
-    receiver.credit(request.getAmount());
+    BigDecimal amount = request.getAmount();
+    emitter.debit(amount.add(calculateFare(amount)));
+    receiver.credit(amount);
 
     Transaction transaction = new Transaction(
         emitter,
         receiver,
         LocalDateTime.now(),
-        request.getAmount(),
+        amount,
         request.getDescription()
     );
 
     Transaction savedTransaction = transactionRepository.save(transaction);
     return TransactionMapper.toDto(savedTransaction);
   }
+
+  @Override
+  public BigDecimal calculateFare(BigDecimal amount) {
+    if (amount.signum() == -1) {
+      throw new IllegalArgumentException("The amount can't be negative");
+    }
+    return amount
+        .multiply(ApplicationValue.FARE_PERCENTAGE)
+        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+  }
+
 }

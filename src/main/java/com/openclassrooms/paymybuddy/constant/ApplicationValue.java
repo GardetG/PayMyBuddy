@@ -13,5 +13,6 @@ public class ApplicationValue {
 
   public static final BigDecimal INITIAL_USER_BALANCE = BigDecimal.ZERO;
   public static final BigDecimal INITIAL_BANKACCOUNT_BALANCE = BigDecimal.valueOf(500);
+  public static final BigDecimal FARE_PERCENTAGE = BigDecimal.valueOf(0.5);
 
 }

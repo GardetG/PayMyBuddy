@@ -89,6 +89,6 @@ class TransactionControllerIntegrationTest {
     mockMvc.perform(get("/users/3")
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("admin@mail.com","password")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.wallet", is(90.0)));
+        .andExpect(jsonPath("$.wallet", is(89.95)));
   }
 }
