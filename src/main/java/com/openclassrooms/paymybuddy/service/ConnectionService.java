@@ -4,7 +4,8 @@ import com.openclassrooms.paymybuddy.dto.ConnectionDto;
 import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,7 +14,8 @@ import org.springframework.stereotype.Service;
 @Service
 public interface ConnectionService {
 
-  List<ConnectionDto> getAllFromUser(int userId) throws ResourceNotFoundException;
+  Page<ConnectionDto> getAllFromUser(int userId, Pageable pageable)
+      throws ResourceNotFoundException;
 
   ConnectionDto addToUser(int userId, ConnectionDto connection)
       throws ResourceNotFoundException, ResourceAlreadyExistsException, ForbiddenOperationException;

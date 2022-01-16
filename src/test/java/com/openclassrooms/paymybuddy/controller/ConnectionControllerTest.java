@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.openclassrooms.paymybuddy.config.PageableConfiguration;
 import com.openclassrooms.paymybuddy.dto.ConnectionDto;
 import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
@@ -30,10 +31,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(value = ConnectionController.class)
+@Import(PageableConfiguration.class)
 class ConnectionControllerTest {
 
   @Autowired
@@ -62,24 +67,24 @@ class ConnectionControllerTest {
   @Test
   void getAllFromUserTest() throws Exception {
     // GIVEN
-    when(connectionService.getAllFromUser(anyInt())).thenReturn(List.of(connectionDtoTest));
+    when(connectionService.getAllFromUser(anyInt(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(connectionDtoTest)));
 
     // WHEN
     mockMvc.perform(get("/users/1/connections").with(user(userTest)))
 
         // THEN
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].connectionId", is(2)))
-        .andExpect(jsonPath("$[0].firstname", is("user2")))
-        .andExpect(jsonPath("$[0].lastname", is("test")))
-        .andExpect(jsonPath("$[0].email").doesNotExist());
-    verify(connectionService, times(1)).getAllFromUser(1);
+        .andExpect(jsonPath("$.content.[0].connectionId", is(2)))
+        .andExpect(jsonPath("$.content.[0].firstname", is("user2")))
+        .andExpect(jsonPath("$.content.[0].lastname", is("test")))
+        .andExpect(jsonPath("$.content.[0].email").doesNotExist());
+    verify(connectionService, times(1)).getAllFromUser(1, Pageable.unpaged());
   }
 
   @Test
   void getAllFromUserWhenNotFoundTest() throws Exception {
     // GIVEN
-    when(connectionService.getAllFromUser(anyInt())).thenThrow(
+    when(connectionService.getAllFromUser(anyInt(), any(Pageable.class))).thenThrow(
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
@@ -88,7 +93,7 @@ class ConnectionControllerTest {
         // THEN
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$", is("This user is not found")));
-    verify(connectionService, times(1)).getAllFromUser(9);
+    verify(connectionService, times(1)).getAllFromUser(9, Pageable.unpaged());
   }
 
   @Test
@@ -100,7 +105,7 @@ class ConnectionControllerTest {
 
         // THEN
         .andExpect(status().isUnauthorized());
-    verify(connectionService, times(0)).getAllFromUser(anyInt());
+    verify(connectionService, times(0)).getAllFromUser(anyInt(), any(Pageable.class));
   }
 
   @Test
@@ -112,7 +117,7 @@ class ConnectionControllerTest {
 
         // THEN
         .andExpect(status().isForbidden());
-    verify(connectionService, times(0)).getAllFromUser(anyInt());
+    verify(connectionService, times(0)).getAllFromUser(anyInt(), any(Pageable.class));
   }
 
   @Test

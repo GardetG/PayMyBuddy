@@ -54,10 +54,10 @@ class ConnectionControllerIntegrationTest {
     mockMvc.perform(get("/users/2/connections")
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$", hasSize(1)))
-        .andExpect(jsonPath("$[0].connectionId", is(1)))
-        .andExpect(jsonPath("$[0].firstname", is("test")))
-        .andExpect(jsonPath("$[0].lastname", is("test")));
+        .andExpect(jsonPath("$.content", hasSize(1)))
+        .andExpect(jsonPath("$.content.[0].connectionId", is(1)))
+        .andExpect(jsonPath("$.content.[0].firstname", is("test")))
+        .andExpect(jsonPath("$.content.[0].lastname", is("test")));
   }
 
   @Test
@@ -76,7 +76,7 @@ class ConnectionControllerIntegrationTest {
     mockMvc.perform(get("/users/3/connections")
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user2@mail.com","password")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$", hasSize(0)));
+        .andExpect(jsonPath("$.content", hasSize(0)));
   }
 
 }

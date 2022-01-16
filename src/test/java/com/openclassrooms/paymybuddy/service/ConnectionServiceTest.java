@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @SpringBootTest
 class ConnectionServiceTest {
@@ -53,10 +55,10 @@ class ConnectionServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
 
     // WHEN
-    List<ConnectionDto> actualListConnectionstDto = connectionService.getAllFromUser(1);
+    Page<ConnectionDto> actualListConnectionstDto = connectionService.getAllFromUser(1, Pageable.unpaged());
 
     // THEN
-    assertThat(actualListConnectionstDto).usingRecursiveComparison().isEqualTo(List.of(connectionDto));
+    assertThat(actualListConnectionstDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(connectionDto));
     verify(userRepository, times(1)).findById(1);
   }
 
@@ -66,7 +68,7 @@ class ConnectionServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
 
     // WHEN
-    List<ConnectionDto> actualListConnectionstDto = connectionService.getAllFromUser(1);
+    Page<ConnectionDto> actualListConnectionstDto = connectionService.getAllFromUser(1, Pageable.unpaged());
 
     // THEN
     assertThat(actualListConnectionstDto).isEmpty();
@@ -79,7 +81,7 @@ class ConnectionServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
-    assertThatThrownBy(() -> connectionService.getAllFromUser(9))
+    assertThatThrownBy(() -> connectionService.getAllFromUser(9, Pageable.unpaged()))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
