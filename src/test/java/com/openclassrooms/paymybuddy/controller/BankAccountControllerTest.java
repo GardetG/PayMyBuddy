@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.openclassrooms.paymybuddy.config.PageableConfiguration;
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
@@ -28,10 +29,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(value = BankAccountController.class)
+@Import(PageableConfiguration.class)
 class BankAccountControllerTest {
 
     @Autowired
@@ -60,24 +65,24 @@ class BankAccountControllerTest {
     @Test
     void getAllFromUserTest() throws Exception {
         // GIVEN
-        when(bankAccountService.getAllFromUser(anyInt())).thenReturn(List.of(bankAccountDtoTest));
+        when(bankAccountService.getAllFromUser(anyInt(),any(Pageable.class))).thenReturn(new PageImpl<>(List.of(bankAccountDtoTest)));
 
         // WHEN
         mockMvc.perform(get("/users/1/bankaccounts").with(user(userTest)))
 
             // THEN
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].bankAccountId", is(1)))
-            .andExpect(jsonPath("$[0].title", is("Primary Account")))
-            .andExpect(jsonPath("$[0].iban", is("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456")))
-            .andExpect(jsonPath("$[0].bic", is("XXXXXXXXxyz")));
-        verify(bankAccountService, times(1)).getAllFromUser(1);
+            .andExpect(jsonPath("$.content.[0].bankAccountId", is(1)))
+            .andExpect(jsonPath("$.content.[0].title", is("Primary Account")))
+            .andExpect(jsonPath("$.content.[0].iban", is("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456")))
+            .andExpect(jsonPath("$.content.[0].bic", is("XXXXXXXXxyz")));
+        verify(bankAccountService, times(1)).getAllFromUser(1, Pageable.unpaged());
     }
 
     @Test
     void getAllFromUserWhenNotFoundTest() throws Exception {
         // GIVEN
-        when(bankAccountService.getAllFromUser(anyInt())).thenThrow(
+        when(bankAccountService.getAllFromUser(anyInt(), any(Pageable.class) )).thenThrow(
             new ResourceNotFoundException("This user is not found"));
 
         // WHEN
@@ -86,7 +91,7 @@ class BankAccountControllerTest {
             // THEN
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$", is("This user is not found")));
-        verify(bankAccountService, times(1)).getAllFromUser(2);
+        verify(bankAccountService, times(1)).getAllFromUser(2, Pageable.unpaged());
     }
 
     @Test
@@ -98,7 +103,7 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isUnauthorized());
-        verify(bankAccountService, times(0)).getAllFromUser(anyInt());
+        verify(bankAccountService, times(0)).getAllFromUser(anyInt(), any(Pageable.class));
     }
 
     @Test
@@ -110,7 +115,7 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isForbidden());
-        verify(bankAccountService, times(0)).getAllFromUser(anyInt());
+        verify(bankAccountService, times(0)).getAllFromUser(anyInt(), any(Pageable.class) );
     }
 
     @Test
@@ -164,7 +169,7 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isUnauthorized());
-        verify(bankAccountService, times(0)).getAllFromUser(anyInt());
+        verify(bankAccountService, times(0)).getAllFromUser(anyInt(), any(Pageable.class));
     }
 
     @Test
@@ -179,7 +184,7 @@ class BankAccountControllerTest {
 
             // THEN
             .andExpect(status().isForbidden());
-        verify(bankAccountService, times(0)).getAllFromUser(anyInt());
+        verify(bankAccountService, times(0)).getAllFromUser(anyInt(), any(Pageable.class));
     }
 
     @Test

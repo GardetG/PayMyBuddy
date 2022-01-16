@@ -3,7 +3,8 @@ package com.openclassrooms.paymybuddy.service;
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,7 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public interface BankAccountService {
 
-  List<BankAccountDto> getAllFromUser(int userId) throws ResourceNotFoundException;
+  Page<BankAccountDto> getAllFromUser(int userId, Pageable pageable)
+      throws ResourceNotFoundException;
 
   BankAccountDto addToUser(int userId, BankAccountDto account)
       throws ResourceNotFoundException, ResourceAlreadyExistsException;

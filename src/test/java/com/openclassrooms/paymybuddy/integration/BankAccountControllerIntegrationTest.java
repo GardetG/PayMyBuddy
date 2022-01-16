@@ -51,11 +51,11 @@ class BankAccountControllerIntegrationTest {
     mockMvc.perform(get("/users/3/bankaccounts")
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user2@mail.com","password")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$", hasSize(1)))
-        .andExpect(jsonPath("$[0].bankAccountId", is(2)))
-        .andExpect(jsonPath("$[0].title", is("My Account")))
-        .andExpect(jsonPath("$[0].iban", is("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456")))
-        .andExpect(jsonPath("$[0].bic", is("XXXXXXXXxyz")));
+        .andExpect(jsonPath("$.content", hasSize(1)))
+        .andExpect(jsonPath("$.content.[0].bankAccountId", is(2)))
+        .andExpect(jsonPath("$.content.[0].title", is("My Account")))
+        .andExpect(jsonPath("$.content.[0].iban", is("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX456")))
+        .andExpect(jsonPath("$.content.[0].bic", is("XXXXXXXXxyz")));
   }
 
   @Test
@@ -74,7 +74,7 @@ class BankAccountControllerIntegrationTest {
     mockMvc.perform(get("/users/2/bankaccounts")
             .header(HttpHeaders.AUTHORIZATION,encodeCredentials("user@mail.com","password")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$", hasSize(0)));
+        .andExpect(jsonPath("$.content", hasSize(0)));
   }
 
 }

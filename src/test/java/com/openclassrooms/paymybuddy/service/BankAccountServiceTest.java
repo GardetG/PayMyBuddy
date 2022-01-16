@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @SpringBootTest
 class BankAccountServiceTest {
@@ -53,10 +55,10 @@ class BankAccountServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
 
     // WHEN
-    List<BankAccountDto> actualListBankAccountDto = bankAccountService.getAllFromUser(1);
+    Page<BankAccountDto> actualListBankAccountDto = bankAccountService.getAllFromUser(1, Pageable.unpaged());
 
     // THEN
-    assertThat(actualListBankAccountDto).usingRecursiveComparison().isEqualTo(List.of(account1DtoTest));
+    assertThat(actualListBankAccountDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(account1DtoTest));
     verify(userRepository, times(1)).findById(1);
   }
 
@@ -67,10 +69,10 @@ class BankAccountServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
 
     // WHEN
-    List<BankAccountDto> actualListBankAccountDto = bankAccountService.getAllFromUser(1);
+    Page<BankAccountDto> actualListBankAccountDto = bankAccountService.getAllFromUser(1, Pageable.unpaged());
 
     // THEN
-    assertThat(actualListBankAccountDto).usingRecursiveComparison().isEqualTo(new ArrayList<>());
+    assertThat(actualListBankAccountDto.getContent()).usingRecursiveComparison().isEqualTo(new ArrayList<>());
     verify(userRepository, times(1)).findById(1);
   }
 
@@ -80,7 +82,7 @@ class BankAccountServiceTest {
     when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
-    assertThatThrownBy(() -> bankAccountService.getAllFromUser(2))
+    assertThatThrownBy(() -> bankAccountService.getAllFromUser(2, Pageable.unpaged()))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
