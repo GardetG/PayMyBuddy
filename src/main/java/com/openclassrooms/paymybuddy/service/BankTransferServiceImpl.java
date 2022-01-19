@@ -72,6 +72,11 @@ public class BankTransferServiceImpl implements BankTransferService {
     return BankTransferMapper.toDto(savedBankTransfer);
   }
 
+  @Override
+  public void clearTransfersForAccount(BankAccount account) {
+
+  }
+
   private BankAccount findAccountById(User user, int accountId)
       throws ResourceNotFoundException {
     return user.getBankAccounts().stream()

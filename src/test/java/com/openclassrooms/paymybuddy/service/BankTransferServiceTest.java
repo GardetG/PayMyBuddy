@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,6 +21,7 @@ import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.BankTransferRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -270,5 +272,31 @@ class BankTransferServiceTest {
         .hasMessageContaining("The amount to debit can't be negative");
     verify(userService, times(1)).getUserById(1);
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
+  }
+
+  @Test
+  void clearTransfersForAccountTest() {
+    // GIVEN
+    when(bankTransferRepository.findByBankAccountIn(anyList(), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(bankTransferTest)));
+
+    // WHEN
+    bankTransferService.clearTransfersForAccount(bankAccount);
+
+    // THEN
+    verify(bankTransferRepository,times(1)).delete(bankTransferTest);
+  }
+
+  @Test
+  void clearTransfersForAccountWhenEmptyTest() {
+    // GIVEN
+    when(bankTransferRepository.findByBankAccountIn(anyList(), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(Collections.emptyList()));
+
+    // WHEN
+    bankTransferService.clearTransfersForAccount(bankAccount);
+
+    // THEN
+    verify(bankTransferRepository,times(0)).delete(any(BankTransfer.class));
   }
 }
