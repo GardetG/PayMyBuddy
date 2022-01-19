@@ -30,4 +30,5 @@ public interface UserService {
 
   void saveEntity(User user) throws ResourceNotFoundException;
 
+  void userDeletionSubscribe(UserDeletionObserver observer);
 }

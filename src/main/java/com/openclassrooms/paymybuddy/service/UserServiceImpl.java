@@ -8,6 +8,8 @@ import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.UserMapper;
+import java.util.ArrayList;
+import java.util.List;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+  private final List<UserDeletionObserver> observers = new ArrayList<>();
 
   @Autowired
   private UserRepository userRepository;
@@ -82,6 +85,8 @@ public class UserServiceImpl implements UserService {
       throw new ForbiddenOperationException("The user can't delete account if wallet not empty");
     }
     user.clearConnection();
+    observers.forEach(observer -> observer.onUserDeletion(user));
+
     userRepository.delete(user);
   }
 
@@ -107,6 +112,11 @@ public class UserServiceImpl implements UserService {
       throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
     }
     userRepository.save(user);
+  }
+
+  @Override
+  public void userDeletionSubscribe(UserDeletionObserver observer) {
+    observers.add(observer);
   }
 
   private void checkEmail(String email) throws ResourceAlreadyExistsException {
