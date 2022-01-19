@@ -55,14 +55,14 @@ public class Transaction {
       cascade = {CascadeType.PERSIST, CascadeType.MERGE},
       fetch = FetchType.EAGER)
   @JoinColumn(name = "emitter_Id")
-  @Getter
+  @Getter @Setter
   private User emitter;
 
   @ManyToOne(
       cascade = {CascadeType.PERSIST, CascadeType.MERGE},
       fetch = FetchType.EAGER)
   @JoinColumn(name = "receiver_id")
-  @Getter
+  @Getter @Setter
   private User receiver;
 
   @Column(name = "description")

@@ -74,6 +74,7 @@ public class BankTransferServiceImpl implements BankTransferService {
   }
 
   @Override
+  @Transactional
   public void clearTransfersForAccount(BankAccount account) {
     List<BankTransfer> transferList = bankTransferRepository
         .findByBankAccountIn(List.of(account), Pageable.unpaged())

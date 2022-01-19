@@ -254,4 +254,44 @@ class TransactionServiceTest {
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("The amount can't be negative");
   }
+
+  @Test
+  void clearTransactionForEmitterTest() {
+    // GIVEN
+
+    // WHEN
+    transactionService.clearTransactionForUser(transactionTest, emitter);
+
+    // THEN
+    assertThat(transactionTest.getEmitter()).isNull();
+    assertThat(transactionTest.getReceiver()).isEqualTo(receiver);
+    verify(transactionRepository, times(0)).delete(any(Transaction.class));
+  }
+
+  @Test
+  void clearTransactionForReceiverTest() {
+    // GIVEN
+
+    // WHEN
+    transactionService.clearTransactionForUser(transactionTest, receiver);
+
+    // THEN
+    assertThat(transactionTest.getReceiver()).isNull();
+    assertThat(transactionTest.getEmitter()).isEqualTo(emitter);
+    verify(transactionRepository, times(0)).delete(any(Transaction.class));
+  }
+
+  @Test
+  void clearTransactionWhenEmitterAndReceiverNullTest() {
+    // GIVEN
+    transactionTest.setReceiver(null);
+
+    // WHEN
+    transactionService.clearTransactionForUser(transactionTest, emitter);
+
+    // THEN
+    assertThat(transactionTest.getReceiver()).isNull();
+    assertThat(transactionTest.getEmitter()).isNull();
+    verify(transactionRepository, times(1)).delete(transactionTest);
+  }
 }
