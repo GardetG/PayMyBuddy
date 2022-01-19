@@ -76,4 +76,20 @@ public class TransactionServiceImpl implements TransactionService {
         .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
   }
 
+  @Override
+  @Transactional
+  public void clearTransactionForUser(Transaction transaction, User user) {
+    if (user.equals(transaction.getEmitter())) {
+      transaction.setEmitter(null);
+    }
+    if (user.equals(transaction.getReceiver())) {
+      transaction.setReceiver(null);
+    }
+    if (transaction.getEmitter() == null && transaction.getReceiver() == null) {
+      transactionRepository.delete(transaction);
+      return;
+    }
+    transactionRepository.save(transaction);
+  }
+
 }
