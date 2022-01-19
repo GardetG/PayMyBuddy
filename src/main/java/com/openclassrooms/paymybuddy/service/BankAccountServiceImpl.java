@@ -6,12 +6,10 @@ import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.BankAccount;
 import com.openclassrooms.paymybuddy.model.User;
-import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.BankAccountMapper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
@@ -32,12 +30,16 @@ public class BankAccountServiceImpl implements BankAccountService {
   private static final Logger LOGGER = LoggerFactory.getLogger(BankAccountServiceImpl.class);
 
   @Autowired
-  private UserRepository userRepository;
+  private UserService userService;
+
+  @Autowired
+  private BankTransferService bankTransferService;
 
   @Override
-  public Page<BankAccountDto> getAllFromUser(int userId,
-                                             Pageable pageable) throws ResourceNotFoundException {
-    User user = getUserById(userId);
+  public Page<BankAccountDto> getAllFromUser(int userId, Pageable pageable)
+      throws ResourceNotFoundException {
+
+    User user = userService.retrieveEntity(userId);
     List<BankAccount> bankAccountsList = new ArrayList<>(user.getBankAccounts());
 
     if (!pageable.equals(Pageable.unpaged())) {
@@ -56,11 +58,11 @@ public class BankAccountServiceImpl implements BankAccountService {
   public BankAccountDto addToUser(int userId, BankAccountDto account)
       throws ResourceNotFoundException, ResourceAlreadyExistsException {
 
-    User user = getUserById(userId);
+    User user = userService.retrieveEntity(userId);
     BankAccount bankAccountToAdd = BankAccountMapper.toModel(account);
 
     user.addBankAccount(bankAccountToAdd);
-    user = userRepository.save(user);
+    userService.saveEntity(user);
 
     BankAccount bankAccountCreated = findBankAccount(user.getBankAccounts(),
         a -> a.getIban().equals(account.getIban()));
@@ -69,26 +71,18 @@ public class BankAccountServiceImpl implements BankAccountService {
 
   @Override
   public void removeFromUser(int userId, int id) throws ResourceNotFoundException {
-
-    User user = getUserById(userId);
+    User user = userService.retrieveEntity(userId);
     BankAccount bankAccountToDelete = findBankAccount(user.getBankAccounts(),
         a -> a.getBankAccountId() == id);
 
+    bankTransferService.clearTransfersForAccount(bankAccountToDelete);
     user.removeBankAccount(bankAccountToDelete);
-    userRepository.save(user);
-  }
 
-  private User getUserById(int userId) throws ResourceNotFoundException {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
-      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
-      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
-    }
-    return user.get();
+    userService.saveEntity(user);
   }
 
   private BankAccount findBankAccount(Collection<BankAccount> bankAccounts,
-                                     Predicate<BankAccount> predicate)
+                                      Predicate<BankAccount> predicate)
       throws ResourceNotFoundException {
     return bankAccounts.stream()
         .filter(predicate)
@@ -98,5 +92,4 @@ public class BankAccountServiceImpl implements BankAccountService {
           return new ResourceNotFoundException(ErrorMessage.BANKACCOUNT_NOT_FOUND);
         });
   }
-
 }

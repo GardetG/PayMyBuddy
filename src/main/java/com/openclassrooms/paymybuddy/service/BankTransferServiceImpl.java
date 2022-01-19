@@ -9,6 +9,7 @@ import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.BankTransferRepository;
 import com.openclassrooms.paymybuddy.utils.BankTransferMapper;
 import java.time.LocalDateTime;
+import java.util.List;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class BankTransferServiceImpl implements BankTransferService {
   @Override
   public Page<BankTransferDto> getFromUser(int userId, Pageable pageable)
       throws ResourceNotFoundException {
-    User user = userService.getUserById(userId);
+    User user = userService.retrieveEntity(userId);
     return bankTransferRepository.findByBankAccountIn(user.getBankAccounts(), pageable)
         .map(BankTransferMapper::toDto);
   }
@@ -50,7 +51,7 @@ public class BankTransferServiceImpl implements BankTransferService {
   public BankTransferDto requestTransfer(BankTransferDto request)
       throws ResourceNotFoundException, InsufficientProvisionException {
 
-    User user = userService.getUserById(request.getUserId());
+    User user = userService.retrieveEntity(request.getUserId());
     BankAccount account = findAccountById(user, request.getBankAccountId());
 
     if (request.isIncome()) {
@@ -74,7 +75,11 @@ public class BankTransferServiceImpl implements BankTransferService {
 
   @Override
   public void clearTransfersForAccount(BankAccount account) {
+    List<BankTransfer> transferList = bankTransferRepository
+        .findByBankAccountIn(List.of(account), Pageable.unpaged())
+        .getContent();
 
+    transferList.forEach(transfer -> bankTransferRepository.delete(transfer));
   }
 
   private BankAccount findAccountById(User user, int accountId)

@@ -95,7 +95,7 @@ class TransactionServiceTest {
   void getAllFromUserTest() throws Exception {
     // GIVEN
     Pageable pageable = PageRequest.of(0,1);
-    when(userService.getUserById(anyInt())).thenReturn(emitter);
+    when(userService.retrieveEntity(anyInt())).thenReturn(emitter);
     when(transactionRepository.findByEmitterOrReceiver(any(User.class),any(User.class),any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of(transactionTest)));
 
@@ -104,7 +104,7 @@ class TransactionServiceTest {
 
     // THEN
     assertThat(actualPageTransactionDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(transactionDtoTest));
-    verify(userService, times(1)).getUserById(1);
+    verify(userService, times(1)).retrieveEntity(1);
     verify(transactionRepository, times(1)).findByEmitterOrReceiver(emitter,emitter,pageable);
   }
 
@@ -112,7 +112,7 @@ class TransactionServiceTest {
   void getAllFromUserWhenEmptyTest() throws Exception {
     // GIVEN
     Pageable pageable = PageRequest.of(0,1);
-    when(userService.getUserById(anyInt())).thenReturn(emitter);
+    when(userService.retrieveEntity(anyInt())).thenReturn(emitter);
     when(transactionRepository.findByEmitterOrReceiver(any(User.class),any(User.class),any(Pageable.class)))
         .thenReturn(Page.empty());
 
@@ -121,7 +121,7 @@ class TransactionServiceTest {
 
     // THEN
     assertThat(actualPageTransactionDto.getContent()).isEmpty();
-    verify(userService, times(1)).getUserById(1);
+    verify(userService, times(1)).retrieveEntity(1);
     verify(transactionRepository, times(1)).findByEmitterOrReceiver(emitter,emitter,pageable);
   }
 
@@ -129,7 +129,7 @@ class TransactionServiceTest {
   void getAllFromUserWhenUserNotFoundTest() throws Exception {
     // GIVEN
     Pageable pageable = PageRequest.of(0,1);
-    when(userService.getUserById(anyInt())).thenThrow(
+    when(userService.retrieveEntity(anyInt())).thenThrow(
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
@@ -138,7 +138,7 @@ class TransactionServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userService, times(1)).getUserById(9);
+    verify(userService, times(1)).retrieveEntity(9);
     verify(transactionRepository, times(0)).findByEmitterOrReceiver(any(User.class),any(User.class),any(Pageable.class));
   }
 
@@ -148,7 +148,7 @@ class TransactionServiceTest {
     // GIVEN
     emitter.credit(BigDecimal.valueOf(10.05));
     TransactionDto request = new TransactionDto(1,2, "Gift to a friend",amount,null,null,null,null,null);
-    when(userService.getUserById(anyInt())).thenReturn(emitter).thenReturn(receiver);
+    when(userService.retrieveEntity(anyInt())).thenReturn(emitter).thenReturn(receiver);
     when(transactionRepository.save(any(Transaction.class))).thenReturn(transactionTest);
 
     // WHEN
@@ -158,7 +158,7 @@ class TransactionServiceTest {
     assertThat(actualDto).usingRecursiveComparison().ignoringFields("date").isEqualTo(transactionDtoTest);
     assertThat(emitter.getBalance()).isEqualTo(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
     assertThat(receiver.getBalance()).isEqualTo(amount);
-    verify(userService, times(2)).getUserById(anyInt());
+    verify(userService, times(2)).retrieveEntity(anyInt());
     verify(transactionRepository, times(1)).save(any(Transaction.class));
   }
 
@@ -166,7 +166,7 @@ class TransactionServiceTest {
   void requestTransactionWithInsufficientProvisionTest() throws Exception {
     // GIVEN
     TransactionDto request = new TransactionDto(1,2, "Gift to a friend",amount,null,null,null,null,null);
-    when(userService.getUserById(anyInt())).thenReturn(emitter).thenReturn(receiver);
+    when(userService.retrieveEntity(anyInt())).thenReturn(emitter).thenReturn(receiver);
 
     // WHEN
     assertThatThrownBy(() ->  transactionService.requestTransaction(request))
@@ -176,7 +176,7 @@ class TransactionServiceTest {
         .hasMessageContaining("Insufficient provision to debit the amount");
     assertThat(emitter.getBalance()).isEqualTo(ApplicationValue.INITIAL_USER_BALANCE);
     assertThat(receiver.getBalance()).isEqualTo(ApplicationValue.INITIAL_USER_BALANCE);
-    verify(userService, times(2)).getUserById(anyInt());
+    verify(userService, times(2)).retrieveEntity(anyInt());
     verify(transactionRepository, times(0)).save(any(Transaction.class));
   }
 
@@ -184,7 +184,7 @@ class TransactionServiceTest {
   void requestTransactionWhenEmitterNotFoundTest() throws Exception {
     // GIVEN
     TransactionDto request = new TransactionDto(1,2, "Gift to a friend",amount,null,null,null,null,null);
-    when(userService.getUserById(anyInt())).thenThrow(
+    when(userService.retrieveEntity(anyInt())).thenThrow(
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
@@ -193,7 +193,7 @@ class TransactionServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userService, times(1)).getUserById(anyInt());
+    verify(userService, times(1)).retrieveEntity(anyInt());
     verify(transactionRepository, times(0)).save(any(Transaction.class));
   }
 
@@ -201,7 +201,7 @@ class TransactionServiceTest {
   void requestTransactionWhenReceiverNotFoundTest() throws Exception {
     // GIVEN
     TransactionDto request = new TransactionDto(1,2, "Gift to a friend",amount,null,null,null,null,null);
-    when(userService.getUserById(anyInt())).thenReturn(emitter).thenThrow(
+    when(userService.retrieveEntity(anyInt())).thenReturn(emitter).thenThrow(
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
@@ -210,7 +210,7 @@ class TransactionServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userService, times(2)).getUserById(anyInt());
+    verify(userService, times(2)).retrieveEntity(anyInt());
     verify(transactionRepository, times(0)).save(any(Transaction.class));
   }
 
@@ -218,7 +218,7 @@ class TransactionServiceTest {
   void requestTransactionWithNegativeAmountTest() throws Exception {
     // GIVEN
     TransactionDto request = new TransactionDto(1,2, "Gift to a friend",BigDecimal.valueOf(-25),null,null,null,null,null);
-    when(userService.getUserById(anyInt())).thenReturn(emitter).thenReturn(receiver);
+    when(userService.retrieveEntity(anyInt())).thenReturn(emitter).thenReturn(receiver);
 
     // WHEN
     assertThatThrownBy(() ->  transactionService.requestTransaction(request))
@@ -226,7 +226,7 @@ class TransactionServiceTest {
         // THEN
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("The amount can't be negative");
-    verify(userService, times(2)).getUserById(anyInt());
+    verify(userService, times(2)).retrieveEntity(anyInt());
     verify(transactionRepository, times(0)).save(any(Transaction.class));
   }
 

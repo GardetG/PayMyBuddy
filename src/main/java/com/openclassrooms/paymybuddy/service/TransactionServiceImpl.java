@@ -38,7 +38,7 @@ public class TransactionServiceImpl implements TransactionService {
   @Override
   public Page<TransactionDto> getFromUser(int userId, Pageable pageable)
       throws ResourceNotFoundException {
-    User user = userService.getUserById(userId);
+    User user = userService.retrieveEntity(userId);
     return transactionRepository.findByEmitterOrReceiver(user, user, pageable)
         .map(TransactionMapper::toDto);
   }
@@ -47,8 +47,8 @@ public class TransactionServiceImpl implements TransactionService {
   @Transactional
   public TransactionDto requestTransaction(TransactionDto request)
       throws ResourceNotFoundException, InsufficientProvisionException {
-    User emitter = userService.getUserById(request.getEmitterId());
-    User receiver = userService.getUserById(request.getReceiverId());
+    User emitter = userService.retrieveEntity(request.getEmitterId());
+    User receiver = userService.retrieveEntity(request.getReceiverId());
 
     BigDecimal amount = request.getAmount();
     emitter.debit(amount.add(calculateFare(amount)));

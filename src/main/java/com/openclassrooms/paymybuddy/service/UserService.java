@@ -19,13 +19,15 @@ public interface UserService {
 
   UserDto getById(int id) throws ResourceNotFoundException;
 
-  User getUserById(int id) throws ResourceNotFoundException;
-
   UserDto register(UserDto user) throws ResourceAlreadyExistsException;
 
   UserDto update(UserDto user) throws ResourceNotFoundException,
       ResourceAlreadyExistsException;
 
   void deleteById(int id) throws ResourceNotFoundException, ForbiddenOperationException;
+
+  User retrieveEntity(int id) throws ResourceNotFoundException;
+
+  void saveEntity(User user) throws ResourceNotFoundException;
 
 }

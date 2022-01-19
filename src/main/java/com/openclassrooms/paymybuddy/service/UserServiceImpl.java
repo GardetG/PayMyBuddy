@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDto getById(int id) throws ResourceNotFoundException {
-    User user = getUserById(id);
+    User user = retrieveEntity(id);
     return UserMapper.toInfoDto(user);
   }
 
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserDto update(UserDto userUpdate) throws ResourceNotFoundException,
       ResourceAlreadyExistsException {
-    User user = getUserById(userUpdate.getUserId());
+    User user = retrieveEntity(userUpdate.getUserId());
 
     if (!userUpdate.getEmail().equals(user.getEmail())) {
       checkEmail(userUpdate.getEmail());
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
   @Transactional
   @Override
   public void deleteById(int id) throws ResourceNotFoundException, ForbiddenOperationException {
-    User user = getUserById(id);
+    User user = retrieveEntity(id);
     if (user.getBalance().signum() != 0) {
       LOGGER.error("The user {} can't delete account if wallet not empty", id);
       throw new ForbiddenOperationException("The user can't delete account if wallet not empty");
@@ -92,12 +92,21 @@ public class UserServiceImpl implements UserService {
    * @return User
    * @throws ResourceNotFoundException if user not found
    */
-  public User getUserById(int userId) throws ResourceNotFoundException {
+  public User retrieveEntity(int userId) throws ResourceNotFoundException {
     return userRepository.findById(userId)
         .orElseThrow(() -> {
           LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
           return new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
         });
+  }
+
+  @Override
+  public void saveEntity(User user) throws ResourceNotFoundException {
+    if (!userRepository.existsById(user.getUserId())) {
+      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", user.getUserId());
+      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
+    }
+    userRepository.save(user);
   }
 
   private void checkEmail(String email) throws ResourceAlreadyExistsException {
