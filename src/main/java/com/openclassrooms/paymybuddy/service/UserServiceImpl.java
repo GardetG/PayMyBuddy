@@ -76,6 +76,13 @@ public class UserServiceImpl implements UserService {
     return UserMapper.toInfoDto(userRepository.save(user));
   }
 
+  @Override
+  public void setAccountEnabling(int id, boolean enable) throws ResourceNotFoundException {
+    User user = retrieveEntity(id);
+    user.setEnabled(enable);
+    userRepository.save(user);
+  }
+
   @Transactional
   @Override
   public void deleteById(int id) throws ResourceNotFoundException, ForbiddenOperationException {
