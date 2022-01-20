@@ -216,7 +216,7 @@ class TransactionControllerTest {
         // THEN
         .andExpect(status().isUnprocessableEntity())
         .andExpect(jsonPath("$.description", is("Description is mandatory")))
-        .andExpect(jsonPath("$.amount", is("Amount can't be negative")));
+        .andExpect(jsonPath("$.amount", is("Amount must be greater then 1.00")));
     verify(transactionService, times(0)).requestTransaction(any(TransactionDto.class));
   }
 

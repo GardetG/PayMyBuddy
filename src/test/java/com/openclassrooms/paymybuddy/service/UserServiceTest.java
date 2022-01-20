@@ -293,7 +293,7 @@ class UserServiceTest {
   }
 
   @Test
-  void deleteByIdWhenWalletNotEmptyTest() {
+  void deleteByIdWhenWalletNotEmptyTest() throws Exception {
     // GIVEN
     userTest.credit(BigDecimal.ONE);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));

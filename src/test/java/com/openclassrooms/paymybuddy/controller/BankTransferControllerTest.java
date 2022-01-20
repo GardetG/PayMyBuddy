@@ -234,7 +234,7 @@ class BankTransferControllerTest {
 
         // THEN
         .andExpect(status().isUnprocessableEntity())
-        .andExpect(jsonPath("$.amount", is("Amount can't be negative")));
+        .andExpect(jsonPath("$.amount", is("Amount must be greater then 1.00")));
     verify(bankTransferService, times(0)).requestTransfer(any(BankTransferDto.class));
   }
 

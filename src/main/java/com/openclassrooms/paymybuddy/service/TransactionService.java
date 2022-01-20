@@ -1,6 +1,7 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.dto.TransactionDto;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Transaction;
@@ -45,7 +46,7 @@ public interface TransactionService {
    * @throws InsufficientProvisionException if provision insufficient to perform the transaction
    */
   TransactionDto requestTransaction(TransactionDto request)
-      throws ResourceNotFoundException, InsufficientProvisionException;
+      throws ResourceNotFoundException, ForbiddenOperationException;
 
   /**
    * Calculate from the amount of the transaction the fare that will be added to the total to debit

@@ -68,8 +68,8 @@ public class UserServiceImpl implements UserService {
   /**
    * {@inheritDoc}
    */
-  @Transactional
   @Override
+  @Transactional
   public UserDto update(UserDto userUpdate) throws ResourceNotFoundException,
       ResourceAlreadyExistsException {
     User user = retrieveEntity(userUpdate.getUserId());

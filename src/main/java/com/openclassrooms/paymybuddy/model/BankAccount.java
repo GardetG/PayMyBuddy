@@ -25,7 +25,9 @@ import lombok.Setter;
 public class BankAccount extends ComptableEntity {
 
   private BankAccount() {
-    // Private default constructor for hibernate
+    super(
+        ApplicationValue.BANKACCOUNT_BALANCE_CEILING
+    );
   }
 
   /**
@@ -36,7 +38,10 @@ public class BankAccount extends ComptableEntity {
    * @param bic of bank account
    */
   public BankAccount(String title, String iban, String bic) {
-    super(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE);
+    super(
+        ApplicationValue.INITIAL_BANKACCOUNT_BALANCE,
+        ApplicationValue.BANKACCOUNT_BALANCE_CEILING
+    );
     this.title = title;
     this.iban = iban;
     this.bic = bic;

@@ -1,6 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.dto.BankTransferDto;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.BankTransferService;
@@ -81,7 +82,7 @@ public class BankTransferController {
   @PreAuthorize("#request.userId == authentication.principal.userId")
   @PostMapping("/banktransfers")
   public ResponseEntity<BankTransferDto> request(@Valid @RequestBody BankTransferDto request)
-      throws InsufficientProvisionException, ResourceNotFoundException {
+      throws ForbiddenOperationException, ResourceNotFoundException {
 
     LOGGER.info("Request: Bank transfer for user {} with account {}", request.getUserId(),
         request.getBankAccountId());

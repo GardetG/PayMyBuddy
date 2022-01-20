@@ -1,7 +1,7 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.dto.BankTransferDto;
-import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.BankAccount;
 import com.openclassrooms.paymybuddy.model.BankTransfer;
@@ -65,9 +65,9 @@ public class BankTransferServiceImpl implements BankTransferService, UserDeletio
    * {@inheritDoc}
    */
   @Override
-  @Transactional
+  @Transactional(rollbackOn = ForbiddenOperationException.class)
   public BankTransferDto requestTransfer(BankTransferDto request)
-      throws ResourceNotFoundException, InsufficientProvisionException {
+      throws ResourceNotFoundException, ForbiddenOperationException {
 
     User user = userService.retrieveEntity(request.getUserId());
     BankAccount account = findAccountById(user, request.getBankAccountId());

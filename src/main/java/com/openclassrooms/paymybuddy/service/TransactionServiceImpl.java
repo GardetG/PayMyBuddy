@@ -2,7 +2,7 @@ package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.constant.ApplicationValue;
 import com.openclassrooms.paymybuddy.dto.TransactionDto;
-import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Transaction;
 import com.openclassrooms.paymybuddy.model.User;
@@ -62,9 +62,9 @@ public class TransactionServiceImpl implements TransactionService, UserDeletionO
    * {@inheritDoc}
    */
   @Override
-  @Transactional
+  @Transactional(rollbackOn = ForbiddenOperationException.class)
   public TransactionDto requestTransaction(TransactionDto request)
-      throws ResourceNotFoundException, InsufficientProvisionException {
+      throws ResourceNotFoundException, ForbiddenOperationException {
     User emitter = userService.retrieveEntity(request.getEmitterId());
     User receiver = userService.retrieveEntity(request.getReceiverId());
 

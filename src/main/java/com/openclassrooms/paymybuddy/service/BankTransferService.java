@@ -1,6 +1,7 @@
 package com.openclassrooms.paymybuddy.service;
 
 import com.openclassrooms.paymybuddy.dto.BankTransferDto;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.BankAccount;
@@ -43,7 +44,7 @@ public interface BankTransferService {
    * @throws InsufficientProvisionException if provision insufficient to perform the transfer
    */
   BankTransferDto requestTransfer(BankTransferDto request)
-      throws ResourceNotFoundException, InsufficientProvisionException;
+      throws ResourceNotFoundException, ForbiddenOperationException;
 
   /**
    * Delete from the database all bank transfer records for the bank account specified.

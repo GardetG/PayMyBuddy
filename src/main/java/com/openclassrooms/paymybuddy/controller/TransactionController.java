@@ -1,6 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.dto.TransactionDto;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.TransactionService;
@@ -81,7 +82,7 @@ public class TransactionController {
   @PreAuthorize("#request.emitterId == authentication.principal.userId")
   @PostMapping("/transactions")
   public ResponseEntity<TransactionDto> request(@Valid @RequestBody TransactionDto request)
-      throws InsufficientProvisionException, ResourceNotFoundException {
+      throws ForbiddenOperationException, ResourceNotFoundException {
 
     LOGGER.info("Request: Transaction from user {} to user {}", request.getEmitterId(),
         request.getReceiverId());

@@ -44,7 +44,9 @@ public class User extends ComptableEntity implements UserDetails {
   private static final Logger LOGGER = LoggerFactory.getLogger(User.class);
 
   private User() {
-    // Private default constructor for hibernate
+    super(
+        ApplicationValue.USER_BALANCE_CEILING
+    );
   }
 
   /**
@@ -58,7 +60,10 @@ public class User extends ComptableEntity implements UserDetails {
    */
   public User(String firstname, String lastname, String email, String password, Role role,
               LocalDateTime registrationDate) {
-    super(ApplicationValue.INITIAL_USER_BALANCE);
+    super(
+        ApplicationValue.INITIAL_USER_BALANCE,
+        ApplicationValue.USER_BALANCE_CEILING
+    );
     this.firstname = firstname;
     this.lastname = lastname;
     this.email = email;

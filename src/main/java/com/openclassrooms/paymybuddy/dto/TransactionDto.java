@@ -25,7 +25,7 @@ public class TransactionDto {
   private int receiverId;
   @NotBlank(message = "Description is mandatory")
   private String description;
-  @DecimalMin(value = "0.00", inclusive = false, message = "Amount can't be negative")
+  @DecimalMin(value = "1.00", message = "Amount must be greater then 1.00")
   @Digits(integer = 10, fraction = 2, message = "Amount can't have more than 2 decimals")
   private BigDecimal amount;
 

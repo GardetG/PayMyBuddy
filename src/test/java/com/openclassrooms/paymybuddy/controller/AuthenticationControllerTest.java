@@ -147,11 +147,6 @@ class AuthenticationControllerTest {
         // THEN
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.userId", is(1)))
-        .andExpect(jsonPath("$.firstname", is("test")))
-        .andExpect(jsonPath("$.lastname", is("test")))
-        .andExpect(jsonPath("$.email", is("test@mail.com")))
-        .andExpect(jsonPath("$.password").doesNotExist())
-        .andExpect(jsonPath("$.wallet", is(0)))
         .andExpect(jsonPath("$.role", is("USER")));
   }
 
