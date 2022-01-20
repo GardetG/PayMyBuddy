@@ -98,6 +98,10 @@ public class User extends ComptableEntity implements UserDetails {
   @Getter
   private LocalDateTime registrationDate;
 
+  @Column(name = "enabled")
+  @Getter @Setter
+  private boolean enabled = true;
+
   @OneToMany(
       mappedBy = "user",
       cascade = CascadeType.ALL,
@@ -235,8 +239,4 @@ public class User extends ComptableEntity implements UserDetails {
     return true;
   }
 
-  @Override
-  public boolean isEnabled() {
-    return true;
-  }
 }

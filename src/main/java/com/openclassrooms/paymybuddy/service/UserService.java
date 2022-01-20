@@ -24,6 +24,8 @@ public interface UserService {
   UserDto update(UserDto user) throws ResourceNotFoundException,
       ResourceAlreadyExistsException;
 
+  void setAccountEnabling(int id, boolean enable) throws ResourceNotFoundException;
+
   void deleteById(int id) throws ResourceNotFoundException, ForbiddenOperationException;
 
   User retrieveEntity(int id) throws ResourceNotFoundException;

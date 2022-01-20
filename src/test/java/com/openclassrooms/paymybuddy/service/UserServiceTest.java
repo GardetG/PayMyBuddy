@@ -234,6 +234,34 @@ class UserServiceTest {
   }
 
   @Test
+  void setAccountEnablingTest() throws Exception {
+    // GIVEN
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
+
+    // WHEN THEN
+    userService.setAccountEnabling(1,true);
+    assertThat(userTest.isEnabled()).isTrue();
+    // THEN
+    userService.setAccountEnabling(1,false);
+    assertThat(userTest.isEnabled()).isFalse();
+
+  }
+
+  @Test
+  void setAccountEnablingWhenNotFound() {
+    // GIVEN
+    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+    // WHEN
+    assertThatThrownBy(() -> userService.setAccountEnabling(9,true))
+
+        // THEN
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("This user is not found");
+    verify(userRepository,times(0)).save(userTest);
+  }
+
+  @Test
   void updateInfoWhenNewEmailAlreadyExistsTest() {
     // GIVEN
     UserDto userDto = new UserDto(1, "update","test", "existing@mail.com",null, null, null,null);

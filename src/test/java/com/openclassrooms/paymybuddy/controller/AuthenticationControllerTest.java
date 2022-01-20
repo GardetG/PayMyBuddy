@@ -3,7 +3,9 @@ package com.openclassrooms.paymybuddy.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,11 +13,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.openclassrooms.paymybuddy.dto.UserDto;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
+import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
@@ -50,6 +54,7 @@ class AuthenticationControllerTest {
 
   private UserDto userInfoDto;
   private User userTest;
+  private User adminTest;
   private JSONObject jsonParam;
 
   @BeforeEach
@@ -57,6 +62,7 @@ class AuthenticationControllerTest {
     userInfoDto = new UserDto(1, "test", "test", "test@mail.com", null,BigDecimal.ZERO, "USER", LocalDateTime.now());
     userTest = new User("test", "test", "test@mail.com", "password", Role.USER, LocalDateTime.now());
     userTest.setUserId(1);
+    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, LocalDateTime.now());
     jsonParam = new JSONObject();
   }
 
@@ -158,5 +164,32 @@ class AuthenticationControllerTest {
         // THEN
         .andExpect(status().isUnauthorized());
     verify(userService, times(0)).getById(anyInt());
+  }
+
+  @Test
+  void setAccountEnablingTest() throws Exception {
+    // GIVEN
+
+    // WHEN
+    mockMvc.perform(put("/users/1/enable?value=false").with(user(adminTest)))
+
+        // THEN
+        .andExpect(status().isNoContent());
+    verify(userService, times(1)).setAccountEnabling(1,false);
+  }
+
+  @Test
+  void setAccountEnablingWhenNotFoundTest() throws Exception {
+    // GIVEN
+    doThrow(new ResourceNotFoundException("This user is not found")).when(userService)
+        .setAccountEnabling(anyInt(), anyBoolean());
+
+    // WHEN
+    mockMvc.perform(put("/users/9/enable?value=true").with(user(adminTest)))
+
+        // THEN
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$", is("This user is not found")));
+    verify(userService, times(1)).setAccountEnabling(9,true);
   }
 }
