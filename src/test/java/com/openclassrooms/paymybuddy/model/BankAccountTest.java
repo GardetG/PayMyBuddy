@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.openclassrooms.paymybuddy.constant.ApplicationValue;
+import com.openclassrooms.paymybuddy.exception.ExceedingBalanceCeilingException;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,7 @@ class BankAccountTest {
 
   @ParameterizedTest
   @ValueSource(ints = {0, 10,500}) // six numbers
-  void creditBankAccountTest(int input) {
+  void creditBankAccountTest(int input) throws Exception {
     // GIVEN
     BigDecimal amount = BigDecimal.valueOf(input);
 
@@ -46,6 +47,19 @@ class BankAccountTest {
         // THEN
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("The amount to credit can't be negative");
+  }
+
+  @Test
+  void creditBankAccountToExceedBalanceCeilingTest() {
+    // GIVEN
+    BigDecimal amount = ApplicationValue.BANKACCOUNT_BALANCE_CEILING;
+
+    // WHEN
+    assertThatThrownBy(() -> bankAccount.credit(amount))
+
+        // THEN
+        .isInstanceOf(ExceedingBalanceCeilingException.class)
+        .hasMessageContaining("Exceeding Balance ceiling prevent crediting the amount");
   }
 
   @ParameterizedTest
