@@ -28,7 +28,9 @@ public interface UserService {
 
   User retrieveEntity(int id) throws ResourceNotFoundException;
 
-  void saveEntity(User user) throws ResourceNotFoundException;
+  User retrieveEntity(String email) throws ResourceNotFoundException;
+
+  User saveEntity(User user) throws ResourceNotFoundException;
 
   void userDeletionSubscribe(UserDeletionObserver observer);
 }

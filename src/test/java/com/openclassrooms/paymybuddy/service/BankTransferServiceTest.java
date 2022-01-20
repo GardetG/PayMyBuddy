@@ -37,7 +37,7 @@ import org.springframework.data.domain.Pageable;
 class BankTransferServiceTest {
 
   @Autowired
-  private BankTransferService bankTransferService;
+  private BankTransferServiceImpl bankTransferService;
 
   @MockBean
   private BankTransferRepository bankTransferRepository;
@@ -64,6 +64,14 @@ class BankTransferServiceTest {
     bankTransferTest = new BankTransfer(bankAccount, date, amount, false);
     bankTransferTest.setBankTransferId(1);
     bankTransferDtoTest = new BankTransferDto(1,1, amount,false,date,"user","test", "Primary Account");
+  }
+
+  @Test
+  void userDeletionSubscribePostConstructTest() {
+    // WHEN
+    bankTransferService.userDeletionSubscribe();
+    // THEN
+    verify(userService).userDeletionSubscribe(any(BankTransferServiceImpl.class));
   }
 
   @Test
@@ -277,8 +285,8 @@ class BankTransferServiceTest {
   @Test
   void clearTransfersForAccountTest() {
     // GIVEN
-    when(bankTransferRepository.findByBankAccountIn(anyList(), any(Pageable.class)))
-        .thenReturn(new PageImpl<>(List.of(bankTransferTest)));
+    when(bankTransferRepository.findByBankAccount(any(BankAccount.class)))
+        .thenReturn(List.of(bankTransferTest));
 
     // WHEN
     bankTransferService.clearTransfersForAccount(bankAccount);

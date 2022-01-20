@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -292,5 +293,88 @@ class UserServiceTest {
         .hasMessageContaining("This user is not found");
     verify(userRepository, times(1)).findById(2);
     verify(userRepository, times(0)).delete(any(User.class));
+  }
+
+  @Test
+  void retrieveEntityWithIdTest() throws Exception {
+    // GIVEN
+    when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
+
+    // WHEN
+    User actualUser = userService.retrieveEntity(1);
+
+    // THEN
+    assertThat(actualUser).usingRecursiveComparison().isEqualTo(userTest);
+    verify(userRepository, times(1)).findById(1);
+  }
+
+  @Test
+  void retrieveEntityWithIdWhenNotFoundTest() {
+    // GIVEN
+    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+    // WHEN
+    assertThatThrownBy(() -> userService.retrieveEntity(2))
+
+        // THEN
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("This user is not found");
+    verify(userRepository, times(1)).findById(2);
+  }
+
+  @Test
+  void retrieveEntityWithEmailTest() throws Exception {
+    // GIVEN
+    when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(userTest));
+
+    // WHEN
+    User actualUser = userService.retrieveEntity("user@mail.com");
+
+    // THEN
+    assertThat(actualUser).usingRecursiveComparison().isEqualTo(userTest);
+    verify(userRepository, times(1)).findByEmail("user@mail.com");
+  }
+
+  @Test
+  void retrieveEntityWithEmailWhenNotFoundTest() {
+    // GIVEN
+    when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+    // WHEN
+    assertThatThrownBy(() -> userService.retrieveEntity("notexisting@mail.com"))
+
+        // THEN
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("This user is not found");
+    verify(userRepository, times(1)).findByEmail("notexisting@mail.com");
+  }
+
+  @Test
+  void saveEntityTest() throws Exception {
+    // GIVEN
+    when(userRepository.existsById(anyInt())).thenReturn(true);
+
+    // WHEN
+    userService.saveEntity(userTest);
+
+    // THEN
+    verify(userRepository, times(1)).existsById(1);
+    verify(userRepository, times(1)).save(userTest);
+  }
+
+  @Test
+  void saveEntityWhenNotFoundTest() {
+    // GIVEN
+    User newUser = new User("new","test", "new@mail.com", "password",null, null);
+    when(userRepository.existsById(anyInt())).thenReturn(false);
+
+    // WHEN
+    assertThatThrownBy(() -> userService.saveEntity(newUser))
+
+        // THEN
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessageContaining("This user is not found");
+    verify(userRepository, times(1)).existsById(0);
+    verify(userRepository, times(0)).save(any(User.class));
   }
 }

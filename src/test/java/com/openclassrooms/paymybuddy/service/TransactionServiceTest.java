@@ -36,7 +36,7 @@ import org.springframework.data.domain.Pageable;
 class TransactionServiceTest {
 
   @Autowired
-  private TransactionService transactionService;
+  private TransactionServiceImpl transactionService;
 
   @MockBean
   private TransactionRepository transactionRepository;
@@ -61,6 +61,14 @@ class TransactionServiceTest {
     transactionTest = new Transaction(emitter,receiver, date, amount, "Gift to a friend");
     transactionTest.setTransactionId(1);
     transactionDtoTest = new TransactionDto(1,2, "Gift to a friend",amount,date,"user1","test", "user2","test");
+  }
+
+  @Test
+  void userDeletionSubscribePostConstructTest() {
+    // WHEN
+    transactionService.userDeletionSubscribe();
+    // THEN
+    verify(userService).userDeletionSubscribe(any(TransactionServiceImpl.class));
   }
 
   @Test

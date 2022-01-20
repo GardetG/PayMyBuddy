@@ -1,16 +1,13 @@
 package com.openclassrooms.paymybuddy.service;
 
-import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.dto.ConnectionDto;
 import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
-import com.openclassrooms.paymybuddy.repository.UserRepository;
 import com.openclassrooms.paymybuddy.utils.ConnectionMapper;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +26,12 @@ public class ConnectionServiceImpl implements ConnectionService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionServiceImpl.class);
 
   @Autowired
-  UserRepository userRepository;
+  UserService userService;
 
   @Override
   public Page<ConnectionDto> getAllFromUser(int userId,
                                             Pageable pageable) throws ResourceNotFoundException {
-    User user = getUserById(userId);
+    User user = userService.retrieveEntity(userId);
     List<User> connectionsList = new ArrayList<>(user.getConnections());
 
     if (!pageable.equals(Pageable.unpaged())) {
@@ -53,22 +50,22 @@ public class ConnectionServiceImpl implements ConnectionService {
       throws ResourceNotFoundException, ResourceAlreadyExistsException,
       ForbiddenOperationException {
 
-    User user = getUserById(userId);
+    User user = userService.retrieveEntity(userId);
     if (user.getEmail().equals(connection.getEmail())) {
       LOGGER.error("The user can't add himself as connection");
       throw new ForbiddenOperationException("The user can't add himself as connection");
     }
-    User connectionToAdd = getUserByEmail(connection.getEmail());
+    User connectionToAdd = userService.retrieveEntity(connection.getEmail());
 
     user.addConnection(connectionToAdd);
-    userRepository.save(user);
+    userService.saveEntity(user);
 
     return ConnectionMapper.toDto(connectionToAdd);
   }
 
   @Override
   public void removeFromUser(int userId, int id) throws ResourceNotFoundException {
-    User user = getUserById(userId);
+    User user = userService.retrieveEntity(userId);
     User connectionToDelete = user.getConnections().stream()
         .filter(c -> c.getUserId() == id)
         .findFirst()
@@ -78,24 +75,6 @@ public class ConnectionServiceImpl implements ConnectionService {
         });
 
     user.removeConnection(connectionToDelete);
-    userRepository.save(user);
-  }
-
-  private User getUserById(int userId) throws ResourceNotFoundException {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
-      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
-      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
-    }
-    return user.get();
-  }
-
-  private User getUserByEmail(String email) throws ResourceNotFoundException {
-    Optional<User> user = userRepository.findByEmail(email);
-    if (user.isEmpty()) {
-      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", email);
-      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
-    }
-    return user.get();
+    userService.saveEntity(user);
   }
 }

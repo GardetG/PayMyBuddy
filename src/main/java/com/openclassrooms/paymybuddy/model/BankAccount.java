@@ -18,8 +18,6 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "bank_account")
-@Getter
-@Setter
 public class BankAccount extends ComptableEntity {
 
   private BankAccount() {
@@ -43,19 +41,24 @@ public class BankAccount extends ComptableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "bank_account_id")
+  @Getter @Setter
   private int bankAccountId;
 
   @Column(name = "title",  length = 60)
+  @Getter
   private String title;
 
   @Column(name = "iban", length = 34)
+  @Getter
   private String iban;
 
   @Column(name = "bic",  length = 11)
+  @Getter
   private String bic;
 
   @ManyToOne()
   @JoinColumn(name = "user_id")
+  @Getter @Setter
   private User user;
 
   @Override

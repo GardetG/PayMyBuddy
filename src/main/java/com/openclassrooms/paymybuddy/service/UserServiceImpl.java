@@ -90,13 +90,7 @@ public class UserServiceImpl implements UserService {
     userRepository.delete(user);
   }
 
-  /**
-   * Return a User by the id or throw an exception.
-   *
-   * @param userId of the user
-   * @return User
-   * @throws ResourceNotFoundException if user not found
-   */
+  @Override
   public User retrieveEntity(int userId) throws ResourceNotFoundException {
     return userRepository.findById(userId)
         .orElseThrow(() -> {
@@ -106,12 +100,21 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void saveEntity(User user) throws ResourceNotFoundException {
+  public User retrieveEntity(String email) throws ResourceNotFoundException {
+    return userRepository.findByEmail(email)
+        .orElseThrow(() -> {
+          LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", email);
+          return new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
+        });
+  }
+
+  @Override
+  public User saveEntity(User user) throws ResourceNotFoundException {
     if (!userRepository.existsById(user.getUserId())) {
       LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", user.getUserId());
       throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
     }
-    userRepository.save(user);
+    return userRepository.save(user);
   }
 
   @Override

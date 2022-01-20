@@ -11,6 +11,7 @@ import com.openclassrooms.paymybuddy.utils.TransactionMapper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,13 +22,18 @@ import org.springframework.stereotype.Service;
  * Service Class for managing bank transfer between bank account and user wallet.
  */
 @Service
-public class TransactionServiceImpl implements TransactionService {
+public class TransactionServiceImpl implements TransactionService, UserDeletionObserver {
 
   @Autowired
   TransactionRepository transactionRepository;
 
   @Autowired
   UserService userService;
+
+  @PostConstruct
+  protected void userDeletionSubscribe() {
+    userService.userDeletionSubscribe(this);
+  }
 
   @Override
   public Page<TransactionDto> getAll(Pageable pageable) {
@@ -92,4 +98,10 @@ public class TransactionServiceImpl implements TransactionService {
     transactionRepository.save(transaction);
   }
 
+  @Override
+  @Transactional
+  public void onUserDeletion(User user) {
+    transactionRepository.findByEmitterOrReceiver(user, user)
+        .forEach(transaction -> clearTransactionForUser(transaction, user));
+  }
 }

@@ -10,6 +10,7 @@ import com.openclassrooms.paymybuddy.repository.BankTransferRepository;
 import com.openclassrooms.paymybuddy.utils.BankTransferMapper;
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Service;
  * Service Class for managing bank transfer between bank account and user wallet.
  */
 @Service
-public class BankTransferServiceImpl implements BankTransferService {
+public class BankTransferServiceImpl implements BankTransferService, UserDeletionObserver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BankTransferServiceImpl.class);
 
@@ -31,6 +32,11 @@ public class BankTransferServiceImpl implements BankTransferService {
 
   @Autowired
   UserService userService;
+
+  @PostConstruct
+  protected void userDeletionSubscribe() {
+    userService.userDeletionSubscribe(this);
+  }
 
   @Override
   public Page<BankTransferDto> getAll(Pageable pageable) {
@@ -74,13 +80,15 @@ public class BankTransferServiceImpl implements BankTransferService {
   }
 
   @Override
+  public void onUserDeletion(User user) {
+    user.getBankAccounts().forEach(this::clearTransfersForAccount);
+  }
+
+  @Override
   @Transactional
   public void clearTransfersForAccount(BankAccount account) {
-    List<BankTransfer> transferList = bankTransferRepository
-        .findByBankAccountIn(List.of(account), Pageable.unpaged())
-        .getContent();
-
-    transferList.forEach(transfer -> bankTransferRepository.delete(transfer));
+    List<BankTransfer> transfersList = bankTransferRepository.findByBankAccount(account);
+    transfersList.forEach(transfer -> bankTransferRepository.delete(transfer));
   }
 
   private BankAccount findAccountById(User user, int accountId)

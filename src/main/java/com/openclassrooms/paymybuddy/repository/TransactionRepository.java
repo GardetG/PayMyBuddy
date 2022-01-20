@@ -2,6 +2,7 @@ package com.openclassrooms.paymybuddy.repository;
 
 import com.openclassrooms.paymybuddy.model.Transaction;
 import com.openclassrooms.paymybuddy.model.User;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
@@ -17,5 +18,7 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
 
   Page<Transaction> findByEmitterOrReceiver(User emitter, User receiver,
                                             Pageable pageable);
+
+  List<Transaction> findByEmitterOrReceiver(User emitter, User receiver);
 
 }

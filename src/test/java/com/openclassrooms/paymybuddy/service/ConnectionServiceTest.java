@@ -15,7 +15,6 @@ import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
-import com.openclassrooms.paymybuddy.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +33,7 @@ class ConnectionServiceTest {
   private ConnectionService connectionService;
 
   @MockBean
-  private UserRepository userRepository;
+  private UserService userService;
 
   private User user1Test;
   private User user2Test;
@@ -53,33 +52,34 @@ class ConnectionServiceTest {
   void getAllFromUserTest() throws Exception {
     // GIVEN
     user1Test.addConnection(user2Test);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
+    when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
 
     // WHEN
     Page<ConnectionDto> actualListConnectionstDto = connectionService.getAllFromUser(1, Pageable.unpaged());
 
     // THEN
     assertThat(actualListConnectionstDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(connectionDto));
-    verify(userRepository, times(1)).findById(1);
+    verify(userService, times(1)).retrieveEntity(1);
   }
 
   @Test
   void getAllFromUserWhenEmptyTest() throws Exception {
     // GIVEN
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
+    when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
 
     // WHEN
     Page<ConnectionDto> actualListConnectionstDto = connectionService.getAllFromUser(1, Pageable.unpaged());
 
     // THEN
     assertThat(actualListConnectionstDto).isEmpty();
-    verify(userRepository, times(1)).findById(1);
+    verify(userService, times(1)).retrieveEntity(1);
   }
 
   @Test
-  void getAllFromUserWhenUserNotFoundTest() {
+  void getAllFromUserWhenUserNotFoundTest() throws Exception {
     // GIVEN
-    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+    when(userService.retrieveEntity(anyInt())).thenThrow(
+        new ResourceNotFoundException("This user is not found"));
 
     // WHEN
     assertThatThrownBy(() -> connectionService.getAllFromUser(9, Pageable.unpaged()))
@@ -87,16 +87,16 @@ class ConnectionServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userRepository, times(1)).findById(9);
+    verify(userService, times(1)).retrieveEntity(9);
   }
 
   @Test
   void addToUserTest() throws Exception {
     // GIVEN
     ConnectionDto requestDto = new ConnectionDto(0, null,null,"user2@mail.com");
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
-    when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user2Test));
-    when(userRepository.save(any(User.class))).thenReturn(user1Test);
+    when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
+    when(userService.retrieveEntity(anyString())).thenReturn(user2Test);
+    when(userService.saveEntity(any(User.class))).thenReturn(user1Test);
 
     // WHEN
     ConnectionDto actualConnectionDto = connectionService.addToUser(1,requestDto);
@@ -104,16 +104,17 @@ class ConnectionServiceTest {
     // THEN
     assertThat(actualConnectionDto).usingRecursiveComparison().isEqualTo(connectionDto);
     assertThat(user1Test.getConnections().size()).isEqualTo(1);
-    verify(userRepository, times(1)).findById(1);
-    verify(userRepository, times(1)).findByEmail("user2@mail.com");
-    verify(userRepository,times(1)).save(any(User.class));
+    verify(userService, times(1)).retrieveEntity(1);
+    verify(userService, times(1)).retrieveEntity("user2@mail.com");
+    verify(userService,times(1)).saveEntity(any(User.class));
   }
 
   @Test
-  void addToUserWhenUserNotFoundTest() {
+  void addToUserWhenUserNotFoundTest() throws Exception {
     // GIVEN
     ConnectionDto requestDto = new ConnectionDto(0, null,null,"user2@mail.com");
-    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+    when(userService.retrieveEntity(anyInt())).thenThrow(
+        new ResourceNotFoundException("This user is not found"));
 
     // WHEN
     assertThatThrownBy(() -> connectionService.addToUser(9,requestDto))
@@ -121,17 +122,18 @@ class ConnectionServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userRepository, times(1)).findById(9);
-    verify(userRepository, times(0)).findByEmail(anyString());
-    verify(userRepository,times(0)).save(any(User.class));
+    verify(userService, times(1)).retrieveEntity(9);
+    verify(userService, times(0)).retrieveEntity(anyString());
+    verify(userService,times(0)).saveEntity(any(User.class));
   }
 
   @Test
-  void addToUserWhenConnectionNotFoundTest() {
+  void addToUserWhenConnectionNotFoundTest() throws Exception {
     // GIVEN
     ConnectionDto requestDto = new ConnectionDto(0, null,null,"NotExisting@mail.com");
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
-    when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+    when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
+    when(userService.retrieveEntity(anyString())).thenThrow(
+        new ResourceNotFoundException("This user is not found"));
 
     // WHEN
     assertThatThrownBy(() -> connectionService.addToUser(1,requestDto))
@@ -139,9 +141,9 @@ class ConnectionServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userRepository, times(1)).findById(1);
-    verify(userRepository, times(1)).findByEmail("NotExisting@mail.com");
-    verify(userRepository,times(0)).save(any(User.class));
+    verify(userService, times(1)).retrieveEntity(1);
+    verify(userService, times(1)).retrieveEntity("NotExisting@mail.com");
+    verify(userService,times(0)).saveEntity(any(User.class));
   }
 
   @Test
@@ -149,8 +151,8 @@ class ConnectionServiceTest {
     // GIVEN
     user1Test.addConnection(user2Test);
     ConnectionDto requestDto = new ConnectionDto(0, null,null,"user2@mail.com");
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
-    when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user2Test));
+    when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
+    when(userService.retrieveEntity(anyString())).thenReturn(user2Test);
 
     // WHEN
     assertThatThrownBy(() -> connectionService.addToUser(1,requestDto))
@@ -158,16 +160,16 @@ class ConnectionServiceTest {
         // THEN
         .isInstanceOf(ResourceAlreadyExistsException.class)
         .hasMessageContaining("This connection already exists");
-    verify(userRepository, times(1)).findById(1);
-    verify(userRepository, times(1)).findByEmail("user2@mail.com");
-    verify(userRepository,times(0)).save(any(User.class));
+    verify(userService, times(1)).retrieveEntity(1);
+    verify(userService, times(1)).retrieveEntity("user2@mail.com");
+    verify(userService,times(0)).saveEntity(any(User.class));
   }
 
   @Test
-  void addToUserWithHimselfAsConnectionTest() {
+  void addToUserWithHimselfAsConnectionTest() throws Exception {
     // GIVEN
     ConnectionDto requestDto = new ConnectionDto(0, null,null,"user1@mail.com");
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
+    when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
 
     // WHEN
     assertThatThrownBy(() -> connectionService.addToUser(1,requestDto))
@@ -175,31 +177,32 @@ class ConnectionServiceTest {
         // THEN
         .isInstanceOf(ForbiddenOperationException.class)
         .hasMessageContaining("The user can't add himself as connection");
-    verify(userRepository, times(1)).findById(1);
-    verify(userRepository, times(0)).findByEmail(anyString());
-    verify(userRepository,times(0)).save(any(User.class));
+    verify(userService, times(1)).retrieveEntity(1);
+    verify(userService, times(0)).retrieveEntity(anyString());
+    verify(userService,times(0)).saveEntity(any(User.class));
   }
 
   @Test
   void removeFromUserTest() throws Exception {
     // GIVEN
     user1Test.addConnection(user2Test);
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
-    when(userRepository.save(any(User.class))).thenReturn(user1Test);
+    when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
+    when(userService.saveEntity(any(User.class))).thenReturn(user1Test);
 
     // WHEN
     connectionService.removeFromUser(1,2);
 
     // THEN
     assertThat(user1Test.getConnections()).isEmpty();
-    verify(userRepository, times(1)).findById(1);
-    verify(userRepository,times(1)).save(any(User.class));
+    verify(userService, times(1)).retrieveEntity(1);
+    verify(userService,times(1)).saveEntity(any(User.class));
   }
 
   @Test
-  void removeFromUserWhenUserNotFoundTest() {
+  void removeFromUserWhenUserNotFoundTest() throws Exception {
     // GIVEN
-    when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+    when(userService.retrieveEntity(anyInt())).thenThrow(
+        new ResourceNotFoundException("This user is not found"));
 
     // WHEN
     assertThatThrownBy(() -> connectionService.removeFromUser(9,1))
@@ -207,14 +210,14 @@ class ConnectionServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This user is not found");
-    verify(userRepository, times(1)).findById(9);
-    verify(userRepository,times(0)).save(any(User.class));
+    verify(userService, times(1)).retrieveEntity(9);
+    verify(userService,times(0)).saveEntity(any(User.class));
   }
 
   @Test
-  void removeFromUserWhenConnectionNotFoundTest() {
+  void removeFromUserWhenConnectionNotFoundTest() throws Exception {
     // GIVEN
-    when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1Test));
+    when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
 
     // WHEN
     assertThatThrownBy(() -> connectionService.removeFromUser(1,9))
@@ -222,8 +225,8 @@ class ConnectionServiceTest {
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
         .hasMessageContaining("This connection is not found");
-    verify(userRepository, times(1)).findById(1);
-    verify(userRepository,times(0)).save(any(User.class));
+    verify(userService, times(1)).retrieveEntity(1);
+    verify(userService,times(0)).saveEntity(any(User.class));
   }
 
 }
