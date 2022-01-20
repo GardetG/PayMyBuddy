@@ -40,7 +40,7 @@ class CredentialServiceTest {
   }
 
   @Test
-  void getAllByUserIdTest() {
+  void loadUserByUsernameTest() {
     // GIVEN
     when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(userTest));
 
@@ -53,7 +53,7 @@ class CredentialServiceTest {
   }
 
   @Test
-  void getAllByUserIdUnpagedTest() {
+  void loadUserByUsernameWhenNotFoundTest() {
     // GIVEN
     when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
@@ -62,6 +62,6 @@ class CredentialServiceTest {
 
         // THEN
         .isInstanceOf(UsernameNotFoundException.class)
-        .hasMessageContaining("This user is not found");
+        .hasMessageContaining("Can't login, this user not found");
   }
 }

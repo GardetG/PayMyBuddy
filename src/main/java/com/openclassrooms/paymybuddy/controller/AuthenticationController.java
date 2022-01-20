@@ -1,11 +1,11 @@
 package com.openclassrooms.paymybuddy.controller;
 
+import com.openclassrooms.paymybuddy.dto.IdentityDto;
 import com.openclassrooms.paymybuddy.dto.UserDto;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.UserService;
-import com.openclassrooms.paymybuddy.utils.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,15 +59,14 @@ public class AuthenticationController {
    * @param myUser user authenticate
    * @return HTTP 200 with user Identity
    */
-  @PreAuthorize("isAuthenticated()")
   @GetMapping("/login")
-  public ResponseEntity<UserDto> login(@AuthenticationPrincipal User myUser) {
+  public ResponseEntity<IdentityDto> login(@AuthenticationPrincipal User myUser) {
 
     LOGGER.info("Request: Login user {}", myUser.getUserId());
-    UserDto userInfo = UserMapper.toInfoDto(myUser);
+    IdentityDto identity = new IdentityDto(myUser.getUserId(), myUser.getRole().toString());
 
     LOGGER.info("Response: User identity sent");
-    return ResponseEntity.ok(userInfo);
+    return ResponseEntity.ok(identity);
   }
 
   /**
