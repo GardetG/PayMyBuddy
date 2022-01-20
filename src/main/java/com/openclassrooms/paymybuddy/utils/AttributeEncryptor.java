@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Attribute converter for encrypting and decrypting attribute in the database using AES.
+ * Attribute converter for encrypting and decrypting attribute in the database.
  */
 @Component
 public class AttributeEncryptor implements AttributeConverter<String, String> {
@@ -27,12 +27,28 @@ public class AttributeEncryptor implements AttributeConverter<String, String> {
   private final Key key;
   private final Cipher cipher;
 
-  public AttributeEncryptor(@Value("${PayMyBuddy.crypt.keyword}") String keyword)
-      throws NoSuchPaddingException, NoSuchAlgorithmException {
-    key = new SecretKeySpec(keyword.getBytes(CHARSET), AES);
-    cipher = Cipher.getInstance(AES);
+  /**
+   * AttributeEncryptor constructor to instantiate cipher and generate the key from the
+   * keyword defined in application properties.
+   *
+   * @param keyword used to generate encryption key.
+   */
+  public AttributeEncryptor(@Value("${PayMyBuddy.crypt.keyword}") String keyword) {
+    try {
+      cipher = Cipher.getInstance(AES);
+      key = new SecretKeySpec(keyword.getBytes(CHARSET), AES);
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
+  /**
+   * Crypt the provided String using the cipher and key generated in the constructor to store the
+   * value in the database.
+   *
+   * @param attribute to crypt
+   * @return encrypted attribute
+   */
   @Override
   public String convertToDatabaseColumn(String attribute) {
     try {
@@ -43,6 +59,13 @@ public class AttributeEncryptor implements AttributeConverter<String, String> {
     }
   }
 
+  /**
+   * Decrypt the provided String using the cipher and key generated in the constructor to return the
+   * value in the entity.
+   *
+   * @param dbData to decrypt
+   * @return decrypted attribute
+   */
   @Override
   public String convertToEntityAttribute(String dbData) {
     try {

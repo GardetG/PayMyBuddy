@@ -1,6 +1,5 @@
 package com.openclassrooms.paymybuddy.service;
 
-import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.dto.UserDto;
 import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
@@ -34,18 +33,27 @@ public class UserServiceImpl implements UserService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Page<UserDto> getAll(Pageable pageable) {
     return userRepository.findAll(pageable)
         .map(UserMapper::toInfoDto);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public UserDto getById(int id) throws ResourceNotFoundException {
     User user = retrieveEntity(id);
     return UserMapper.toInfoDto(user);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Transactional
   @Override
   public UserDto register(UserDto user) throws ResourceAlreadyExistsException {
@@ -57,6 +65,9 @@ public class UserServiceImpl implements UserService {
     return UserMapper.toInfoDto(userRepository.save(userToCreate));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Transactional
   @Override
   public UserDto update(UserDto userUpdate) throws ResourceNotFoundException,
@@ -76,15 +87,22 @@ public class UserServiceImpl implements UserService {
     return UserMapper.toInfoDto(userRepository.save(user));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
+  @Transactional
   public void setAccountEnabling(int id, boolean enable) throws ResourceNotFoundException {
     User user = retrieveEntity(id);
     user.setEnabled(enable);
     userRepository.save(user);
   }
 
-  @Transactional
+  /**
+   * {@inheritDoc}
+   */
   @Override
+  @Transactional
   public void deleteById(int id) throws ResourceNotFoundException, ForbiddenOperationException {
     User user = retrieveEntity(id);
     if (user.getBalance().signum() != 0) {
@@ -97,33 +115,44 @@ public class UserServiceImpl implements UserService {
     userRepository.delete(user);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public User retrieveEntity(int userId) throws ResourceNotFoundException {
     return userRepository.findById(userId)
-        .orElseThrow(() -> {
-          LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", userId);
-          return new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
-        });
+        .orElseThrow(() ->  logAndThrow(String.valueOf(userId)));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public User retrieveEntity(String email) throws ResourceNotFoundException {
     return userRepository.findByEmail(email)
-        .orElseThrow(() -> {
-          LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", email);
-          return new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
-        });
+        .orElseThrow(() -> logAndThrow(email));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
+  @Transactional
   public User saveEntity(User user) throws ResourceNotFoundException {
     if (!userRepository.existsById(user.getUserId())) {
-      LOGGER.error(ErrorMessage.USER_NOT_FOUND + ": {}", user.getUserId());
-      throw new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND);
+      throw logAndThrow(String.valueOf(user.getUserId()));
     }
     return userRepository.save(user);
   }
 
+  private ResourceNotFoundException logAndThrow(String id) {
+    LOGGER.error("This user is not found: {}", id);
+    return new ResourceNotFoundException("This user is not found");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void userDeletionSubscribe(UserDeletionObserver observer) {
     observers.add(observer);
@@ -131,8 +160,8 @@ public class UserServiceImpl implements UserService {
 
   private void checkEmail(String email) throws ResourceAlreadyExistsException {
     if (userRepository.existsByEmail(email)) {
-      LOGGER.error(ErrorMessage.EMAIL_ALREADY_EXIST + ": {}", email);
-      throw new ResourceAlreadyExistsException(ErrorMessage.EMAIL_ALREADY_EXIST);
+      LOGGER.error("This email already exists: {}", email);
+      throw new ResourceAlreadyExistsException("This email already exists");
     }
   }
 

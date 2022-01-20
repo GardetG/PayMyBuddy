@@ -30,17 +30,26 @@ public class TransactionServiceImpl implements TransactionService, UserDeletionO
   @Autowired
   UserService userService;
 
+  /**
+   * Subscribe to the userService to get notify on user deletion.
+   */
   @PostConstruct
   protected void userDeletionSubscribe() {
     userService.userDeletionSubscribe(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Page<TransactionDto> getAll(Pageable pageable) {
     return transactionRepository.findAll(pageable)
         .map(TransactionMapper::toDto);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Page<TransactionDto> getFromUser(int userId, Pageable pageable)
       throws ResourceNotFoundException {
@@ -49,6 +58,9 @@ public class TransactionServiceImpl implements TransactionService, UserDeletionO
         .map(TransactionMapper::toDto);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Transactional
   public TransactionDto requestTransaction(TransactionDto request)
@@ -72,6 +84,9 @@ public class TransactionServiceImpl implements TransactionService, UserDeletionO
     return TransactionMapper.toDto(savedTransaction);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public BigDecimal calculateFare(BigDecimal amount) {
     if (amount.signum() == -1) {
@@ -82,6 +97,9 @@ public class TransactionServiceImpl implements TransactionService, UserDeletionO
         .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Transactional
   public void clearTransactionForUser(Transaction transaction, User user) {
@@ -98,6 +116,10 @@ public class TransactionServiceImpl implements TransactionService, UserDeletionO
     transactionRepository.save(transaction);
   }
 
+  /**
+   * Method called by observer pattern on user deletion.
+   * Call the clearing of transaction for each of the user's transactions.
+   */
   @Override
   @Transactional
   public void onUserDeletion(User user) {

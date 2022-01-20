@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * DTO Class for transaction.
+ * DTO Class for transaction between user with emitter and receiver, amount, date, and description.
  */
 @Getter
 @Setter

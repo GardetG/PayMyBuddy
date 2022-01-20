@@ -33,17 +33,26 @@ public class BankTransferServiceImpl implements BankTransferService, UserDeletio
   @Autowired
   UserService userService;
 
+  /**
+   * Subscribe to the userService to get notify on user deletion.
+   */
   @PostConstruct
   protected void userDeletionSubscribe() {
     userService.userDeletionSubscribe(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Page<BankTransferDto> getAll(Pageable pageable) {
     return bankTransferRepository.findAll(pageable)
         .map(BankTransferMapper::toDto);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Page<BankTransferDto> getFromUser(int userId, Pageable pageable)
       throws ResourceNotFoundException {
@@ -52,6 +61,9 @@ public class BankTransferServiceImpl implements BankTransferService, UserDeletio
         .map(BankTransferMapper::toDto);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Transactional
   public BankTransferDto requestTransfer(BankTransferDto request)
@@ -79,11 +91,18 @@ public class BankTransferServiceImpl implements BankTransferService, UserDeletio
     return BankTransferMapper.toDto(savedBankTransfer);
   }
 
+  /**
+   * Method called by observer pattern on user deletion.
+   * Call the clearing of transfers for each account of the user.
+   */
   @Override
   public void onUserDeletion(User user) {
     user.getBankAccounts().forEach(this::clearTransfersForAccount);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Transactional
   public void clearTransfersForAccount(BankAccount account) {
@@ -97,8 +116,8 @@ public class BankTransferServiceImpl implements BankTransferService, UserDeletio
         .filter(a -> a.getBankAccountId() == accountId)
         .findFirst()
         .orElseThrow(() -> {
-          LOGGER.error("This account is not found");
-          return new ResourceNotFoundException("This account is not found");
+          LOGGER.error("This bank account is not found");
+          return new ResourceNotFoundException("This bank account is not found");
         });
   }
 }

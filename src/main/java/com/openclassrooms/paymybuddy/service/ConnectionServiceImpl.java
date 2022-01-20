@@ -28,6 +28,9 @@ public class ConnectionServiceImpl implements ConnectionService {
   @Autowired
   UserService userService;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Page<ConnectionDto> getAllFromUser(int userId,
                                             Pageable pageable) throws ResourceNotFoundException {
@@ -45,6 +48,9 @@ public class ConnectionServiceImpl implements ConnectionService {
     return page.map(ConnectionMapper::toDto);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ConnectionDto addToUser(int userId, ConnectionDto connection)
       throws ResourceNotFoundException, ResourceAlreadyExistsException,
@@ -63,6 +69,9 @@ public class ConnectionServiceImpl implements ConnectionService {
     return ConnectionMapper.toDto(connectionToAdd);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void removeFromUser(int userId, int id) throws ResourceNotFoundException {
     User user = userService.retrieveEntity(userId);

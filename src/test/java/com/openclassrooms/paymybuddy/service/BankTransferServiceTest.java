@@ -261,7 +261,7 @@ class BankTransferServiceTest {
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessageContaining("This account is not found");
+        .hasMessageContaining("This bank account is not found");
     verify(userService, times(1)).retrieveEntity(1);
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }

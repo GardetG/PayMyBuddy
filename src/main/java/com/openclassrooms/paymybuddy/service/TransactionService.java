@@ -16,14 +16,53 @@ import org.springframework.stereotype.Service;
 @Service
 public interface TransactionService {
 
+  /**
+   * Get a page of the list of all transactions between users in the form of DTO.
+   *
+   * @param pageable for the requested page
+   * @return Page of TransactionDto
+   */
   Page<TransactionDto> getAll(Pageable pageable);
 
+  /**
+   * Get a oage of the list of all transactions involving a user in the form DTO.
+   *
+   * @param userId of the user involved
+   * @param pageable of the requested page
+   * @return Page of TransactionDto
+   * @throws ResourceNotFoundException if user not found
+   */
   Page<TransactionDto> getFromUser(int userId, Pageable pageable) throws ResourceNotFoundException;
 
+  /**
+   * Request a transaction between users according to the data send in the form of DTO with both
+   * users id, amount and description of the transaction.
+   * Both user will be credited or debited and the transaction saved in the database.
+   *
+   * @param request of the transaction
+   * @return TransactionDto of the performed transaction
+   * @throws ResourceNotFoundException if user not found
+   * @throws InsufficientProvisionException if provision insufficient to perform the transaction
+   */
   TransactionDto requestTransaction(TransactionDto request)
       throws ResourceNotFoundException, InsufficientProvisionException;
 
+  /**
+   * Calculate from the amount of the transaction the fare that will be added to the total to debit
+   * from the emitter.
+   *
+   * @param amount of the transaction
+   * @return fare to apply
+   */
   BigDecimal calculateFare(BigDecimal amount);
 
+  /**
+   * Clear from a transaction the record of a user as emitter or receiver by setting the field to
+   * null and updated the transaction in the database. If the transaction don't have any emitter and
+   * receiver left, then it will be deleted from the database.
+   *
+   * @param transaction to clear
+   * @param user to delete
+   */
   void clearTransactionForUser(Transaction transaction, User user);
 }

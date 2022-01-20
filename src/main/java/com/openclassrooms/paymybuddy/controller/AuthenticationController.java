@@ -38,8 +38,8 @@ public class AuthenticationController {
    * Handle HTTP POST user registration.
    *
    * @param subscriptionDto of the registering user
-   * @return HTTP 201 Response with registered user's information
-   * @throws ResourceAlreadyExistsException when requested email already exists
+   * @return HTTP 201 Response with registered user DTO
+   * @throws ResourceAlreadyExistsException if requested email already exists
    */
   @PostMapping("/register")
   public ResponseEntity<UserDto> register(
@@ -57,27 +57,26 @@ public class AuthenticationController {
    * Handle HTTP GET user login.
    *
    * @param myUser user authenticate
-   * @return User information
+   * @return HTTP 200 with user Identity
    */
-  @PreAuthorize("hasAnyRole('USER','ADMIN')")
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/login")
   public ResponseEntity<UserDto> login(@AuthenticationPrincipal User myUser) {
 
     LOGGER.info("Request: Login user {}", myUser.getUserId());
     UserDto userInfo = UserMapper.toInfoDto(myUser);
 
-    LOGGER.info("Response: User information sent");
+    LOGGER.info("Response: User identity sent");
     return ResponseEntity.ok(userInfo);
   }
 
   /**
-   * Handle HTTP PUT user update enabling.
+   * Handle HTTP PUT user update enabling. Reserved to admin.
    *
    * @param id of the user
-   * @param value is enable
+   * @param value is enabled
    * @return HTTP 204
    */
-
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/users/{id}/enable")
   public ResponseEntity<Void> setAccountEnabling(@PathVariable int id, @RequestParam boolean value)

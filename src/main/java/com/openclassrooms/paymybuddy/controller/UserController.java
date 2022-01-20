@@ -34,10 +34,10 @@ public class UserController {
   UserService userService;
 
   /**
-   * Handle HTTP GET request on all user's information.
+   * Handle HTTP GET request on all user. Reserved to admin.
    *
-   * @param pageable for user's information page
-   * @return HTTP 200 with user's information page
+   * @param pageable for requested page
+   * @return HTTP 200 with users page
    */
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/users")
@@ -55,8 +55,8 @@ public class UserController {
    * Handle HTTP GET request on user's information by id.
    *
    * @param id of the user
-   * @return HTTP 200 Response with user's information
-   * @throws ResourceNotFoundException when user not found
+   * @return HTTP 200 Response with user
+   * @throws ResourceNotFoundException if user not found
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/users/{id}")
@@ -71,14 +71,14 @@ public class UserController {
   }
 
   /**
-   * Handle HTTP PUT update user's information..
+   * Handle HTTP PUT update user's information.
    *
    * @param userUpdate user's information to update
    * @return HTTP 201 Response with updated user's information
-   * @throws ResourceAlreadyExistsException when updating whith an already existing email
-   * @throws ResourceNotFoundException when user not found
+   * @throws ResourceAlreadyExistsException if requested email already exists
+   * @throws ResourceNotFoundException if user not found
    */
-  @PreAuthorize("hasRole('ADMIN') or #userUpdate.userId == authentication.principal.userId")
+  @PreAuthorize("#userUpdate.userId == authentication.principal.userId")
   @PutMapping("/users")
   public ResponseEntity<UserDto> update(@Valid @RequestBody UserDto userUpdate)
       throws ResourceAlreadyExistsException, ResourceNotFoundException {
@@ -91,11 +91,12 @@ public class UserController {
   }
 
   /**
-   * Handle HTTP DELETE request on an user by id.
+   * Handle HTTP DELETE request on a user by id.
    *
    * @param id of user to delete
    * @return HTTP 204
-   * @throws ResourceNotFoundException when user not found
+   * @throws ResourceNotFoundException if user not found
+   * @throws ForbiddenOperationException if user wallet not empty
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @DeleteMapping("/users/{id}")
@@ -107,6 +108,5 @@ public class UserController {
 
     LOGGER.info("Response: user deleted");
     return ResponseEntity.noContent().build();
-
   }
 }

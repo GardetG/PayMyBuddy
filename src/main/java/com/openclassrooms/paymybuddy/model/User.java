@@ -1,10 +1,8 @@
 package com.openclassrooms.paymybuddy.model;
 
 import com.openclassrooms.paymybuddy.constant.ApplicationValue;
-import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,8 +32,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Model Class of a user with credentials such as email and password and personal information,
- * firstname, lastname, amount on wallet, list of bank accounts and list of connections with other
+ * firstname, lastname, list of bank accounts and list of connections with other
  * users.
+ * This class extends ComptableEntity to provide a balance.
  */
 
 @Entity
@@ -146,8 +145,8 @@ public class User extends ComptableEntity implements UserDetails {
    */
   public void addBankAccount(BankAccount bankAccount) throws ResourceAlreadyExistsException {
     if (bankAccounts.contains(bankAccount)) {
-      LOGGER.error(ErrorMessage.BANKACCOUNT_ALREADY_EXIST + " for user {}", userId);
-      throw new ResourceAlreadyExistsException(ErrorMessage.BANKACCOUNT_ALREADY_EXIST);
+      LOGGER.error("This bank account already exists for user {}", userId);
+      throw new ResourceAlreadyExistsException("This bank account already exists");
     }
     bankAccounts.add(bankAccount);
     bankAccount.setUser(this);
@@ -161,8 +160,8 @@ public class User extends ComptableEntity implements UserDetails {
    */
   public void removeBankAccount(BankAccount bankAccount) throws ResourceNotFoundException {
     if (!bankAccounts.contains(bankAccount)) {
-      LOGGER.error(ErrorMessage.BANKACCOUNT_NOT_FOUND + " for user {}", userId);
-      throw new ResourceNotFoundException(ErrorMessage.BANKACCOUNT_NOT_FOUND);
+      LOGGER.error("This bank account is not found for user {}", userId);
+      throw new ResourceNotFoundException("This bank account is not found");
     }
     bankAccounts.remove(bankAccount);
     bankAccount.setUser(null);
@@ -180,8 +179,8 @@ public class User extends ComptableEntity implements UserDetails {
    */
   public void addConnection(User connection) throws ResourceAlreadyExistsException {
     if (connections.contains(connection)) {
-      LOGGER.error(ErrorMessage.CONNECTION_ALREADY_EXIST + " for user {}", userId);
-      throw new ResourceAlreadyExistsException(ErrorMessage.CONNECTION_ALREADY_EXIST);
+      LOGGER.error("This connection already exists for user {}", userId);
+      throw new ResourceAlreadyExistsException("This connection already exists");
     }
     connections.add(connection);
     connection.connections.add(this);
@@ -195,8 +194,8 @@ public class User extends ComptableEntity implements UserDetails {
    */
   public void removeConnection(User connection) throws ResourceNotFoundException {
     if (!connections.contains(connection)) {
-      LOGGER.error(ErrorMessage.CONNECTION_NOT_FOUND + " for user {}", userId);
-      throw new ResourceNotFoundException(ErrorMessage.CONNECTION_NOT_FOUND);
+      LOGGER.error("This connection is not found for user {}", userId);
+      throw new ResourceNotFoundException("This connection is not found");
     }
     connections.remove(connection);
     connection.connections.remove(this);

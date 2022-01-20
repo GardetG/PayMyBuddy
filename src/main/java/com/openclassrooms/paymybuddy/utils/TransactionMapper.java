@@ -4,7 +4,7 @@ import com.openclassrooms.paymybuddy.dto.TransactionDto;
 import com.openclassrooms.paymybuddy.model.Transaction;
 
 /**
- * Mapper utility class for bank transfer.
+ * Mapper utility class for BankTransfer.
  */
 public class TransactionMapper {
 
@@ -23,12 +23,16 @@ public class TransactionMapper {
     transactionDto.setDescription(transaction.getDescription());
     transactionDto.setAmount(transaction.getAmount());
     transactionDto.setDate(transaction.getDate());
-    transactionDto.setEmitterId(transaction.getEmitter().getUserId());
-    transactionDto.setEmitterFirstname(transaction.getEmitter().getFirstname());
-    transactionDto.setEmitterLastname(transaction.getEmitter().getLastname());
-    transactionDto.setReceiverId(transaction.getReceiver().getUserId());
-    transactionDto.setReceiverFirstname(transaction.getReceiver().getFirstname());
-    transactionDto.setReceiverLastname(transaction.getReceiver().getLastname());
+    if (transaction.getEmitter() != null) {
+      transactionDto.setEmitterId(transaction.getEmitter().getUserId());
+      transactionDto.setEmitterFirstname(transaction.getEmitter().getFirstname());
+      transactionDto.setEmitterLastname(transaction.getEmitter().getLastname());
+    }
+    if (transaction.getReceiver() != null) {
+      transactionDto.setReceiverId(transaction.getReceiver().getUserId());
+      transactionDto.setReceiverFirstname(transaction.getReceiver().getFirstname());
+      transactionDto.setReceiverLastname(transaction.getReceiver().getLastname());
+    }
     return transactionDto;
   }
 }

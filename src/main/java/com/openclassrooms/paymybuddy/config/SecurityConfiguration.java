@@ -19,7 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
- * Spring Security configuration.
+ * Spring Security configuration for Pay My Buddy.
  */
 @Configuration
 @EnableWebSecurity
@@ -29,15 +29,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   @Autowired
   CredentialsService credentialsService;
 
-  // This method is for overriding the default AuthenticationManagerBuilder.
-  // We can specify how the user details are kept in the application. It may
-  // be in a database, LDAP or in memory.
+  /**
+   *  Overriding the default AuthenticationManagerBuilder to use CredentialService to retrieve user
+   *  details from the database and encode passwords.
+   *
+   * @param auth AuthenticationManagerBuilder
+   * @throws Exception
+   */
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     auth.userDetailsService(credentialsService)
         .passwordEncoder(passwordEncoder());
   }
 
+  /**
+   * Overriding the default HttpSecurity to configure request filer, httpBasic authentification,
+   * logout, remember-me, CSRF and CROS policy.
+   *
+   * @param http HttpSecurity
+   * @throws Exception
+   */
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http

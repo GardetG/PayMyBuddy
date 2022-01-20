@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * DTO Class for retrieving user data like id, firstname, lastname, email and wallet.
+ * DTO Class for retrieving bank account data like title, masked iban and bic.
  */
 @Getter
 @Setter

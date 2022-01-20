@@ -30,7 +30,7 @@ public abstract class ComptableEntity implements Serializable {
   private BigDecimal balance;
 
   /**
-   * credit balance of the amount. Amount can't be negative.
+   * credit balance of the provided amount. Amount can't be negative.
    *
    * @param amount to credit
    */
@@ -43,7 +43,7 @@ public abstract class ComptableEntity implements Serializable {
   }
 
   /**
-   * Debit balance of the amount if sufficient provision. Amount can't be negative.
+   * Debit balance of the provided amount if sufficient provision. Amount can't be negative.
    *
    * @param amount to debit
    * @throws InsufficientProvisionException if insufficient provision

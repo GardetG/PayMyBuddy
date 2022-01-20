@@ -38,8 +38,8 @@ public class BankAccountController {
    *
    * @param id of the user
    * @param pageable of the requested page
-   * @return HTTP 200 Response with bank accounts list
-   * @throws ResourceNotFoundException when user not found
+   * @return HTTP 200 Response with bank accounts page
+   * @throws ResourceNotFoundException if user not found
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/users/{id}/bankaccounts")
@@ -50,7 +50,7 @@ public class BankAccountController {
     LOGGER.info("Request: Get user {} bank accounts", id);
     Page<BankAccountDto> bankAccounts = bankAccountService.getAllFromUser(id, pageable);
 
-    LOGGER.info("Response: List of user bank accounts sent");
+    LOGGER.info("Response: Page of user bank accounts sent");
     return ResponseEntity.ok(bankAccounts);
   }
 
@@ -60,7 +60,7 @@ public class BankAccountController {
    * @param id of user
    * @param bankAccount to add
    * @return HTTP 201
-   * @throws ResourceNotFoundException when user not found
+   * @throws ResourceNotFoundException if user not found
    */
   @PreAuthorize("#id == authentication.principal.userId")
   @PostMapping("/users/{id}/bankaccounts")
@@ -77,12 +77,12 @@ public class BankAccountController {
   }
 
   /**
-   * Handle HTTP DELETE request on an user bank account by id.
+   * Handle HTTP DELETE request on a user bank account by id.
    *
    * @param id of user
-   * @param accountId of the account
+   * @param accountId of the account to delete
    * @return HTTP 204
-   * @throws ResourceNotFoundException when user or account not found
+   * @throws ResourceNotFoundException if user or account not found
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @DeleteMapping("/users/{id}/bankaccounts/{accountId}")

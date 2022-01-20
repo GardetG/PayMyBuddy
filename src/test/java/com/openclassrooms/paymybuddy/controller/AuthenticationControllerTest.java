@@ -52,9 +52,10 @@ class AuthenticationControllerTest {
   @Captor
   ArgumentCaptor<UserDto> subscriptionCaptor;
 
-  private UserDto userInfoDto;
+
   private User userTest;
   private User adminTest;
+  private UserDto userInfoDto;
   private JSONObject jsonParam;
 
   @BeforeEach

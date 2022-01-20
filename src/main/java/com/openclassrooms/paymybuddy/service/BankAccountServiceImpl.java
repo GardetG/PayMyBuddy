@@ -1,6 +1,5 @@
 package com.openclassrooms.paymybuddy.service;
 
-import com.openclassrooms.paymybuddy.constant.ErrorMessage;
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
@@ -35,6 +34,9 @@ public class BankAccountServiceImpl implements BankAccountService {
   @Autowired
   private BankTransferService bankTransferService;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Page<BankAccountDto> getAllFromUser(int userId, Pageable pageable)
       throws ResourceNotFoundException {
@@ -53,6 +55,9 @@ public class BankAccountServiceImpl implements BankAccountService {
     return page.map(BankAccountMapper::toDto);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Transactional
   public BankAccountDto addToUser(int userId, BankAccountDto account)
@@ -69,7 +74,11 @@ public class BankAccountServiceImpl implements BankAccountService {
     return BankAccountMapper.toDto(bankAccountCreated);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
+  @Transactional
   public void removeFromUser(int userId, int id) throws ResourceNotFoundException {
     User user = userService.retrieveEntity(userId);
     BankAccount bankAccountToDelete = findBankAccount(user.getBankAccounts(),
@@ -88,8 +97,8 @@ public class BankAccountServiceImpl implements BankAccountService {
         .filter(predicate)
         .findFirst()
         .orElseThrow(() -> {
-          LOGGER.error(ErrorMessage.BANKACCOUNT_NOT_FOUND);
-          return new ResourceNotFoundException(ErrorMessage.BANKACCOUNT_NOT_FOUND);
+          LOGGER.error("This bank account is not found");
+          return new ResourceNotFoundException("This bank account is not found");
         });
   }
 }

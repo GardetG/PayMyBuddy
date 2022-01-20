@@ -33,7 +33,7 @@ public class TransactionController {
   TransactionService transactionService;
 
   /**
-   * Handle HTTP GET request on all transactions.
+   * Handle HTTP GET request on all transactions. Reserved to admin
    *
    * @param pageable of the requested page
    * @return HTTP 200 with transactions page
@@ -42,30 +42,31 @@ public class TransactionController {
   @GetMapping("/transactions")
   public ResponseEntity<Page<TransactionDto>> getInfoById(Pageable pageable) {
 
-    LOGGER.info("Request: Get all bank transfers");
+    LOGGER.info("Request: Get all transactions");
     Page<TransactionDto> transactionsDto = transactionService.getAll(pageable);
 
-    LOGGER.info("Response: All bank transfers information sent");
+    LOGGER.info("Response: Page of transactions sent");
     return ResponseEntity.ok(transactionsDto);
   }
 
 
   /**
-   * Handle HTTP GET request on all transactions of an user.
+   * Handle HTTP GET request on all transactions of a user.
 
    * @param id of the user
-   * @return HTTP 200 Response with user's transactions
-   * @throws ResourceNotFoundException when user not found
+   * @param pageable of the requested page
+   * @return HTTP 200 Response with user's transactions page
+   * @throws ResourceNotFoundException if user not found
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/transactions/user")
   public ResponseEntity<Page<TransactionDto>> getInfoById(@RequestParam int id, Pageable pageable)
       throws ResourceNotFoundException {
 
-    LOGGER.info("Request: Get user {} bank transfers", id);
+    LOGGER.info("Request: Get user {} transactions", id);
     Page<TransactionDto> transactionsDto = transactionService.getFromUser(id, pageable);
 
-    LOGGER.info("Response: User bank transfers sent");
+    LOGGER.info("Response: Page of user transactions sent");
     return ResponseEntity.ok(transactionsDto);
   }
 
@@ -73,7 +74,7 @@ public class TransactionController {
    * Handle HTTP POST request for a transaction.
    *
    * @param request of the transfer
-   * @return HTTP Response 201 with transaction executed
+   * @return HTTP Response 201 with transaction performed
    * @throws InsufficientProvisionException if provision insufficient to perform transaction
    * @throws ResourceNotFoundException if user not found
    */
@@ -86,7 +87,7 @@ public class TransactionController {
         request.getReceiverId());
     TransactionDto requestResponse = transactionService.requestTransaction(request);
 
-    LOGGER.info("Response: Transaction successfully executed");
+    LOGGER.info("Response: Transaction successfully performed");
     return ResponseEntity.status(HttpStatus.CREATED).body(requestResponse);
   }
 

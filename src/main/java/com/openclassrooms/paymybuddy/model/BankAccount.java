@@ -16,7 +16,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Model Class of a bank account with tile, iban, bic and balance.
+ * Model Class of a bank account with tile, iban, bic.
+ * This class extends ComptableEntity to provide a balance.
+ *
  */
 @Entity
 @Table(name = "bank_account")

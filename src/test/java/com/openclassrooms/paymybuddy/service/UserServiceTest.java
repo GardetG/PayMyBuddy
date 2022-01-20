@@ -145,7 +145,7 @@ class UserServiceTest {
 
         // THEN
         .isInstanceOf(ResourceAlreadyExistsException.class)
-        .hasMessageContaining("This email is already used");
+        .hasMessageContaining("This email already exists");
     verify(userRepository, times(1)).existsByEmail("existing@mail.com");
     verify(passwordEncoder, times(0)).encode(anyString());
     verify(userRepository, times(0)).save(any(User.class));
@@ -273,7 +273,7 @@ class UserServiceTest {
 
         // THEN
         .isInstanceOf(ResourceAlreadyExistsException.class)
-        .hasMessageContaining("This email is already used");
+        .hasMessageContaining("This email already exists");
     verify(userRepository, times(1)).findById(1);
     verify(userRepository, times(1)).existsByEmail("existing@mail.com");
     verify(userRepository, times(0)).save(any(User.class));

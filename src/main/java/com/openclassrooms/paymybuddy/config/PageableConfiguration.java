@@ -6,8 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.config.PageableHandlerMethodArgumentResolverCustomizer;
 
 /**
- * Configure Pageable resolver to return unpaged as fallback when no pageable parameter sent in
- * controller calls.
+ * Configure Pageable resolver to return unpaged as fallback when no pageable parameter is sent in
+ * controllers calls.
  */
 @Configuration
 public class PageableConfiguration {

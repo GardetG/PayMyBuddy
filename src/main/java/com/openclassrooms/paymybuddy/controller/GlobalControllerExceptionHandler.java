@@ -52,7 +52,7 @@ public class GlobalControllerExceptionHandler {
   }
 
   /**
-   * Handle ForbbidenOperationException thrown when requesting an operation forbidden by business
+   * Handle ForbiddenOperationException thrown when requesting an operation forbidden by business
    * rules.
    *
 

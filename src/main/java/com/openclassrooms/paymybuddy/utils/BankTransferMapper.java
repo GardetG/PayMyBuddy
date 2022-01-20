@@ -5,7 +5,7 @@ import com.openclassrooms.paymybuddy.model.BankTransfer;
 import com.openclassrooms.paymybuddy.model.User;
 
 /**
- * Mapper utility class for bank transfer.
+ * Mapper utility class for BankTransfer.
  */
 public class BankTransferMapper {
 
@@ -30,7 +30,6 @@ public class BankTransferMapper {
     bankTransferDto.setUserId(user.getUserId());
     bankTransferDto.setFirstname(user.getFirstname());
     bankTransferDto.setLastname(user.getLastname());
-
     return bankTransferDto;
   }
 }

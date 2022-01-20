@@ -4,7 +4,7 @@ import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.model.BankAccount;
 
 /**
- * Mapper utility class for bank account.
+ * Mapper utility class for BankAccount.
  */
 public class BankAccountMapper {
 
