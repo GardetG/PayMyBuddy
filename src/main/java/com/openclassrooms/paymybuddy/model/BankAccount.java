@@ -1,8 +1,10 @@
 package com.openclassrooms.paymybuddy.model;
 
 import com.openclassrooms.paymybuddy.constant.ApplicationValue;
+import com.openclassrooms.paymybuddy.utils.AttributeEncryptor;
 import java.util.Objects;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -48,11 +50,13 @@ public class BankAccount extends ComptableEntity {
   @Getter
   private String title;
 
-  @Column(name = "iban", length = 34)
+  @Column(name = "iban", length = 64)
+  @Convert(converter = AttributeEncryptor.class)
   @Getter
   private String iban;
 
-  @Column(name = "bic",  length = 11)
+  @Column(name = "bic", length = 24)
+  @Convert(converter = AttributeEncryptor.class)
   @Getter
   private String bic;
 
