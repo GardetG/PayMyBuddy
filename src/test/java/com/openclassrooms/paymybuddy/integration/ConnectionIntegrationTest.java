@@ -57,9 +57,9 @@ class ConnectionIntegrationTest {
         //THEN connections successfully retrieved
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(2)))
-        .andExpect(jsonPath("$.content.[0].connectionId", is(1)))
-        .andExpect(jsonPath("$.content.[0].firstname", is("Admin")))
-        .andExpect(jsonPath("$.content.[0].lastname", is("test")));
+        .andExpect(jsonPath("$.content.[1].connectionId", is(1)))
+        .andExpect(jsonPath("$.content.[1].firstname", is("Admin")))
+        .andExpect(jsonPath("$.content.[1].lastname", is("test")));
   }
 
   @DisplayName("Remove a connection")
