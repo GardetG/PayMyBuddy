@@ -323,4 +323,19 @@ class BankTransferServiceTest {
     // THEN
     verify(bankTransferRepository,times(0)).delete(any(BankTransfer.class));
   }
+
+  @DisplayName("On user deletion all transfer of the user should be deleted")
+  @Test
+  void onUserDeletionTest() {
+    // GIVEN
+    when(bankTransferRepository.findByBankAccount(any(BankAccount.class)))
+        .thenReturn(List.of(bankTransferTest));
+
+    // WHEN
+    bankTransferService.onUserDeletion(user);
+
+    // WHEN
+    verify(bankTransferRepository, times(1)).findByBankAccount(bankAccount);
+    verify(bankTransferRepository, times(1)).delete(bankTransferTest);
+  }
 }

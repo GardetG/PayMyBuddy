@@ -39,6 +39,8 @@ public class UserDto {
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   @JsonFormat(pattern = "yyyy-MM-dd' at 'HH:mm")
   private LocalDateTime registrationDate;
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private boolean enabled;
 
   /**
    * Interface definition of Subscription validation to validate subscribe only constraints.

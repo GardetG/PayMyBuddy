@@ -65,7 +65,7 @@ class UserControllerTest {
   @BeforeEach
   void setUp() {
     LocalDateTime date = LocalDateTime.of(2000,1,1,0,0);
-    userInfoDto = new UserDto(1, "test","test","test@mail.com",null, BigDecimal.ZERO, date);
+    userInfoDto = new UserDto(1, "test","test","test@mail.com",null, BigDecimal.ZERO, date, true);
     userTest = new User("test","test","user1@mail.com","password", Role.USER, date);
     userTest.setUserId(1);
     adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, date);
@@ -160,7 +160,7 @@ class UserControllerTest {
         .put("lastname","test")
         .put("email","new@mail.com");
     LocalDateTime date = LocalDateTime.of(2000,1,1,0,0);
-    UserDto updatedDto = new UserDto(1,"update", "test", "new@mail.com", null,BigDecimal.ZERO, date);
+    UserDto updatedDto = new UserDto(1,"update", "test", "new@mail.com", null,BigDecimal.ZERO, date, true);
     when(userService.update(any(UserDto.class))).thenReturn(updatedDto);
 
     // WHEN
@@ -179,7 +179,7 @@ class UserControllerTest {
         .andExpect(jsonPath("$.registrationDate", is("2000-01-01 at 00:00")))
         .andExpect(jsonPath("$.password").doesNotExist());
     verify(userService, times(1)).update(infoCaptor.capture());
-    UserDto expected = new UserDto(1,"update", "test", "new@mail.com", null,null,null);
+    UserDto expected = new UserDto(1,"update", "test", "new@mail.com", null,null,null, false);
     assertThat(infoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expected);
   }
 
@@ -229,7 +229,7 @@ class UserControllerTest {
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$", is("This email is already used")));
     verify(userService, times(1)).update(infoCaptor.capture());
-    UserDto expected = new UserDto(1,"update", "test", "existing@mail.com", null, null,null);
+    UserDto expected = new UserDto(1,"update", "test", "existing@mail.com", null, null,null, false);
     assertThat(infoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expected);
   }
 

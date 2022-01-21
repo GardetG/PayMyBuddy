@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.InjectMocks;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -313,6 +316,22 @@ class TransactionServiceTest {
     assertThat(transactionTest.getReceiver()).isNull();
     assertThat(transactionTest.getEmitter()).isNull();
     verify(transactionRepository, times(1)).delete(transactionTest);
+  }
+
+  @DisplayName("On user deletion all transaction of the user should be clear")
+  @Test
+  void onUserDeletionTest() {
+    // GIVEN
+    when(transactionRepository.findByEmitterOrReceiver(any(User.class), any(User.class)))
+        .thenReturn(List.of(transactionTest));
+
+    // WHEN
+    transactionService.onUserDeletion(emitter);
+
+    // WHEN
+    verify(transactionRepository, times(1)).findByEmitterOrReceiver(emitter,emitter);
+    transactionTest.setEmitter(null);
+    verify(transactionRepository, times(1)).save(transactionTest);
   }
 
 }

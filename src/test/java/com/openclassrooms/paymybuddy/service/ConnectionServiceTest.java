@@ -198,7 +198,9 @@ class ConnectionServiceTest {
   @Test
   void removeFromUserTest() throws Exception {
     // GIVEN
+    User user3Test = new User("user3","test","user3@mail.com","password",Role.USER,LocalDateTime.now());
     user1Test.addConnection(user2Test);
+    user1Test.addConnection(user3Test);
     when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
     when(userService.saveEntity(any(User.class))).thenReturn(user1Test);
 
@@ -206,7 +208,7 @@ class ConnectionServiceTest {
     connectionService.removeFromUser(1,2);
 
     // THEN
-    assertThat(user1Test.getConnections()).isEmpty();
+    assertThat(user1Test.getConnections()).containsExactly(user3Test);
     verify(userService, times(1)).retrieveEntity(1);
     verify(userService,times(1)).saveEntity(any(User.class));
   }

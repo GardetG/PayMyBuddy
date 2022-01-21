@@ -29,6 +29,7 @@ public class UserMapper {
     userDto.setEmail(user.getEmail());
     userDto.setWallet(user.getBalance());
     userDto.setRegistrationDate(user.getRegistrationDate());
+    userDto.setEnabled(user.isEnabled());
     return userDto;
   }
 

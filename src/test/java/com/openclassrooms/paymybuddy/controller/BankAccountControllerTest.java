@@ -18,15 +18,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.openclassrooms.paymybuddy.config.PageableConfiguration;
 import com.openclassrooms.paymybuddy.dto.BankAccountDto;
-import com.openclassrooms.paymybuddy.dto.UserDto;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
-import com.openclassrooms.paymybuddy.model.BankAccount;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.BankAccountService;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
-import com.openclassrooms.paymybuddy.utils.JsonParser;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.json.JSONObject;

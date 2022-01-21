@@ -74,7 +74,7 @@ class AuthenticationControllerTest {
         .put("lastname","test")
         .put("email","test@mail.com")
         .put("password","password");
-    UserDto userDto = new UserDto(1, "test", "test", "test@mail.com", null,BigDecimal.ZERO, LocalDateTime.of(2000,1,1,0,0));
+    UserDto userDto = new UserDto(1, "test", "test", "test@mail.com", null,BigDecimal.ZERO, LocalDateTime.of(2000,1,1,0,0),true);
     when(userService.register(any(UserDto.class))).thenReturn(userDto);
 
     // WHEN
@@ -93,7 +93,7 @@ class AuthenticationControllerTest {
         .andExpect(jsonPath("$.wallet", is(0)))
         .andExpect(jsonPath("$.registrationDate", is("2000-01-01 at 00:00")));
     verify(userService, times(1)).register(subscriptionCaptor.capture());
-    UserDto expectedDto = new UserDto(0,"test","test", "test@mail.com","password",null,null);
+    UserDto expectedDto = new UserDto(0,"test","test", "test@mail.com","password",null,null,false);
     assertThat(subscriptionCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
   }
 
@@ -140,7 +140,7 @@ class AuthenticationControllerTest {
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$", is("This email is already used")));
     verify(userService, times(1)).register(subscriptionCaptor.capture());
-    UserDto expectedDto = new UserDto(0,"test","test", "existing@mail.com","password",null, null);
+    UserDto expectedDto = new UserDto(0,"test","test", "existing@mail.com","password",null, null,false);
     assertThat(subscriptionCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
   }
 

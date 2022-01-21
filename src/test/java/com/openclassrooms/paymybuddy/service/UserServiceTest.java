@@ -57,7 +57,7 @@ class UserServiceTest {
   void setUp() {
     userTest = new User("user","test","user@mail.com","EncodedPwd", Role.USER, LocalDateTime.now());
     userTest.setUserId(1);
-    userInfoDto = new UserDto(1, "user","test","user@mail.com",null,BigDecimal.ZERO, LocalDateTime.now());
+    userInfoDto = new UserDto(1, "user","test","user@mail.com",null,BigDecimal.ZERO, LocalDateTime.now(),true);
   }
 
   @DisplayName("Get all user should return a page of user DTO")
@@ -123,7 +123,7 @@ class UserServiceTest {
   @Test
   void registerTest() throws Exception {
     // GIVEN
-    UserDto userDto = new UserDto(0,"user","test", "user@mail.com", "12345678", null, null);
+    UserDto userDto = new UserDto(0,"user","test", "user@mail.com", "12345678", null, null, false);
     when(userRepository.existsByEmail(anyString())).thenReturn(false);
     when(passwordEncoder.encode(anyString())).thenReturn("EncodedPwd");
     when(userRepository.save(any(User.class))).thenReturn(userTest);
@@ -144,7 +144,7 @@ class UserServiceTest {
   @Test
   void registerWhenEmailAlreadyExistTest() {
     // GIVEN
-    UserDto userDto = new UserDto(0,"user","test", "existing@mail.com", "12345678", null, null);
+    UserDto userDto = new UserDto(0,"user","test", "existing@mail.com", "12345678", null, null, false);
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
     // WHEN
@@ -162,8 +162,8 @@ class UserServiceTest {
   @Test
   void updateWithSameEmailTest() throws Exception {
     // GIVEN
-    UserDto userDto = new UserDto(1, "update","test", "user@mail.com",null, null, null);
-    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, LocalDateTime.now());
+    UserDto userDto = new UserDto(1, "update","test", "user@mail.com",null, null, null, false);
+    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, LocalDateTime.now(),true);
     User updatedUser = new User("update", "test", "user@mail.com", "EncodedPwd", Role.USER, LocalDateTime.now());
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
@@ -183,9 +183,9 @@ class UserServiceTest {
   @Test
   void updateWithNewEmailTest() throws Exception {
     // GIVEN
-    UserDto userDto = new UserDto(1, "update","test", "update@mail.com",null, null, null);
+    UserDto userDto = new UserDto(1, "update","test", "update@mail.com",null, null, null,false);
     UserDto
-        updateDto = new UserDto(1, "update","test", "update@mail.com",null, BigDecimal.ZERO,LocalDateTime.now());
+        updateDto = new UserDto(1, "update","test", "update@mail.com",null, BigDecimal.ZERO,LocalDateTime.now(),true);
     User updatedUser = new User("update", "test", "update@mail.com", "EncodedPwd", Role.USER, LocalDateTime.now());
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
@@ -207,7 +207,7 @@ class UserServiceTest {
   @Test
   void updateWithNewEmailAlreadyExistingTest() {
     // GIVEN
-    UserDto userDto = new UserDto(1, "update","test", "existing@mail.com",null, null, null);
+    UserDto userDto = new UserDto(1, "update","test", "existing@mail.com",null, null, null,false);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
@@ -226,8 +226,8 @@ class UserServiceTest {
   @Test
   void updateInfoWithNewPasswordEmailTest() throws Exception {
     // GIVEN
-    UserDto userDto = new UserDto(1, "update","test", "user@mail.com","NewPassword", null, null);
-    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, LocalDateTime.now());
+    UserDto userDto = new UserDto(1, "update","test", "user@mail.com","NewPassword", null, null,false);
+    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, LocalDateTime.now(),true);
     User updatedUser = new User("update", "test", "user@mail.com", "NewEncoded", Role.USER, LocalDateTime.now());
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
@@ -249,7 +249,7 @@ class UserServiceTest {
   @Test
   void updateInfoWhenNotFoundTest() {
     // GIVEN
-    UserDto userDto = new UserDto(9, "update","test", "update@mail.com",null, null,null);
+    UserDto userDto = new UserDto(9, "update","test", "update@mail.com",null, null,null,false);
     when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
     // WHEN
