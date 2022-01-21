@@ -8,6 +8,7 @@ import com.openclassrooms.paymybuddy.exception.ExceedingBalanceCeilingException;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -23,9 +24,10 @@ class BankAccountTest {
     bankAccount = new BankAccount("PrimaryAccount", "1234567890abcdefghijklmnopqrstu123","12345678abc");
   }
 
-  @ParameterizedTest
-  @ValueSource(ints = {0, 10,500}) // six numbers
-  void creditBankAccountTest(int input) throws Exception {
+  @DisplayName("Credit a user bank account")
+  @ParameterizedTest(name = "{index} Credit {0} euros")
+  @ValueSource(doubles = {0, 0.5, 10, 500})
+  void creditBankAccountTest(double input) throws Exception {
     // GIVEN
     BigDecimal amount = BigDecimal.valueOf(input);
 
@@ -36,6 +38,7 @@ class BankAccountTest {
     assertThat(bankAccount.getBalance()).isEqualTo(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE.add(amount));
   }
 
+  @DisplayName("Credit a user bank account with negative amount should throw an exception")
   @Test
   void creditBankAccountWithNegativeAmountTest() {
     // GIVEN
@@ -49,6 +52,7 @@ class BankAccountTest {
         .hasMessageContaining("The amount to credit can't be negative");
   }
 
+  @DisplayName("Credit a user bank account above balance ceiling should throw an exception")
   @Test
   void creditBankAccountToExceedBalanceCeilingTest() {
     // GIVEN
@@ -62,9 +66,10 @@ class BankAccountTest {
         .hasMessageContaining("Exceeding Balance ceiling prevent crediting the amount");
   }
 
-  @ParameterizedTest
-  @ValueSource(ints = {0, 10,500}) // six numbers
-  void debitBankAccountTest(int input) throws Exception {
+  @DisplayName("Debit a user bank account")
+  @ParameterizedTest(name = "{index} Debit {0} euros")
+  @ValueSource(doubles = {0, 0.5, 10, 500}) // six numbers
+  void debitBankAccountTest(double input) throws Exception {
     // GIVEN
     BigDecimal amount = BigDecimal.valueOf(input);
 
@@ -75,6 +80,7 @@ class BankAccountTest {
     assertThat(bankAccount.getBalance()).isEqualTo(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE.subtract(amount));
   }
 
+  @DisplayName("Debit a user bank account with negative amount should throw an exception")
   @Test
   void debitBankAccountWithNegativeAmountTest() {
     // GIVEN
@@ -88,6 +94,7 @@ class BankAccountTest {
         .hasMessageContaining("The amount to debit can't be negative");
   }
 
+  @DisplayName("Debit a user bank account below zero should throw an exception")
   @Test
   void debitBankAccountWithMoreThanProvisionTest() {
     // GIVEN

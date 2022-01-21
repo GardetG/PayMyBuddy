@@ -21,6 +21,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -63,6 +64,7 @@ class TransactionServiceTest {
     transactionDtoTest = new TransactionDto(1,2, "Gift to a friend",amount,date,"user1","test", "user2","test");
   }
 
+  @DisplayName("Subscribe to user deletion should call user service subscribe method")
   @Test
   void userDeletionSubscribePostConstructTest() {
     // WHEN
@@ -71,6 +73,7 @@ class TransactionServiceTest {
     verify(userService).userDeletionSubscribe(any(TransactionServiceImpl.class));
   }
 
+  @DisplayName("Get all should return a page of transactions Dto")
   @Test
   void getAllTest() {
     // GIVEN
@@ -78,13 +81,14 @@ class TransactionServiceTest {
     when(transactionRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(transactionTest)));
 
     // WHEN
-    Page<TransactionDto> actualPageTransactionDto = transactionService.getAll(pageable);
+    Page<TransactionDto> actualPage = transactionService.getAll(pageable);
 
     // THEN
-    assertThat(actualPageTransactionDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(transactionDtoTest));
+    assertThat(actualPage.getContent()).usingRecursiveComparison().isEqualTo(List.of(transactionDtoTest));
     verify(transactionRepository, times(1)).findAll(pageable);
   }
 
+  @DisplayName("Get all when no transactions exists should return an empty page")
   @Test
   void getAllWhenEmptyTest() {
     // GIVEN
@@ -92,13 +96,14 @@ class TransactionServiceTest {
     when(transactionRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
 
     // WHEN
-    Page<TransactionDto> actualPageTransactionDto = transactionService.getAll(pageable);
+    Page<TransactionDto> actualPage = transactionService.getAll(pageable);
 
     // THEN
-    assertThat(actualPageTransactionDto.getContent()).isEmpty();
+    assertThat(actualPage.getContent()).isEmpty();
     verify(transactionRepository, times(1)).findAll(pageable);
   }
 
+  @DisplayName("Get all from user should return a page of transactions DTO")
   @Test
   void getAllFromUserTest() throws Exception {
     // GIVEN
@@ -108,14 +113,15 @@ class TransactionServiceTest {
         .thenReturn(new PageImpl<>(List.of(transactionTest)));
 
     // WHEN
-    Page<TransactionDto> actualPageTransactionDto = transactionService.getFromUser(1,pageable);
+    Page<TransactionDto> actualPage = transactionService.getFromUser(1,pageable);
 
     // THEN
-    assertThat(actualPageTransactionDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(transactionDtoTest));
+    assertThat(actualPage.getContent()).usingRecursiveComparison().isEqualTo(List.of(transactionDtoTest));
     verify(userService, times(1)).retrieveEntity(1);
     verify(transactionRepository, times(1)).findByEmitterOrReceiver(emitter,emitter,pageable);
   }
 
+  @DisplayName("Get all from user when no transactions exists should return an empty page")
   @Test
   void getAllFromUserWhenEmptyTest() throws Exception {
     // GIVEN
@@ -125,14 +131,15 @@ class TransactionServiceTest {
         .thenReturn(Page.empty());
 
     // WHEN
-    Page<TransactionDto> actualPageTransactionDto = transactionService.getFromUser(1,pageable);
+    Page<TransactionDto> actualPage = transactionService.getFromUser(1,pageable);
 
     // THEN
-    assertThat(actualPageTransactionDto.getContent()).isEmpty();
+    assertThat(actualPage.getContent()).isEmpty();
     verify(userService, times(1)).retrieveEntity(1);
     verify(transactionRepository, times(1)).findByEmitterOrReceiver(emitter,emitter,pageable);
   }
 
+  @DisplayName("Get all from a non existent user should throw an exception")
   @Test
   void getAllFromUserWhenUserNotFoundTest() throws Exception {
     // GIVEN
@@ -150,7 +157,7 @@ class TransactionServiceTest {
     verify(transactionRepository, times(0)).findByEmitterOrReceiver(any(User.class),any(User.class),any(Pageable.class));
   }
 
-
+  @DisplayName("Requesting transaction should persist a new transaction")
   @Test
   void requestTransactionTest() throws Exception {
     // GIVEN
@@ -170,6 +177,7 @@ class TransactionServiceTest {
     verify(transactionRepository, times(1)).save(any(Transaction.class));
   }
 
+  @DisplayName("Requesting transaction with insufficient provision should throw an exception")
   @Test
   void requestTransactionWithInsufficientProvisionTest() throws Exception {
     // GIVEN
@@ -188,6 +196,7 @@ class TransactionServiceTest {
     verify(transactionRepository, times(0)).save(any(Transaction.class));
   }
 
+  @DisplayName("Requesting transaction with non existing emitter should throw an exception")
   @Test
   void requestTransactionWhenEmitterNotFoundTest() throws Exception {
     // GIVEN
@@ -205,6 +214,7 @@ class TransactionServiceTest {
     verify(transactionRepository, times(0)).save(any(Transaction.class));
   }
 
+  @DisplayName("Requesting transaction with non existing receiver should throw an exception")
   @Test
   void requestTransactionWhenReceiverNotFoundTest() throws Exception {
     // GIVEN
@@ -222,6 +232,7 @@ class TransactionServiceTest {
     verify(transactionRepository, times(0)).save(any(Transaction.class));
   }
 
+  @DisplayName("Requesting transaction with negative amount should throw an exception")
   @Test
   void requestTransactionWithNegativeAmountTest() throws Exception {
     // GIVEN
@@ -238,8 +249,9 @@ class TransactionServiceTest {
     verify(transactionRepository, times(0)).save(any(Transaction.class));
   }
 
-  @ParameterizedTest
-  @CsvSource({"0,0.00","0.1,0.00", "1,0.01","5,0.03","10,0.05"})
+  @DisplayName("Calculate fare to apply")
+  @ParameterizedTest(name = "Amount of {0} give a fare of {1}")
+  @CsvSource({"0.00, 0.00", "0.10, 0.00", "1.00, 0.01", "5.00, 0.03", "10.00, 0.05"})
   void calculateFareVariousAmountTest(BigDecimal input, BigDecimal expected) {
     // GIVEN
 
@@ -250,6 +262,7 @@ class TransactionServiceTest {
     assertThat(actual).isEqualTo(expected);
   }
 
+  @DisplayName("Calculate fare for negative amount should throw an exception")
   @Test
   void calculateFareWithNegativeAmountTest() {
     // GIVEN
@@ -263,10 +276,9 @@ class TransactionServiceTest {
         .hasMessageContaining("The amount can't be negative");
   }
 
+  @DisplayName("Clear transaction for an emitter user should persist transaction with emitter set to null")
   @Test
   void clearTransactionForEmitterTest() {
-    // GIVEN
-
     // WHEN
     transactionService.clearTransactionForUser(transactionTest, emitter);
 
@@ -276,10 +288,9 @@ class TransactionServiceTest {
     verify(transactionRepository, times(0)).delete(any(Transaction.class));
   }
 
+  @DisplayName("Clear transaction for an receiver user should persist transaction with receiver set to null")
   @Test
   void clearTransactionForReceiverTest() {
-    // GIVEN
-
     // WHEN
     transactionService.clearTransactionForUser(transactionTest, receiver);
 
@@ -289,6 +300,7 @@ class TransactionServiceTest {
     verify(transactionRepository, times(0)).delete(any(Transaction.class));
   }
 
+  @DisplayName("Clear transaction for an emitter user when receiver is null should delete transaction")
   @Test
   void clearTransactionWhenEmitterAndReceiverNullTest() {
     // GIVEN
@@ -302,4 +314,5 @@ class TransactionServiceTest {
     assertThat(transactionTest.getEmitter()).isNull();
     verify(transactionRepository, times(1)).delete(transactionTest);
   }
+
 }

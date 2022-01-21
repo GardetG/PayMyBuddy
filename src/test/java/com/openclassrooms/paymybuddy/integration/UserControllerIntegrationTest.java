@@ -69,7 +69,7 @@ class UserControllerIntegrationTest {
   @Test
   void updateTest() throws Exception {
     // GIVEN
-    UserDto updatedUser = new UserDto(3, "update", "test", "update@mail.com", null,null, "USER", LocalDateTime.now());
+    UserDto updatedUser = new UserDto(3, "update", "test", "update@mail.com", null,null,LocalDateTime.now());
 
     // WHEN
     mockMvc.perform(put("/users")

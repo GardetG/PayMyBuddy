@@ -6,14 +6,11 @@ import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.utils.ConnectionMapper;
-import java.util.ArrayList;
-import java.util.List;
+import com.openclassrooms.paymybuddy.utils.PaginateCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -35,16 +32,7 @@ public class ConnectionServiceImpl implements ConnectionService {
   public Page<ConnectionDto> getAllFromUser(int userId,
                                             Pageable pageable) throws ResourceNotFoundException {
     User user = userService.retrieveEntity(userId);
-    List<User> connectionsList = new ArrayList<>(user.getConnections());
-
-    if (!pageable.equals(Pageable.unpaged())) {
-      PagedListHolder<User> pageHolder = new PagedListHolder<>(connectionsList);
-      pageHolder.setPage(pageable.getPageNumber());
-      pageHolder.setPageSize(pageable.getPageSize());
-      connectionsList = pageHolder.getPageList();
-    }
-
-    Page<User> page = new PageImpl<>(connectionsList, pageable, connectionsList.size());
+    Page<User> page = PaginateCollection.paginate(user.getConnections(), pageable);
     return page.map(ConnectionMapper::toDto);
   }
 

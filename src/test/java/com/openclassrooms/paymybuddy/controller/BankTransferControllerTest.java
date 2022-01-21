@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -54,7 +55,7 @@ class BankTransferControllerTest {
   private CredentialsService credentialsService;
 
   @Captor
-  ArgumentCaptor<BankTransferDto> bankTransferDtoCaptor;
+  ArgumentCaptor<BankTransferDto> DtoCaptor;
 
   private User userTest;
   private User adminTest;
@@ -63,13 +64,15 @@ class BankTransferControllerTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User("test","test","user1@mail.com","password", Role.USER, LocalDateTime.now());
+    LocalDateTime date = LocalDateTime.of(2000,1,1,0,0);
+    userTest = new User("test","test","user1@mail.com","password", Role.USER, date);
     userTest.setUserId(1);
-    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, LocalDateTime.now());
-    bankTransferDtoTest = new BankTransferDto(1,1, BigDecimal.TEN,false, LocalDateTime.now(),"user","test", "Primary Account");
+    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, date);
+    bankTransferDtoTest = new BankTransferDto(1,1, BigDecimal.TEN,false, date,"user","test", "Primary Account");
     jsonParam = new JSONObject();
   }
 
+  @DisplayName("GET all bank transfers should return 200 with page of bank transfer Dto")
   @Test
   void getAllTest() throws Exception {
     // GIVEN
@@ -88,6 +91,7 @@ class BankTransferControllerTest {
     verify(bankTransferService, times(1)).getAll(pageable);
   }
 
+  @DisplayName("GET all bank transfers when not admin should return 403")
   @Test
   void getAllWhenNotAdminTest() throws Exception {
     // GIVEN
@@ -100,6 +104,7 @@ class BankTransferControllerTest {
     verify(bankTransferService, times(0)).getAll(any(Pageable.class));
   }
 
+  @DisplayName("GET all bank transfer from user should return 200 with page of bank transfer Dto")
   @Test
   void getFromUserTest() throws Exception {
     // GIVEN
@@ -115,12 +120,14 @@ class BankTransferControllerTest {
         .andExpect(jsonPath("$.content[0].bankAccountId", is(1)))
         .andExpect(jsonPath("$.content[0].amount", is(10)))
         .andExpect(jsonPath("$.content[0].income", is(false)))
+        .andExpect(jsonPath("$.content[0].date", is("2000-01-01 at 00:00")))
         .andExpect(jsonPath("$.content[0].firstname", is("user")))
         .andExpect(jsonPath("$.content[0].lastname", is("test")))
         .andExpect(jsonPath("$.content[0].title", is("Primary Account")));
     verify(bankTransferService, times(1)).getFromUser(1,pageable);
   }
 
+  @DisplayName("GET all bank transfer from non existent user should return 404")
   @Test
   void getFromUserWhenNotFoundTest() throws Exception {
     // GIVEN
@@ -137,10 +144,9 @@ class BankTransferControllerTest {
     verify(bankTransferService, times(1)).getFromUser(9,pageable);
   }
 
+  @DisplayName("GET all bank transfer from an other user should return 403")
   @Test
   void getFromUserWhenAuthenticateIdNotMatchingTest() throws Exception {
-    // GIVEN
-
     // WHEN
     mockMvc.perform(get("/banktransfers/user?id=2").with(user(userTest)))
 
@@ -149,11 +155,14 @@ class BankTransferControllerTest {
     verify(bankTransferService, times(0)).getFromUser(anyInt(),any(Pageable.class));
   }
 
+  @DisplayName("POST request transfer should return 201 with bank transfer DTO")
   @Test
   void postRequestTest() throws Exception {
     // GIVEN
-    jsonParam.put("userId",1).put("bankAccountId",1)
-        .put("amount","10").put("isIncome",false);
+    jsonParam.put("userId",1)
+        .put("bankAccountId",1)
+        .put("amount","10")
+        .put("isIncome",false);
     when(bankTransferService.requestTransfer(any(BankTransferDto.class))).thenReturn(bankTransferDtoTest);
 
     // WHEN
@@ -171,53 +180,9 @@ class BankTransferControllerTest {
         .andExpect(jsonPath("$.firstname", is("user")))
         .andExpect(jsonPath("$.lastname", is("test")))
         .andExpect(jsonPath("$.title", is("Primary Account")));
-    verify(bankTransferService, times(1)).requestTransfer(bankTransferDtoCaptor.capture());
+    verify(bankTransferService, times(1)).requestTransfer(DtoCaptor.capture());
     BankTransferDto expectedDto = new BankTransferDto(1,1, BigDecimal.TEN,false, null,null,null, null);
-    assertThat(bankTransferDtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
-  }
-
-  @Test
-  void postRequestWhenAccountNotFoundTest() throws Exception {
-    // GIVEN
-    jsonParam.put("userId",1).put("bankAccountId",9)
-        .put("amount","10").put("isIncome",false);
-    when(bankTransferService.requestTransfer(any(BankTransferDto.class))).thenThrow(
-        new ResourceNotFoundException("This account is not found"));
-
-    // WHEN
-    mockMvc.perform(post("/banktransfers").with(user(userTest))
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonParam.toString()))
-
-        // THEN
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$", is("This account is not found")));
-    verify(bankTransferService, times(1)).requestTransfer(bankTransferDtoCaptor.capture());
-    BankTransferDto expectedDto = new BankTransferDto(1,9, BigDecimal.TEN,false, null,null,null, null);
-    assertThat(bankTransferDtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
-  }
-
-  @Test
-  void postRequestWhenProvisionInsufficientTest() throws Exception {
-    // GIVEN
-    jsonParam.put("userId",1).put("bankAccountId",9)
-        .put("amount","100").put("isIncome",false);
-    when(bankTransferService.requestTransfer(any(BankTransferDto.class))).thenThrow(
-        new InsufficientProvisionException("Insufficient provision to debit the amount"));
-
-    // WHEN
-    mockMvc.perform(post("/banktransfers").with(user(userTest))
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonParam.toString()))
-
-        // THEN
-        .andExpect(status().isConflict())
-        .andExpect(jsonPath("$", is("Insufficient provision to debit the amount")));
-    verify(bankTransferService, times(1)).requestTransfer(bankTransferDtoCaptor.capture());
-    BankTransferDto expectedDto = new BankTransferDto(1,9, BigDecimal.valueOf(100),false, null,null,null, null);
-    assertThat(bankTransferDtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
+    assertThat(DtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
   }
 
   @Test
@@ -238,11 +203,64 @@ class BankTransferControllerTest {
     verify(bankTransferService, times(0)).requestTransfer(any(BankTransferDto.class));
   }
 
+  @DisplayName("POST request transfer on non existent bank account should return 404")
+  @Test
+  void postRequestWhenAccountNotFoundTest() throws Exception {
+    // GIVEN
+    jsonParam.put("userId",1)
+        .put("bankAccountId",9)
+        .put("amount","10"
+        ).put("isIncome",false);
+    when(bankTransferService.requestTransfer(any(BankTransferDto.class))).thenThrow(
+        new ResourceNotFoundException("This account is not found"));
+
+    // WHEN
+    mockMvc.perform(post("/banktransfers").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonParam.toString()))
+
+        // THEN
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$", is("This account is not found")));
+    verify(bankTransferService, times(1)).requestTransfer(DtoCaptor.capture());
+    BankTransferDto expectedDto = new BankTransferDto(1,9, BigDecimal.TEN,false, null,null,null, null);
+    assertThat(DtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
+  }
+
+  @DisplayName("POST request transfer when insufficient provision should return 409")
+  @Test
+  void postRequestWhenProvisionInsufficientTest() throws Exception {
+    // GIVEN
+    jsonParam.put("userId",1)
+        .put("bankAccountId",9)
+        .put("amount","500")
+        .put("isIncome",false);
+    when(bankTransferService.requestTransfer(any(BankTransferDto.class))).thenThrow(
+        new InsufficientProvisionException("Insufficient provision to debit the amount"));
+
+    // WHEN
+    mockMvc.perform(post("/banktransfers").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonParam.toString()))
+
+        // THEN
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$", is("Insufficient provision to debit the amount")));
+    verify(bankTransferService, times(1)).requestTransfer(DtoCaptor.capture());
+    BankTransferDto expectedDto = new BankTransferDto(1,9, BigDecimal.valueOf(500),false, null,null,null, null);
+    assertThat(DtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
+  }
+
+  @DisplayName("POST request transfer on other user should return 403")
   @Test
   void postRequestWhenAuthenticateButUserIdNotMatchingTest() throws Exception {
     // GIVEN
-    jsonParam.put("userId",2).put("bankAccountId",1)
-        .put("amount","10.00").put("isIncome",false);
+    jsonParam.put("userId",2)
+        .put("bankAccountId",1)
+        .put("amount","10.00")
+        .put("isIncome",false);
 
     // WHEN
     mockMvc.perform(post("/banktransfers").with(user(userTest))
@@ -254,4 +272,5 @@ class BankTransferControllerTest {
         .andExpect(status().isForbidden());
     verify(bankTransferService, times(0)).requestTransfer(any(BankTransferDto.class));
   }
+
 }

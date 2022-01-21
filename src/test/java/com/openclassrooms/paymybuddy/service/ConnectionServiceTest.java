@@ -17,13 +17,14 @@ import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @SpringBootTest
@@ -48,41 +49,47 @@ class ConnectionServiceTest {
     connectionDto = new ConnectionDto(2,"user2","test","user2@mail.com");
   }
 
+  @DisplayName("Get all connections of a user should return a page of DTO")
   @Test
   void getAllFromUserTest() throws Exception {
     // GIVEN
     user1Test.addConnection(user2Test);
+    Pageable pageable = PageRequest.of(0,1);
     when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
 
     // WHEN
-    Page<ConnectionDto> actualListConnectionstDto = connectionService.getAllFromUser(1, Pageable.unpaged());
+    Page<ConnectionDto> actuaPage = connectionService.getAllFromUser(1, pageable);
 
     // THEN
-    assertThat(actualListConnectionstDto.getContent()).usingRecursiveComparison().isEqualTo(List.of(connectionDto));
+    assertThat(actuaPage.getContent()).usingRecursiveComparison().isEqualTo(List.of(connectionDto));
     verify(userService, times(1)).retrieveEntity(1);
   }
 
+  @DisplayName("Get all connections of a user when connections is empty should return an empty page")
   @Test
   void getAllFromUserWhenEmptyTest() throws Exception {
     // GIVEN
+    Pageable pageable = PageRequest.of(0,1);
     when(userService.retrieveEntity(anyInt())).thenReturn(user1Test);
 
     // WHEN
-    Page<ConnectionDto> actualListConnectionstDto = connectionService.getAllFromUser(1, Pageable.unpaged());
+    Page<ConnectionDto> actuaPage = connectionService.getAllFromUser(1, pageable);
 
     // THEN
-    assertThat(actualListConnectionstDto).isEmpty();
+    assertThat(actuaPage).isEmpty();
     verify(userService, times(1)).retrieveEntity(1);
   }
 
+  @DisplayName("Get all connections of a non existent user should throw an exception")
   @Test
   void getAllFromUserWhenUserNotFoundTest() throws Exception {
     // GIVEN
+    Pageable pageable = PageRequest.of(0,1);
     when(userService.retrieveEntity(anyInt())).thenThrow(
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
-    assertThatThrownBy(() -> connectionService.getAllFromUser(9, Pageable.unpaged()))
+    assertThatThrownBy(() -> connectionService.getAllFromUser(9, pageable))
 
         // THEN
         .isInstanceOf(ResourceNotFoundException.class)
@@ -90,6 +97,7 @@ class ConnectionServiceTest {
     verify(userService, times(1)).retrieveEntity(9);
   }
 
+  @DisplayName("Add a connections to a user")
   @Test
   void addToUserTest() throws Exception {
     // GIVEN
@@ -109,6 +117,7 @@ class ConnectionServiceTest {
     verify(userService,times(1)).saveEntity(any(User.class));
   }
 
+  @DisplayName("Add a connection to a non existent user should throw an exception")
   @Test
   void addToUserWhenUserNotFoundTest() throws Exception {
     // GIVEN
@@ -127,6 +136,7 @@ class ConnectionServiceTest {
     verify(userService,times(0)).saveEntity(any(User.class));
   }
 
+  @DisplayName("Add a non existent user as connection to a user should throw an exception")
   @Test
   void addToUserWhenConnectionNotFoundTest() throws Exception {
     // GIVEN
@@ -146,6 +156,7 @@ class ConnectionServiceTest {
     verify(userService,times(0)).saveEntity(any(User.class));
   }
 
+  @DisplayName("Add a connection already added to a user should throw an exception")
   @Test
   void addToUserWithAlreadyAddedConnectionTest() throws Exception{
     // GIVEN
@@ -165,6 +176,7 @@ class ConnectionServiceTest {
     verify(userService,times(0)).saveEntity(any(User.class));
   }
 
+  @DisplayName("Add himself as connection should throw an exception")
   @Test
   void addToUserWithHimselfAsConnectionTest() throws Exception {
     // GIVEN
@@ -182,6 +194,7 @@ class ConnectionServiceTest {
     verify(userService,times(0)).saveEntity(any(User.class));
   }
 
+  @DisplayName("Remove a connection from a user")
   @Test
   void removeFromUserTest() throws Exception {
     // GIVEN
@@ -198,6 +211,7 @@ class ConnectionServiceTest {
     verify(userService,times(1)).saveEntity(any(User.class));
   }
 
+  @DisplayName("Remove a connection from a non existent user should throw an exception")
   @Test
   void removeFromUserWhenUserNotFoundTest() throws Exception {
     // GIVEN
@@ -214,6 +228,7 @@ class ConnectionServiceTest {
     verify(userService,times(0)).saveEntity(any(User.class));
   }
 
+  @DisplayName("Remove a non existent connection from a user should throw an exception")
   @Test
   void removeFromUserWhenConnectionNotFoundTest() throws Exception {
     // GIVEN

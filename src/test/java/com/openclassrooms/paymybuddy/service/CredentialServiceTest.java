@@ -13,6 +13,7 @@ import com.openclassrooms.paymybuddy.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,7 +32,6 @@ class CredentialServiceTest {
 
   private User userTest;
 
-
   @BeforeEach
   void setUp() {
     userTest =
@@ -39,6 +39,7 @@ class CredentialServiceTest {
     userTest.setUserId(1);
   }
 
+  @DisplayName("Load user by username should return a UserDetails user")
   @Test
   void loadUserByUsernameTest() {
     // GIVEN
@@ -52,6 +53,7 @@ class CredentialServiceTest {
     verify(userRepository, times(1)).findByEmail("test@mail.com");
   }
 
+  @DisplayName("Load a non existent user by username should throw an exception")
   @Test
   void loadUserByUsernameWhenNotFoundTest() {
     // GIVEN

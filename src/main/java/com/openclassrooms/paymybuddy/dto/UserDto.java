@@ -37,8 +37,6 @@ public class UserDto {
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private BigDecimal wallet;
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String role;
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   @JsonFormat(pattern = "yyyy-MM-dd' at 'HH:mm")
   private LocalDateTime registrationDate;
 

@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -66,6 +67,7 @@ class BankTransferServiceTest {
     bankTransferDtoTest = new BankTransferDto(1,1, amount,false,date,"user","test", "Primary Account");
   }
 
+  @DisplayName("Subscribe to user deletion should call user service subscribe method")
   @Test
   void userDeletionSubscribePostConstructTest() {
     // WHEN
@@ -74,6 +76,7 @@ class BankTransferServiceTest {
     verify(userService).userDeletionSubscribe(any(BankTransferServiceImpl.class));
   }
 
+  @DisplayName("Get all should return a page of bank transfer Dto")
   @Test
   void getAllTest() {
     // GIVEN
@@ -88,6 +91,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(1)).findAll(pageable);
   }
 
+  @DisplayName("Get all when no bank transfer exists should return an empty")
   @Test
   void getAllWhenEmptyTest() {
     // GIVEN
@@ -102,6 +106,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(1)).findAll(pageable);
   }
 
+  @DisplayName("Get all from user return a page of transactions Dto")
   @Test
   void getAllFromUserTest() throws Exception {
     // GIVEN
@@ -119,6 +124,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(1)).findByBankAccountIn(user.getBankAccounts(),pageable);
   }
 
+  @DisplayName("Get all from user when no bank transfers exist should return an empty page")
   @Test
   void getAllFromUserWhenEmptyTest() throws Exception {
     // GIVEN
@@ -136,6 +142,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(1)).findByBankAccountIn(user.getBankAccounts(),pageable);
   }
 
+  @DisplayName("Get all from non existent user should throw an exception")
   @Test
   void getAllFromUserWhenUserNotFoundTest() throws Exception {
     // GIVEN
@@ -153,6 +160,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(0)).existsById(anyInt());
   }
 
+  @DisplayName("Requesting debit wallet to bank account should persist a new exiting bank transfer")
   @Test
   void requestExitingTransferTest() throws Exception {
     // GIVEN
@@ -172,6 +180,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(1)).save(any(BankTransfer.class));
   }
 
+  @DisplayName("Requesting debit wallet when provision insufficient should throw exceptionr")
   @Test
   void requestExitingTransferWithInsufficientProvisionTest() throws Exception {
     // GIVEN
@@ -190,6 +199,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }
 
+  @DisplayName("Requesting credit wallet from bank account should persist a new incoming bank transfer")
   @Test
   void requestIncomingTransferTest() throws Exception {
     // GIVEN
@@ -211,6 +221,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(1)).save(any(BankTransfer.class));
   }
 
+  @DisplayName("Requesting credit wallet from bank account should throw an exception")
   @Test
   void requestIncomngTransferWithInsufficientProvisionTest() throws Exception {
     // GIVEN
@@ -233,6 +244,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }
 
+  @DisplayName("Requesting transfer when user not exists should throw an exception")
   @Test
   void requestTransferWhenUserNotFoundTest() throws Exception {
     // GIVEN
@@ -250,6 +262,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }
 
+  @DisplayName("Requesting transfer when account not exists should throw an exception")
   @Test
   void requestTransferWhenAccountNotFoundTest() throws Exception {
     // GIVEN
@@ -266,6 +279,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }
 
+  @DisplayName("Requesting transfer with negative amount should throw an exception")
   @Test
   void requestTransferWithNegativeAmountTest() throws Exception {
     // GIVEN
@@ -282,6 +296,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository, times(0)).save(any(BankTransfer.class));
   }
 
+  @DisplayName("Clear transfer for an account should delete all transfer associated")
   @Test
   void clearTransfersForAccountTest() {
     // GIVEN
@@ -295,6 +310,7 @@ class BankTransferServiceTest {
     verify(bankTransferRepository,times(1)).delete(bankTransferTest);
   }
 
+  @DisplayName("Clear transfer for an account when no transfer exists should do nothing")
   @Test
   void clearTransfersForAccountWhenEmptyTest() {
     // GIVEN

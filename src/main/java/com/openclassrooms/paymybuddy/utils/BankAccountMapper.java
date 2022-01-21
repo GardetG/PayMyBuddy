@@ -22,12 +22,12 @@ public class BankAccountMapper {
    * @return BankAccountDto
    */
   public static BankAccountDto toDto(BankAccount bankAccount) {
-    BankAccountDto bankAccountDto = new BankAccountDto();
-    bankAccountDto.setBankAccountId(bankAccount.getBankAccountId());
-    bankAccountDto.setTitle(bankAccount.getTitle());
-    bankAccountDto.setIban(bankAccount.getIban().replaceAll(MASK_REGEX, "X"));
-    bankAccountDto.setBic(bankAccount.getBic().replaceAll(MASK_REGEX, "X"));
-    return bankAccountDto;
+    return new BankAccountDto(
+        bankAccount.getBankAccountId(),
+        bankAccount.getTitle(),
+        bankAccount.getIban().replaceAll(MASK_REGEX, "X"),
+        bankAccount.getBic().replaceAll(MASK_REGEX, "X")
+    );
   }
 
   /**

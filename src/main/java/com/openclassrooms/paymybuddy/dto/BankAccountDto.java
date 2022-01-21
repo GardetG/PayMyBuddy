@@ -4,15 +4,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * DTO Class for retrieving bank account data like title, masked iban and bic.
  */
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class BankAccountDto {
 

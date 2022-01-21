@@ -6,17 +6,14 @@ import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.model.BankAccount;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.utils.BankAccountMapper;
-import java.util.ArrayList;
+import com.openclassrooms.paymybuddy.utils.PaginateCollection;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Predicate;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -42,16 +39,7 @@ public class BankAccountServiceImpl implements BankAccountService {
       throws ResourceNotFoundException {
 
     User user = userService.retrieveEntity(userId);
-    List<BankAccount> bankAccountsList = new ArrayList<>(user.getBankAccounts());
-
-    if (!pageable.equals(Pageable.unpaged())) {
-      PagedListHolder<BankAccount> pageHolder = new PagedListHolder<>(bankAccountsList);
-      pageHolder.setPage(pageable.getPageNumber());
-      pageHolder.setPageSize(pageable.getPageSize());
-      bankAccountsList = pageHolder.getPageList();
-    }
-
-    Page<BankAccount> page = new PageImpl<>(bankAccountsList, pageable, bankAccountsList.size());
+    Page<BankAccount> page = PaginateCollection.paginate(user.getBankAccounts(), pageable);
     return page.map(BankAccountMapper::toDto);
   }
 
