@@ -34,7 +34,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
    *  details from the database and encode passwords.
    *
    * @param auth AuthenticationManagerBuilder
-   * @throws Exception
+   * @throws Exception error in configuration
    */
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -47,17 +47,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
    * logout, remember-me, CSRF and CROS policy.
    *
    * @param http HttpSecurity
-   * @throws Exception
+   * @throws Exception error in configuration
    */
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
-        .httpBasic().and()
         .authorizeRequests()
         .antMatchers("/register").permitAll()
-        .anyRequest().fullyAuthenticated().and()
+        .antMatchers("/actuator/**").hasRole("ADMIN")
+        .anyRequest().fullyAuthenticated()
+        .and()
+        .httpBasic()
+        .and()
         .logout().permitAll()
-        .logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))).and()
+        .logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)))
+        .and()
+        .rememberMe()
+        .userDetailsService(credentialsService)
+        .and()
         .csrf().disable()
         .cors();
   }
@@ -71,7 +78,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-    configuration.setAllowedMethods(Arrays.asList("*"));
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
     configuration.setAllowedHeaders(Arrays.asList("*"));
     configuration.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
