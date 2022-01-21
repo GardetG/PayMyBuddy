@@ -1,8 +1,10 @@
 package com.openclassrooms.paymybuddy.model;
 
 import com.openclassrooms.paymybuddy.constant.ApplicationValue;
+import com.openclassrooms.paymybuddy.utils.AttributeEncryptor;
 import java.util.Objects;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,16 +16,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Model Class of a bank account with tile, iban, bic and balance.
+ * Model Class of a bank account with tile, iban, bic.
+ * This class extends ComptableEntity to provide a balance.
+ *
  */
 @Entity
 @Table(name = "bank_account")
-@Getter
-@Setter
 public class BankAccount extends ComptableEntity {
 
   private BankAccount() {
-    // Private default constructor for hibernate
+    super(
+        ApplicationValue.BANKACCOUNT_BALANCE_CEILING
+    );
   }
 
   /**
@@ -34,7 +38,10 @@ public class BankAccount extends ComptableEntity {
    * @param bic of bank account
    */
   public BankAccount(String title, String iban, String bic) {
-    super(ApplicationValue.INITIAL_BANKACCOUNT_BALANCE);
+    super(
+        ApplicationValue.INITIAL_BANKACCOUNT_BALANCE,
+        ApplicationValue.BANKACCOUNT_BALANCE_CEILING
+    );
     this.title = title;
     this.iban = iban;
     this.bic = bic;
@@ -43,19 +50,26 @@ public class BankAccount extends ComptableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "bank_account_id")
+  @Getter @Setter
   private int bankAccountId;
 
   @Column(name = "title",  length = 60)
+  @Getter
   private String title;
 
-  @Column(name = "iban", length = 34)
+  @Column(name = "iban", length = 64)
+  @Convert(converter = AttributeEncryptor.class)
+  @Getter
   private String iban;
 
-  @Column(name = "bic",  length = 11)
+  @Column(name = "bic", length = 24)
+  @Convert(converter = AttributeEncryptor.class)
+  @Getter
   private String bic;
 
   @ManyToOne()
   @JoinColumn(name = "user_id")
+  @Getter @Setter
   private User user;
 
   @Override

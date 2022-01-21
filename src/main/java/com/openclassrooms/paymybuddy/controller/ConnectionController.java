@@ -5,11 +5,12 @@ import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.ConnectionService;
-import java.util.List;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
- * Controller Class for managing user connections.
+ * Controller Class for managing user connections with other users.
  */
 @Controller
 @Validated
@@ -37,18 +38,19 @@ public class ConnectionController {
    * Handle HTTP GET request on user's connections by id.
    *
    * @param id of the user
-   * @return HTTP 200 Response with connections list
-   * @throws ResourceNotFoundException when user not found
+   * @param pageable of the requested page
+   * @return HTTP 200 Response with connections page
+   * @throws ResourceNotFoundException if user not found
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/users/{id}/connections")
-  public ResponseEntity<List<ConnectionDto>> getAllFromUser(@PathVariable int id)
+  public ResponseEntity<Page<ConnectionDto>> getAllFromUser(@PathVariable int id, Pageable pageable)
       throws ResourceNotFoundException {
 
     LOGGER.info("Request: Get user {} connections", id);
-    List<ConnectionDto> bankAccounts = connectionService.getAllFromUser(id);
+    Page<ConnectionDto> bankAccounts = connectionService.getAllFromUser(id, pageable);
 
-    LOGGER.info("Response: List of user connectionss sent");
+    LOGGER.info("Response: Page of user connections sent");
     return ResponseEntity.ok(bankAccounts);
   }
 
@@ -58,7 +60,7 @@ public class ConnectionController {
    * @param id of user
    * @param connection to add
    * @return HTTP 201
-   * @throws ResourceNotFoundException when user not found
+   * @throws ResourceNotFoundException if user or requested connection not found
    */
   @PreAuthorize("#id == authentication.principal.userId")
   @PostMapping("/users/{id}/connections")
@@ -70,7 +72,7 @@ public class ConnectionController {
     LOGGER.info("Request: Add user {} new connection", id);
     ConnectionDto connectionAdded = connectionService.addToUser(id, connection);
 
-    LOGGER.info("Response: User connection added");
+    LOGGER.info("Response: User connection with {} added", connectionAdded.getConnectionId());
     return ResponseEntity.status(HttpStatus.CREATED).body(connectionAdded);
 
   }
@@ -88,10 +90,10 @@ public class ConnectionController {
   public ResponseEntity<Void> removeFromUser(@PathVariable int id, @PathVariable int connectionId)
       throws ResourceNotFoundException {
 
-    LOGGER.info("Request: Delete user {} connection {}", id, connectionId);
+    LOGGER.info("Request: Delete user {} connection with {}", id, connectionId);
     connectionService.removeFromUser(id, connectionId);
 
-    LOGGER.info("Response: user bank account deleted");
+    LOGGER.info("Response: User connection deleted");
     return ResponseEntity.noContent().build();
 
   }

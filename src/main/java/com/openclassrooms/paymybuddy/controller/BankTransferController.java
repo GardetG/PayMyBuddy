@@ -1,6 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.dto.BankTransferDto;
+import com.openclassrooms.paymybuddy.exception.ForbiddenOperationException;
 import com.openclassrooms.paymybuddy.exception.InsufficientProvisionException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.BankTransferService;
@@ -33,7 +34,7 @@ public class BankTransferController {
   BankTransferService bankTransferService;
 
   /**
-   * Handle HTTP GET request on all bank transfers.
+   * Handle HTTP GET request on all bank transfers. Reserved to admin.
    *
    * @param pageable of the requested page
    * @return HTTP 200 with bank transfers page
@@ -45,17 +46,18 @@ public class BankTransferController {
     LOGGER.info("Request: Get all bank transfers");
     Page<BankTransferDto> bankTransfersDto = bankTransferService.getAll(pageable);
 
-    LOGGER.info("Response: All bank transfers information sent");
+    LOGGER.info("Response: Page of bank transfers sent");
     return ResponseEntity.ok(bankTransfersDto);
   }
 
 
   /**
-   * Handle HTTP GET request on all bank transfers of an user.
-
+   * Handle HTTP GET request on all bank transfers of a user.
+   *
    * @param id of the user
-   * @return HTTP 200 Response with user's information
-   * @throws ResourceNotFoundException when user not found
+   * @param pageable of the requested page
+   * @return HTTP 200 Response with bank transfers page
+   * @throws ResourceNotFoundException if user not found
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/banktransfers/user")
@@ -65,7 +67,7 @@ public class BankTransferController {
     LOGGER.info("Request: Get user {} bank transfers", id);
     Page<BankTransferDto> bankTransfersDto = bankTransferService.getFromUser(id, pageable);
 
-    LOGGER.info("Response: User bank transfers sent");
+    LOGGER.info("Response: Page of bank transfers sent");
     return ResponseEntity.ok(bankTransfersDto);
   }
 
@@ -73,19 +75,20 @@ public class BankTransferController {
    * Handle HTTP POST request for a bank transfer.
    *
    * @param request of the transfer
-   * @return HTTP Response 201 with transfer executed
+   * @return HTTP Response 201 with transfer performed
    * @throws InsufficientProvisionException if provision insufficient to perform transfer
    * @throws ResourceNotFoundException if account not found
    */
   @PreAuthorize("#request.userId == authentication.principal.userId")
   @PostMapping("/banktransfers")
   public ResponseEntity<BankTransferDto> request(@Valid @RequestBody BankTransferDto request)
-      throws InsufficientProvisionException, ResourceNotFoundException {
+      throws ForbiddenOperationException, ResourceNotFoundException {
 
-    LOGGER.info("Request: Bank transfer for user {} with account {}", request.getUserId(), request.getBankAccountId());
+    LOGGER.info("Request: Bank transfer for user {} with account {}", request.getUserId(),
+        request.getBankAccountId());
     BankTransferDto requestResponse = bankTransferService.requestTransfer(request);
 
-    LOGGER.info("Response: Bank transfer successfully executed");
+    LOGGER.info("Response: Bank transfer successfully performed");
     return ResponseEntity.status(HttpStatus.CREATED).body(requestResponse);
   }
 }

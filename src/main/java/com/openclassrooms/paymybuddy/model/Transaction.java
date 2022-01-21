@@ -54,15 +54,15 @@ public class Transaction {
   @ManyToOne(
       cascade = {CascadeType.PERSIST, CascadeType.MERGE},
       fetch = FetchType.EAGER)
-  @JoinColumn(name = "emitter_Id", foreignKey = @javax.persistence.ForeignKey(name = "none"))
-  @Getter
+  @JoinColumn(name = "emitter_Id")
+  @Getter @Setter
   private User emitter;
 
   @ManyToOne(
       cascade = {CascadeType.PERSIST, CascadeType.MERGE},
       fetch = FetchType.EAGER)
-  @JoinColumn(name = "receiver_id", foreignKey = @javax.persistence.ForeignKey(name = "none"))
-  @Getter
+  @JoinColumn(name = "receiver_id")
+  @Getter @Setter
   private User receiver;
 
   @Column(name = "description")

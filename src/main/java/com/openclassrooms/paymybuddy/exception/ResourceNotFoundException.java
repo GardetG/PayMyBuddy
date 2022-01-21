@@ -1,7 +1,7 @@
 package com.openclassrooms.paymybuddy.exception;
 
 /**
- * Exception Class thrown when an asked resource is not found.
+ * Exception Class thrown when a requested resource is not found.
  */
 public class ResourceNotFoundException extends Exception {
 

@@ -3,6 +3,7 @@ package com.openclassrooms.paymybuddy.utils;
 import com.openclassrooms.paymybuddy.dto.UserDto;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
+import java.time.LocalDateTime;
 
 /**
  * Mapper utility class for user.
@@ -27,7 +28,8 @@ public class UserMapper {
     userDto.setLastname(user.getLastname());
     userDto.setEmail(user.getEmail());
     userDto.setWallet(user.getBalance());
-    userDto.setRole(user.getRole().toString());
+    userDto.setRegistrationDate(user.getRegistrationDate());
+    userDto.setEnabled(user.isEnabled());
     return userDto;
   }
 
@@ -44,7 +46,8 @@ public class UserMapper {
         subscription.getLastname(),
         subscription.getEmail(),
         subscription.getPassword(),
-        Role.USER
+        Role.USER,
+        LocalDateTime.now()
     );
   }
 }

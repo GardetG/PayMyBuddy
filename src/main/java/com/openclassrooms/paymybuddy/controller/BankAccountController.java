@@ -4,11 +4,12 @@ import com.openclassrooms.paymybuddy.dto.BankAccountDto;
 import com.openclassrooms.paymybuddy.exception.ResourceAlreadyExistsException;
 import com.openclassrooms.paymybuddy.exception.ResourceNotFoundException;
 import com.openclassrooms.paymybuddy.service.BankAccountService;
-import java.util.List;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,18 +37,20 @@ public class BankAccountController {
    * Handle HTTP GET request on user's bank accounts by id.
    *
    * @param id of the user
-   * @return HTTP 200 Response with bank accounts list
-   * @throws ResourceNotFoundException when user not found
+   * @param pageable of the requested page
+   * @return HTTP 200 Response with bank accounts page
+   * @throws ResourceNotFoundException if user not found
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @GetMapping("/users/{id}/bankaccounts")
-  public ResponseEntity<List<BankAccountDto>> getAllfromUser(@PathVariable int id)
+  public ResponseEntity<Page<BankAccountDto>> getAllfromUser(@PathVariable int id,
+                                                             Pageable pageable)
       throws ResourceNotFoundException {
 
     LOGGER.info("Request: Get user {} bank accounts", id);
-    List<BankAccountDto> bankAccounts = bankAccountService.getAllFromUser(id);
+    Page<BankAccountDto> bankAccounts = bankAccountService.getAllFromUser(id, pageable);
 
-    LOGGER.info("Response: List of user bank accounts sent");
+    LOGGER.info("Response: Page of user bank accounts sent");
     return ResponseEntity.ok(bankAccounts);
   }
 
@@ -57,7 +60,7 @@ public class BankAccountController {
    * @param id of user
    * @param bankAccount to add
    * @return HTTP 201
-   * @throws ResourceNotFoundException when user not found
+   * @throws ResourceNotFoundException if user not found
    */
   @PreAuthorize("#id == authentication.principal.userId")
   @PostMapping("/users/{id}/bankaccounts")
@@ -74,12 +77,12 @@ public class BankAccountController {
   }
 
   /**
-   * Handle HTTP DELETE request on an user bank account by id.
+   * Handle HTTP DELETE request on a user bank account by id.
    *
    * @param id of user
-   * @param accountId of the account
+   * @param accountId of the account to delete
    * @return HTTP 204
-   * @throws ResourceNotFoundException when user or account not found
+   * @throws ResourceNotFoundException if user or account not found
    */
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
   @DeleteMapping("/users/{id}/bankaccounts/{accountId}")

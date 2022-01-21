@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -60,13 +61,15 @@ class TransactionControllerTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User("test","test","user1@mail.com","password", Role.USER);
+    LocalDateTime date = LocalDateTime.of(2000,1,1,0,0);
+    userTest = new User("test","test","user1@mail.com","password", Role.USER, date);
     userTest.setUserId(1);
-    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN);
-    transactionDtoTest = new TransactionDto(1,2,"Gift for a friend",BigDecimal.TEN,LocalDateTime.now(),"user1","test","user2","test");
+    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, date);
+    transactionDtoTest = new TransactionDto(1,2,"Gift for a friend",BigDecimal.TEN, date,"user1","test","user2","test");
     jsonParam = new JSONObject();
   }
 
+  @DisplayName("GET all transaction should return 200 with page of transaction Dto")
   @Test
   void getAllTest() throws Exception {
     // GIVEN
@@ -87,10 +90,9 @@ class TransactionControllerTest {
     verify(transactionService, times(1)).getAll(pageable);
   }
 
+  @DisplayName("GET all transactions when not admin should return 403")
   @Test
   void getAllWhenNotAdminTest() throws Exception {
-    // GIVEN
-
     // WHEN
     mockMvc.perform(get("/transactions?page=0&size=10").with(user(userTest)))
 
@@ -99,6 +101,7 @@ class TransactionControllerTest {
     verify(transactionService, times(0)).getAll(any(Pageable.class));
   }
 
+  @DisplayName("GET all transactions from user should return 200 with page of transaction Dto")
   @Test
   void getFromUserTest() throws Exception {
     // GIVEN
@@ -115,6 +118,7 @@ class TransactionControllerTest {
         .andExpect(jsonPath("$.content[0].receiverId", is(2)))
         .andExpect(jsonPath("$.content[0].description", is("Gift for a friend")))
         .andExpect(jsonPath("$.content[0].amount", is(10)))
+        .andExpect(jsonPath("$.content[0].date", is("2000-01-01 at 00:00")))
         .andExpect(jsonPath("$.content[0].emitterFirstname", is("user1")))
         .andExpect(jsonPath("$.content[0].emitterLastname", is("test")))
         .andExpect(jsonPath("$.content[0].receiverFirstname", is("user2")))
@@ -122,6 +126,7 @@ class TransactionControllerTest {
     verify(transactionService, times(1)).getFromUser(1,pageable);
   }
 
+  @DisplayName("GET all transactions from non existent user should return 404")
   @Test
   void getFromUserWhenNotFoundTest() throws Exception {
     // GIVEN
@@ -138,8 +143,9 @@ class TransactionControllerTest {
     verify(transactionService, times(1)).getFromUser(9,pageable);
   }
 
+  @DisplayName("GET all transactions from an other user should return 403")
   @Test
-  void getFromUserWhenAuthenticateIdNotMatchingTest() throws Exception {
+  void getFromUserIdNotMatchingTest() throws Exception {
     // GIVEN
 
     // WHEN
@@ -150,12 +156,14 @@ class TransactionControllerTest {
     verify(transactionService, times(0)).getFromUser(anyInt(),any(Pageable.class));
   }
 
-
+  @DisplayName("POST request transaction should return 201 with transaction DTO")
   @Test
   void postRequestTest() throws Exception {
     // GIVEN
-    jsonParam.put("emitterId",1).put("receiverId",2)
-        .put("description","Gift for a friend").put("amount",10);
+    jsonParam.put("emitterId",1)
+        .put("receiverId",2)
+        .put("description","Gift for a friend")
+        .put("amount",10);
     when(transactionService.requestTransaction(any(TransactionDto.class))).thenReturn(transactionDtoTest);
 
     // WHEN
@@ -179,11 +187,61 @@ class TransactionControllerTest {
     assertThat(transactionDtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
   }
 
+  @DisplayName("POST invalid request transaction should return 422")
+  @Test
+  void postInvalidRequestTest() throws Exception {
+    // GIVEN
+    jsonParam.put("emitterId",1)
+        .put("receiverId",2)
+        .put("description","")
+        .put("amount",-10);
+
+    // WHEN
+    mockMvc.perform(post("/transactions").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonParam.toString()))
+
+        // THEN
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(jsonPath("$.description", is("Description is mandatory")))
+        .andExpect(jsonPath("$.amount", is("Amount must be greater then 1.00")));
+    verify(transactionService, times(0)).requestTransaction(any(TransactionDto.class));
+  }
+
+  @DisplayName("POST request transaction to non existent user should return 404")
+  @Test
+  void postRequestWhenNotFoundTest() throws Exception {
+    // GIVEN
+    jsonParam.put("emitterId",1)
+        .put("receiverId",9)
+        .put("description","Gift for a friend")
+        .put("amount",100);
+    when(transactionService.requestTransaction(any(TransactionDto.class))).thenThrow(
+        new ResourceNotFoundException("This user is not found"));
+
+    // WHEN
+    mockMvc.perform(post("/transactions").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonParam.toString()))
+
+        // THEN
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$", is("This user is not found")));
+    verify(transactionService, times(1)).requestTransaction(transactionDtoCaptor.capture());
+    TransactionDto expectedDto = new TransactionDto(1,9,"Gift for a friend",BigDecimal.valueOf(100),null,null,null,null,null);
+    assertThat(transactionDtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
+  }
+
+  @DisplayName("POST request transaction with insufficient provision should return 409")
   @Test
   void postRequestWhenProvisionInsufficientTest() throws Exception {
     // GIVEN
-    jsonParam.put("emitterId",1).put("receiverId",2)
-        .put("description","Gift for a friend").put("amount",100);
+    jsonParam.put("emitterId",1)
+        .put("receiverId",2)
+        .put("description","Gift for a friend")
+        .put("amount",100);
     when(transactionService.requestTransaction(any(TransactionDto.class))).thenThrow(
         new InsufficientProvisionException("Insufficient provision to debit the amount"));
 
@@ -201,30 +259,14 @@ class TransactionControllerTest {
     assertThat(transactionDtoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expectedDto);
   }
 
-  @Test
-  void postInvalidRequestTest() throws Exception {
-    // GIVEN
-    jsonParam.put("emitterId",1).put("receiverId",2)
-        .put("description","").put("amount",-10);
-
-    // WHEN
-    mockMvc.perform(post("/transactions").with(user(userTest))
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonParam.toString()))
-
-        // THEN
-        .andExpect(status().isUnprocessableEntity())
-        .andExpect(jsonPath("$.description", is("Description is mandatory")))
-        .andExpect(jsonPath("$.amount", is("Amount can't be negative")));
-    verify(transactionService, times(0)).requestTransaction(any(TransactionDto.class));
-  }
-
+  @DisplayName("POST request transaction from other user should return 403")
   @Test
   void postRequestWhenAuthenticateButUserIdNotMatchingTest() throws Exception {
     // GIVEN
-    jsonParam.put("emitterId",2).put("receiverId",2)
-        .put("description","Gift for a friend").put("amount",100);
+    jsonParam.put("emitterId",2)
+        .put("receiverId",1)
+        .put("description","Gift for a friend")
+        .put("amount",100);
 
     // WHEN
     mockMvc.perform(post("/transactions").with(user(userTest))
@@ -236,4 +278,5 @@ class TransactionControllerTest {
         .andExpect(status().isForbidden());
     verify(transactionService, times(0)).requestTransaction(any(TransactionDto.class));
   }
+
 }

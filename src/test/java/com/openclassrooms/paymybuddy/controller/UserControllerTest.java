@@ -25,9 +25,11 @@ import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.service.CredentialsService;
 import com.openclassrooms.paymybuddy.service.UserService;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -62,13 +64,15 @@ class UserControllerTest {
 
   @BeforeEach
   void setUp() {
-    userInfoDto = new UserDto(1, "test","test","test@mail.com",null, BigDecimal.ZERO, "USER");
-    userTest = new User("test","test","user1@mail.com","password", Role.USER);
+    LocalDateTime date = LocalDateTime.of(2000,1,1,0,0);
+    userInfoDto = new UserDto(1, "test","test","test@mail.com",null, BigDecimal.ZERO, date, true);
+    userTest = new User("test","test","user1@mail.com","password", Role.USER, date);
     userTest.setUserId(1);
-    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN);
+    adminTest = new User("test","test","test@mail.com","password", Role.ADMIN, date);
     jsonParam = new JSONObject();
   }
 
+  @DisplayName("GET all user registered should return 200 with page of user Dto")
   @Test
   void getAllInfoTest() throws Exception {
     // GIVEN
@@ -86,10 +90,9 @@ class UserControllerTest {
     verify(userService, times(1)).getAll(pageable);
   }
 
+  @DisplayName("GET all user registered when not admin should return 403")
   @Test
   void getAllInfoWhenNotAdminTest() throws Exception {
-    // GIVEN
-
     // WHEN
     mockMvc.perform(get("/users?page=0&size=10").with(user(userTest)))
 
@@ -97,13 +100,14 @@ class UserControllerTest {
         .andExpect(status().isForbidden());
   }
 
+  @DisplayName("GET user info should return 200 with user Dto")
   @Test
   void getInfoByIdTest() throws Exception {
     // GIVEN
     when(userService.getById(anyInt())).thenReturn(userInfoDto);
 
     // WHEN
-    mockMvc.perform(get("/users/1").with(user(adminTest)))
+    mockMvc.perform(get("/users/1").with(user(userTest)))
 
         // THEN
         .andExpect(status().isOk())
@@ -113,10 +117,11 @@ class UserControllerTest {
         .andExpect(jsonPath("$.email", is("test@mail.com")))
         .andExpect(jsonPath("$.password").doesNotExist())
         .andExpect(jsonPath("$.wallet", is(0)))
-        .andExpect(jsonPath("$.role", is("USER")));
+        .andExpect(jsonPath("$.registrationDate", is("2000-01-01 at 00:00")));
     verify(userService, times(1)).getById(1);
   }
 
+  @DisplayName("GET user info from a non existent user should return 404")
   @Test
   void getInfoByIdWhenNotFoundTest() throws Exception {
     // GIVEN
@@ -124,27 +129,15 @@ class UserControllerTest {
         new ResourceNotFoundException("This user is not found"));
 
     // WHEN
-    mockMvc.perform(get("/users/2").with(user(adminTest)))
+    mockMvc.perform(get("/users/9").with(user(adminTest)))
 
         // THEN
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$", is("This user is not found")));
-    verify(userService, times(1)).getById(2);
+    verify(userService, times(1)).getById(9);
   }
 
-  @Test
-  void getInfoWhenNotAuthenticateTest() throws Exception {
-    // GIVEN
-    when(userService.getById(anyInt())).thenReturn(userInfoDto);
-
-    // WHEN
-    mockMvc.perform(get("/users/1"))
-
-        // THEN
-        .andExpect(status().isUnauthorized());
-    verify(userService, times(0)).getById(1);
-  }
-
+  @DisplayName("GET user info from an other user should return 403")
   @Test
   void getInfoWhenAuthenticateButIdNotMatchingTest() throws Exception {
     // GIVEN
@@ -158,13 +151,17 @@ class UserControllerTest {
     verify(userService, times(0)).getById(1);
   }
 
+  @DisplayName("PUT user update should return 200 with user Dto")
   @Test
   void putUpdateTest() throws Exception {
     // GIVEN
-    jsonParam.put("userId",1).put("firstname","update")
-        .put("lastname","test").put("email","new@mail.com");
-    UserDto updateDto = new UserDto(1,"update", "test", "new@mail.com", null,BigDecimal.ZERO, "USER");
-    when(userService.update(any(UserDto.class))).thenReturn(updateDto);
+    jsonParam.put("userId",1)
+        .put("firstname","update")
+        .put("lastname","test")
+        .put("email","new@mail.com");
+    LocalDateTime date = LocalDateTime.of(2000,1,1,0,0);
+    UserDto updatedDto = new UserDto(1,"update", "test", "new@mail.com", null,BigDecimal.ZERO, date, true);
+    when(userService.update(any(UserDto.class))).thenReturn(updatedDto);
 
     // WHEN
     mockMvc.perform(put("/users").with(user(userTest))
@@ -179,58 +176,22 @@ class UserControllerTest {
         .andExpect(jsonPath("$.lastname", is("test")))
         .andExpect(jsonPath("$.email", is("new@mail.com")))
         .andExpect(jsonPath("$.wallet", is(0)))
-        .andExpect(jsonPath("$.email", is("new@mail.com")))
-        .andExpect(jsonPath("$.password").doesNotExist())
-        .andExpect(jsonPath("$.role", is("USER")));
+        .andExpect(jsonPath("$.registrationDate", is("2000-01-01 at 00:00")))
+        .andExpect(jsonPath("$.password").doesNotExist());
     verify(userService, times(1)).update(infoCaptor.capture());
-    UserDto expected = new UserDto(1,"update", "test", "new@mail.com", null,null, null);
+    UserDto expected = new UserDto(1,"update", "test", "new@mail.com", null,null,null, false);
     assertThat(infoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expected);
   }
 
-  @Test
-  void putUpdateWithAlreadyUsedEmailTest() throws Exception {
-    // GIVEN
-    jsonParam.put("userId",1).put("firstname","update")
-        .put("lastname","test").put("email","existing@mail.com");
-    when(userService.update(any(UserDto.class))).thenThrow(
-        new ResourceAlreadyExistsException("This email is already used"));
-
-    // WHEN
-    mockMvc.perform(put("/users").with(user(userTest))
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonParam.toString()))
-
-        // THEN
-        .andExpect(status().isConflict())
-        .andExpect(jsonPath("$", is("This email is already used")));
-    verify(userService, times(1)).update(infoCaptor.capture());
-    UserDto expected = new UserDto(1,"update", "test", "existing@mail.com", null,null, null);
-    assertThat(infoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expected);
-  }
-
-  @Test
-  void putUpdateWhenAuthenticateButIdNotMatchingTest() throws Exception {
-    // GIVEN
-    jsonParam.put("userId",9).put("firstname","update")
-        .put("lastname","test").put("email","update@mail.com");
-
-    // WHEN
-    mockMvc.perform(put("/users").with(user(userTest))
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonParam.toString()))
-
-        // THEN
-        .andExpect(status().isForbidden());
-    verify(userService, times(0)).update(infoCaptor.capture());
-  }
-
+  @DisplayName("PUT invalid user update should return 422")
   @Test
   void putInvalidUpdateTest() throws Exception {
     // GIVEN
-    jsonParam.put("userId",1).put("firstname","")
-        .put("  ","test").put("email","mail.com").put("password","123");
+    jsonParam.put("userId",1)
+        .put("firstname","")
+        .put("  ","test")
+        .put("email","mail.com")
+        .put("password","123");
 
     // WHEN
     mockMvc.perform(put("/users").with(user(userTest))
@@ -247,26 +208,52 @@ class UserControllerTest {
     verify(userService, times(0)).register(any(UserDto.class));
   }
 
+  @DisplayName("PUT user update with already existing email should return 409")
   @Test
-  void putUpdateWhenNotAuthenticateTest() throws Exception {
+  void putUpdateWithAlreadyUsedEmailTest() throws Exception {
     // GIVEN
-    jsonParam.put("userId",1).put("firstname","update")
-        .put("lastname","test").put("email","new@mail.com");
+    jsonParam.put("userId",1)
+        .put("firstname","update")
+        .put("lastname","test")
+        .put("email","existing@mail.com");
+    when(userService.update(any(UserDto.class))).thenThrow(
+        new ResourceAlreadyExistsException("This email is already used"));
 
     // WHEN
-    mockMvc.perform(put("/users")
+    mockMvc.perform(put("/users").with(user(userTest))
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonParam.toString()))
 
         // THEN
-        .andExpect(status().isUnauthorized());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$", is("This email is already used")));
+    verify(userService, times(1)).update(infoCaptor.capture());
+    UserDto expected = new UserDto(1,"update", "test", "existing@mail.com", null, null,null, false);
+    assertThat(infoCaptor.getValue()).usingRecursiveComparison().isEqualTo(expected);
   }
 
+  @DisplayName("PUT user update of an other user should return 403")
+  @Test
+  void putUpdateWhenNotMatchingTest() throws Exception {
+    // GIVEN
+    jsonParam.put("userId",9).put("firstname","update")
+        .put("lastname","test").put("email","update@mail.com");
+
+    // WHEN
+    mockMvc.perform(put("/users").with(user(userTest))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonParam.toString()))
+
+        // THEN
+        .andExpect(status().isForbidden());
+    verify(userService, times(0)).update(infoCaptor.capture());
+  }
+
+  @DisplayName("DELETE user should return 204")
   @Test
   void deleteUserTest() throws Exception {
-    // GIVEN
-
     // WHEN
     mockMvc.perform(delete("/users/1").with(user(userTest)))
 
@@ -275,6 +262,7 @@ class UserControllerTest {
     verify(userService, times(1)).deleteById(1);
   }
 
+  @DisplayName("DELETE non existent user should return 404")
   @Test
   void deleteUserWithUserNotFoundTest() throws Exception {
     // GIVEN
@@ -290,6 +278,7 @@ class UserControllerTest {
     verify(userService, times(1)).deleteById(9);
   }
 
+  @DisplayName("DELETE user with wallet not empty should return 409")
   @Test
   void deleteUserWithNotEmptyWalletTest() throws Exception {
     // GIVEN
@@ -305,10 +294,9 @@ class UserControllerTest {
     verify(userService, times(1)).deleteById(1);
   }
 
+  @DisplayName("DELETE an other user should return 403")
   @Test
   void deleteUserAuthenticateButIdNotMatchingTest() throws Exception {
-    // GIVEN
-
     // WHEN
     mockMvc.perform(delete("/users/2").with(user(userTest)))
 
@@ -316,14 +304,4 @@ class UserControllerTest {
         .andExpect(status().isForbidden());
   }
 
-  @Test
-  void deleteUserWhenNotAuthenticateTest() throws Exception {
-    // GIVEN
-
-    // WHEN
-    mockMvc.perform(delete("/users/1"))
-
-        // THEN
-        .andExpect(status().isUnauthorized());
-  }
 }

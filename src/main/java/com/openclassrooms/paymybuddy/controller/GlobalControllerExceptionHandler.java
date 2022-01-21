@@ -38,7 +38,7 @@ public class GlobalControllerExceptionHandler {
   }
 
   /**
-   * Handle EmailAlreadyExistsException thrown when the resource already exists.
+   * Handle ResourceAlreadyExistsException thrown when the resource already exists.
    *
    * @param ex instance of the exception
    * @return HTTP 409 response
@@ -52,7 +52,7 @@ public class GlobalControllerExceptionHandler {
   }
 
   /**
-   * Handle ForbbidenOperationException thrown when requesting an operation forbidden by business
+   * Handle ForbiddenOperationException thrown when requesting an operation forbidden by business
    * rules.
    *
 
