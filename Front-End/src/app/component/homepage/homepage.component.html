@@ -1,29 +1,167 @@
 <div class="container">
-    <div class="row justify-content-center mt-1  mx-1">
-      <div class="col-12 col-sm-10 col-lg-8">
-  
-        <div class="row">
-          <div class="col p-0">
-            <h4 class="pt-2">Welcome {{user.firstname}}</h4>
-          </div>
+  <div class="row justify-content-center mt-1  mx-1">
+    <div class="col-12 col-sm-10 col-lg-8">
+
+      <div class="row">
+        <div class="col p-0">
+          <h4 class="pt-2">Welcome {{user.firstname}}</h4>
         </div>
-  
-        <div class="row">
-          <div class="col p-0">
-            <h5 class="pt-2">My Wallet</h5>
-          </div>
-        </div>
-        <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
-          <div class="col-4 text-center">
-            <span class="icon">
-              <i class="fas fa-euro-sign fa-5x"></i>
-            </span>
-          </div>
-          <div class="col-8 align-self-center border border-2 rounded-xl">
-            <h3 class="pt-2 text-center">{{user.wallet | number : '1.2-2' }} &euro;</h3>
-          </div>
-        </div>
-  
       </div>
+
+      <div class="row">
+        <div class="col p-0">
+          <h5 class="pt-2">My Wallet</h5>
+        </div>
+      </div>
+      <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
+        <div class="col-4 text-center">
+          <span class="icon">
+            <i class="fas fa-euro-sign fa-5x"></i>
+          </span>
+        </div>
+        <div class="col-8 align-self-center border border-2 rounded-xl">
+          <h3 class="pt-2 text-center">{{user.wallet | number : '1.2-2' }} &euro;</h3>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col p-0">
+          <h5 class="pt-2">My Bank Transfers</h5>
+        </div>
+        <div class="col-6 p-0">
+          <button class="btn btn-primary rounded-xl float-end" data-bs-toggle="modal"
+            data-bs-target="#bankTransferModal">
+            New Transfer
+          </button>
+        </div>
+      </div>
+      <div class="row border border-dark ">
+        <div class="table-responsive-md p-0">
+          <table class="table mytable table-striped table-borderless m-0">
+            <thead>
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Date</th>
+                <th scope="col">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr scope="row" *ngIf="bankTransfers.length==0">
+                <td colspan="4">You don't have any bank accounts at this moment.</td>
+              </tr>
+              <tr scope="row" *ngFor="let bankTransfer of bankTransfers">
+                <td>{{bankTransfer.title}}</td>
+                <td>{{bankTransfer.date}}</td>
+                <td>
+                  {{bankTransfer.isIncome ? "+" : "-"}}
+                  {{bankTransfer.amount}}&euro;
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <ul class="nav nav-pills justify-content-center">
+            <li class="nav-item border">
+              <a class="nav-link" (click)="onPrec()">&lt;&lt;</a>
+            </li>
+            <li class="nav-item border" *ngFor="let p of pages; let i=index">
+              <a class="nav-link" [ngClass]="{'active': i==currentPage}" (click)="onPage(i)">{{i+1}}</a>
+            </li>
+            <li class="nav-item border">
+              <a class="nav-link" (click)="onNext()">&gt;&gt;</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
     </div>
   </div>
+</div>
+
+<!-- Bank transfer Modal -->
+<div class="modal fade" id="bankTransferModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <form [formGroup]="bankTransferForm" (ngSubmit)="requestTransfer()">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Bank Transfer</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-4 text-center">
+              <span class="icon">
+                <i class="fas fa-user fa-4x"></i>
+              </span>
+            </div>
+            <div class="col-4 text-center mt-2">
+              <span class="icon" (click)="reverse()">
+                <i class="fas fa-arrow-circle-right fa-3x " [ngClass]="{'fa-rotate-180': isIncome == true}"></i>
+              </span>
+              <p class="m-0 text-muted" style="font-size:0.7rem;">Click to {{isIncome ? "Credit" : "Debit"}}</p>
+            </div>
+            <div class="col-4 text-center">
+              <span class="icon">
+                <i class="fas fa-credit-card fa-4x"></i>
+              </span>
+            </div>
+          </div>
+          <div class="row">
+            <p class="m-0">{{isIncome ? "Debit" : "Credit"}} Bank Account:</p>
+          </div>
+          <div class="row mb-3">
+
+            <div *ngIf="error != ''" class="alert alert-danger pb-4 text-center">
+              {{error}}
+            </div>
+            <div class="col">
+              <select name="receiver" class="form-select" formControlName="bankAccountId" (change)="select()">
+                <option [ngValue]="null" selected>Select a bank account</option>
+                <option *ngFor="let bankAccount of bankaccounts" [value]="bankAccount.bankAccountId">
+                  {{bankAccount.title}}
+                </option>
+              </select>
+            </div>
+            <div class="col">
+              <input type="text" class="form-control" formControlName="title" placeholder="Title">
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <input type="text" class="form-control" formControlName="iban" placeholder="IBAN">
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-6">
+              <input type="text" class="form-control" formControlName="bic" placeholder="BIC">
+            </div>
+            <div class="col-6">
+              <input type="number" class="form-control" formControlName="amount" placeholder="0.00" aria-label="Amount">
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-sm-10">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="gridCheck1">
+                <label class="form-check-label" for="gridCheck1">
+                  I agree with the Privacy Policy and consent to the saving of my bank account.
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Send</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>

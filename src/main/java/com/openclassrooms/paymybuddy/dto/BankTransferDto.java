@@ -26,6 +26,7 @@ public class BankTransferDto {
   @DecimalMin(value = "1.00", message = "Amount must be greater then 1.00")
   @Digits(integer = 10, fraction = 2, message = "Amount can't have more than 2 decimals")
   private BigDecimal amount;
+  @JsonProperty(value = "isIncome")
   private boolean isIncome;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
