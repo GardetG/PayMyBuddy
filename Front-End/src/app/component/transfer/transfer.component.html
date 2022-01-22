@@ -7,21 +7,22 @@
                     <h5 class="pt-2">Send Money</h5>
                 </div>
                 <div class="col-6 p-0">
-                    <button class="btn btn-primary rounded-xl float-end">Add Connection</button>
+                    <button class="btn btn-primary rounded-xl float-end" routerLink="/home/contact">Add Connection</button>
                 </div>
             </div>
-            <form>
+            <form  [formGroup]="requestTransactionForm" (ngSubmit)="requestTransaction()">
                 <div class="row bg-light py-5 px-sm-3 px-lg-5">
                     <div class="col-5">
-                        <select name="receiver" class="form-select">
+                        <select name="receiver" class="form-select" formControlName="receiverId">
                             <option [ngValue]="null" disabled selected>Select a Connection</option>
                             <option *ngFor="let connection of connections" [value]="connection.connectionId">
-                                {{connection.firstname}}
-                              </option>
+                                {{connection.firstname}} {{connection.lastname}}
+                            </option>
                         </select>
                     </div>
                     <div class="col-3">
-                        <input type="number" class="form-control" placeholder="0.00" aria-label="Amount">
+                        <input type="number" class="form-control" formControlName="amount" placeholder="0.00"
+                            aria-label="Amount">
                     </div>
                     <div class="col-4">
                         <button type="submit" class="btn btn-success rounded-xl w-100">Pay</button>
@@ -51,10 +52,24 @@
                                 <td colspan="4">You don't have any transaction at this moment.</td>
                             </tr>
                             <tr scope="row" *ngFor="let transaction of transactions">
-                                <td>{{transaction.emitterFirstname}}</td>
+                                <td>
+                                    <span *ngIf="transaction.emitterId == userId; else asReceiver">
+                                        {{transaction.receiverFirstname}} {{transaction.receiverLastname}}
+                                    </span>
+                                    <ng-template #asReceiver>      
+                                        {{transaction.emitterFirstname}} {{transaction.emitterLastname}}
+                                    </ng-template>
+                                </td>
                                 <td>{{transaction.date}}</td>
                                 <td>{{transaction.description}}</td>
-                                <td>{{transaction.amount}}</td>
+                                <td>
+                                    <span *ngIf="transaction.emitterId == userId; else asIncome">
+                                        -{{transaction.amount | currency : 'EUR' : 'symbol' : '1.2-2' : 'fr'}}
+                                    </span>
+                                    <ng-template #asIncome>      
+                                        +{{transaction.amount | currency : 'EUR' : 'symbol' : '1.2-2' : 'fr'}}
+                                    </ng-template>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -75,7 +90,63 @@
                     </ul>
                 </div>
             </div>
-            
+
+        </div>
+    </div>
+</div>
+
+<!-- Bank transfer Modal -->
+<div class="modal fade" id="confirmTransactionModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <form [formGroup]="confirmTransactionForm" (ngSubmit)="confirmTransaction()">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Transaction</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <table class="w-100">
+                                <tbody>
+                                    <tr>
+                                        <td>Transaction to:</td>
+                                        <td class="text-end">{{request.receiverFirstname}} {{request.receiverLastname}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Amount:</td>
+                                        <td class="text-end">{{request.amount | number : '1.2-2' }}&euro;</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fare:</td>
+                                        <td class="text-end text-danger">{{request.amount * (0.5/100) | number : '1.2-2' }}&euro;</td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td>Total:</td>
+                                        <td class="text-end">{{request.amount * (100.5/100) | number : '1.2-2' }}&euro;</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <input type="text" class="form-control" formControlName="description"
+                                placeholder="Description">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Confirm</button>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>

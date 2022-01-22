@@ -5,6 +5,7 @@ import { BankTransfer } from 'src/app/model/BankTransfer/bank-transfer.model';
 import { User } from 'src/app/model/User/user.model';
 import { ApiPaymybuddyService } from 'src/app/service/api-paymybuddy.service';
 declare var bootstrap: any;
+
 @Component({
   selector: 'app-homepage',
   templateUrl: './homepage.component.html',
@@ -18,11 +19,11 @@ export class HomepageComponent implements OnInit {
   error:string = "";
   isIncome:boolean = true;
   bankTransferForm:FormGroup = this.fb.group({
-    "bankAccountId": [],
+    "bankAccountId": [null],
     "title": [{value: '', disabled: true}, Validators.required],
     "iban": [{value: '', disabled: true}, Validators.required],
     "bic": [{value: '', disabled: true}, Validators.required],
-    "amount": [0.00]
+    "amount": []
   });
   pages: Array<number> = new Array<number>(0);
   currentPage: number = 0;
