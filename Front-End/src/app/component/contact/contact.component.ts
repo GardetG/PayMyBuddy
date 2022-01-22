@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Connection } from 'src/app/model/Connection/connection.model';
+import { ApiPaymybuddyService } from 'src/app/service/api-paymybuddy.service';
 
 @Component({
   selector: 'app-contact',
@@ -10,36 +12,72 @@ export class ContactComponent implements OnInit {
 
   connections: Connection[] = [];
   request: Connection = new Connection();
-  pages: Array<number> = new Array<number>(4);
+  pages: Array<number> = new Array<number>(0);
   currentPage: number = 0;
   page: number = 0;
   size: number = 3;
+  error:string = "";
+  form:FormGroup= this.fb.group({
+    "email": ["", Validators.required],
+  });
 
-  constructor() { }
+  constructor(private api:ApiPaymybuddyService, private fb:FormBuilder) { }
 
   ngOnInit(): void {
-
+    this.loadConnections();
   }
 
-  onRequest() { }
+  loadConnections() {
+    this.api.getPageOfConnections(this.page,this.size)
+    .subscribe({
+      next: (v) => {
+        this.pages = new Array<number>(v.totalPages)
+        this.connections = v.content;
+      }
+    });
+  }
 
   doDeleteConnection(id:number) {
-    
+    this.api.deleteConnection(id)
+    .subscribe({
+      next: (v) => {
+        this.loadConnections();
+      }
+    });
   }
+
+  doRequest() {
+    this.api.addConnection(this.form.value)
+    .subscribe({
+      next: (v) => {
+        this.loadConnections();
+      },
+      error: (e) => {
+        if (e.status == 404 || e.status == 409) {
+          this.error = e.error;
+        } else {
+          this.error = "An error occured, please try again."
+        }
+      }
+    });
+  }
+
+
 
   onPage(i: number) {
     this.currentPage = i;
+    this.loadConnections();
   }
 
   onPrec() {
     if (this.currentPage > 0) {
-      this.currentPage -= 1;
+      this.onPage(this.currentPage - 1);
     }
   }
 
   onNext() {
     if (this.currentPage < this.pages.length-1) {
-      this.currentPage += 1;
+      this.onPage(this.currentPage + 1);
     }
   }
 

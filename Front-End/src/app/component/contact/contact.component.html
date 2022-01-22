@@ -7,10 +7,14 @@
                     <h5 class="pt-2">Add Connection</h5>
                 </div>
             </div>
-            <form>
+            <form [formGroup]="form" (ngSubmit)="doRequest()">
                 <div class="row bg-light py-5 px-sm-3 px-lg-5">
+                    <div *ngIf="error != ''" class="alert alert-danger pb-4 text-center">
+                        {{error}}
+                    </div>
+            
                     <div class="col">
-                        <input type="email" class="form-control" placeholder="Email" aria-label="email">
+                        <input type="email" class="form-control" formControlName="email" placeholder="Email" aria-label="email">
                     </div>
                     <div class="col-4">
                         <button type="submit" class="btn btn-success rounded-xl w-100">Add</button>
