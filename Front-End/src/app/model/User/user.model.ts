@@ -6,7 +6,7 @@ export class User {
     email: string = "";
     wallet: number = 0;
     role: string = "";
-    registerDate: string = "";
+    registrationDate: string = "";
 
     public constructor(init?: Partial<User>) {
         Object.assign(this, init);

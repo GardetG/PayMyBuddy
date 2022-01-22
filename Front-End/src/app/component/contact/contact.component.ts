@@ -62,8 +62,6 @@ export class ContactComponent implements OnInit {
     });
   }
 
-
-
   onPage(i: number) {
     this.currentPage = i;
     this.loadConnections();

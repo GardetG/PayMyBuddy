@@ -8,7 +8,8 @@
                         <h5 class="pt-2">My Profile</h5>
                     </div>
                     <div class="col-6 p-0">
-                        <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Edit Profile</button>
+                        <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Edit
+                            Profile</button>
                     </div>
                 </div>
                 <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
@@ -19,12 +20,12 @@
                     </div>
                     <div class="col-8 align-self-center">
                         <div class="border border-2 rounded-xl">
-                        <p class="m-0">{{user.firstname}}</p>
-                        <p class="m-0">{{user.lastname}}</p>
-                        <p class="m-0">{{user.email}}</p>
+                            <p class="m-0">{{user.firstname}}</p>
+                            <p class="m-0">{{user.lastname}}</p>
+                            <p class="m-0">{{user.email}}</p>
                         </div>
-                    <p class="text-end small m-0">Register since {{user.registerDate}}</p>
-                     </div>
+                        <p class="text-end small m-0">Register since {{user.registrationDate}}</p>
+                    </div>
                 </div>
             </div>
 
@@ -34,7 +35,8 @@
                         <h5 class="pt-2">My Profile</h5>
                     </div>
                     <div class="col-6 p-0">
-                        <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Save Profile</button>
+                        <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Save
+                            Profile</button>
                     </div>
                 </div>
                 <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
@@ -42,7 +44,8 @@
                         <span class="icon">
                             <i class="fas fa-user fa-5x"></i>
                         </span>
-                            <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Change Password</button>
+                        <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Change
+                            Password</button>
                     </div>
                     <div class="col-8 align-self-center border border-2 rounded-xl">
                         <div class="mt-1">
@@ -73,6 +76,10 @@
                 <div class="col p-0">
                     <h5 class="pt-2">My Bank Accounts</h5>
                 </div>
+                <div class="col-6 p-0">
+                    <button type="button" class="btn btn-primary rounded-xl float-end" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal">Add bank account</button>
+                </div>
             </div>
             <div class="row border border-dark ">
                 <div class="table-responsive-md p-0">
@@ -94,7 +101,8 @@
                                 <td>{{bankAccount.iban}}</td>
                                 <td>{{bankAccount.bic}}</td>
                                 <td>
-                                    <button class="btn btn-danger rounded-xl" (click)="doDeleteAccount(bankAccount.bankAccountId)" >X</button>
+                                    <button class="btn btn-danger rounded-xl"
+                                        (click)="deleteAccount(bankAccount.bankAccountId)">X</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -116,6 +124,60 @@
                     </ul>
                 </div>
             </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Bank account Modal -->
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <form [formGroup]="bankAccountForm" (ngSubmit)="addAccount()">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add bank account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row mb-3">
+
+                        <div *ngIf="error != ''" class="alert alert-danger pb-4 text-center">
+                            {{error}}
+                        </div>
+
+                        <div class="col">
+                            <input type="text" class="form-control" formControlName="title" placeholder="Title">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <input type="text" class="form-control" formControlName="iban" placeholder="IBAN">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <input type="text" class="form-control" formControlName="bic" placeholder="BIC">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="gridCheck1">
+                                <label class="form-check-label" for="gridCheck1">
+                                    I agree with the Privacy Policy and consent to the saving of my bank account.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Add</button>
+                </div>
+            </form>
 
         </div>
     </div>
