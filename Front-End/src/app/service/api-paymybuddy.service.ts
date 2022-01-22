@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { BankAccount } from '../model/BankAccount/bank-account.model';
+import { BankTransfer } from '../model/BankTransfer/bank-transfer.model';
 import { Connection } from '../model/Connection/connection.model';
 import { User } from '../model/User/user.model';
 import { AuthenticationService } from './authentication.service';
@@ -48,7 +49,6 @@ export class ApiPaymybuddyService {
 
   public getPageOfBankAccounts(page:number, size:number): Observable<any> {
     let pageable = "?page=" + page + "&size=" + size
-    console.log(pageable)
     return this.http.get<any>("http://localhost:8080/users/" + this.auth.getIdentity().userId + "/bankaccounts" + pageable)
   }
 
@@ -58,5 +58,17 @@ export class ApiPaymybuddyService {
 
   public deleteBankAccount(id:number): Observable<any> {
     return this.http.delete("http://localhost:8080/users/" + this.auth.getIdentity().userId + "/bankaccounts/" + id)
+  }
+
+  // Bank transfer end-points
+
+  public getPageOfBankTransfers(page:number, size:number): Observable<any> {
+    let pageable = "&page=" + page + "&size=" + size + "&sort=date,desc"
+    return this.http.get<any>("http://localhost:8080/banktransfers/user?id=" + this.auth.getIdentity().userId + pageable)
+  }
+
+  public requestBankTransfer(transfer:BankTransfer): Observable<BankTransfer> {
+    transfer.userId = this.auth.getIdentity().userId;
+    return this.http.post<BankTransfer>("http://localhost:8080/banktransfers",transfer)
   }
 }
