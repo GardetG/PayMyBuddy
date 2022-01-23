@@ -13,16 +13,29 @@ import { AuthenticationService } from './authentication.service';
 })
 export class ApiPaymybuddyService {
 
-  constructor(private http:HttpClient, private auth:AuthenticationService) {}
+  private baseURL:string = "";
+
+  constructor(private http:HttpClient, private auth:AuthenticationService) {
+    this.baseURL = auth.getBasseURL();
+  }
 
   public getUser(): Observable<User> {
-    return this.http.get<User>("http://localhost:8080/users/" + this.auth.getIdentity().userId)
+    return this.http.get<User>(this.baseURL + "/users/" + this.auth.getIdentity().userId)
+  }
+
+  public updateUser(user:User): Observable<any> {
+    user.userId = this.auth.getIdentity().userId
+    return this.http.put(this.baseURL + "/users", user)
+  }
+
+  public deleteUser(): Observable<any> {
+    return this.http.delete(this.baseURL + "/users/" + this.auth.getIdentity().userId)
   }
 
   // Connection end-points
 
   public getAllConnections(): Observable<Connection[]> {
-    return this.http.get<any>("http://localhost:8080/users/" + this.auth.getIdentity().userId + "/connections")
+    return this.http.get<any>(this.baseURL + "/users/" + this.auth.getIdentity().userId + "/connections")
     .pipe(map(page => {
       return page.content;
     }));
@@ -30,21 +43,21 @@ export class ApiPaymybuddyService {
 
   public getPageOfConnections(page:number, size:number): Observable<any> {
     let pageable = "?page=" + page + "&size=" + size
-    return this.http.get<any>("http://localhost:8080/users/" + this.auth.getIdentity().userId + "/connections" + pageable)
+    return this.http.get<any>(this.baseURL + "/users/" + this.auth.getIdentity().userId + "/connections" + pageable)
   }
 
   public addConnection(request:Connection): Observable<Connection> {
-    return this.http.post<Connection>("http://localhost:8080/users/" + this.auth.getIdentity().userId + "/connections/", request)
+    return this.http.post<Connection>(this.baseURL + "/users/" + this.auth.getIdentity().userId + "/connections/", request)
   }
 
    public deleteConnection(id:number): Observable<any> {
-    return this.http.delete("http://localhost:8080/users/" + this.auth.getIdentity().userId + "/connections/" + id)
+    return this.http.delete(this.baseURL + "/users/" + this.auth.getIdentity().userId + "/connections/" + id)
   }
 
   // Bank account end-points
 
   public getAllBankAccounts(): Observable<BankAccount[]> {
-    return this.http.get<any>("http://localhost:8080/users/" + this.auth.getIdentity().userId + "/bankaccounts")
+    return this.http.get<any>(this.baseURL + "/users/" + this.auth.getIdentity().userId + "/bankaccounts")
     .pipe(map(page => {
       return page.content;
     }));
@@ -52,38 +65,38 @@ export class ApiPaymybuddyService {
 
   public getPageOfBankAccounts(page:number, size:number): Observable<any> {
     let pageable = "?page=" + page + "&size=" + size
-    return this.http.get<any>("http://localhost:8080/users/" + this.auth.getIdentity().userId + "/bankaccounts" + pageable)
+    return this.http.get<any>(this.baseURL + "/users/" + this.auth.getIdentity().userId + "/bankaccounts" + pageable)
   }
 
   public addBankAccount(request:BankAccount): Observable<BankAccount> {
-    return this.http.post<BankAccount>("http://localhost:8080/users/" + this.auth.getIdentity().userId + "/bankaccounts/",request)
+    return this.http.post<BankAccount>(this.baseURL + "/users/" + this.auth.getIdentity().userId + "/bankaccounts/",request)
   }
 
   public deleteBankAccount(id:number): Observable<any> {
-    return this.http.delete("http://localhost:8080/users/" + this.auth.getIdentity().userId + "/bankaccounts/" + id)
+    return this.http.delete(this.baseURL + "/users/" + this.auth.getIdentity().userId + "/bankaccounts/" + id)
   }
 
   // Bank transfer end-points
 
   public getPageOfBankTransfers(page:number, size:number): Observable<any> {
     let pageable = "&page=" + page + "&size=" + size + "&sort=date,desc"
-    return this.http.get<any>("http://localhost:8080/banktransfers/user?id=" + this.auth.getIdentity().userId + pageable)
+    return this.http.get<any>(this.baseURL + "/banktransfers/user?id=" + this.auth.getIdentity().userId + pageable)
   }
 
   public requestBankTransfer(request:BankTransfer): Observable<BankTransfer> {
     request.userId = this.auth.getIdentity().userId;
-    return this.http.post<BankTransfer>("http://localhost:8080/banktransfers", request)
+    return this.http.post<BankTransfer>(this.baseURL + "/banktransfers", request)
   }
 
     // Transaction end-points
 
     public getPageOfTransactions(page:number, size:number): Observable<any> {
       let pageable = "&page=" + page + "&size=" + size + "&sort=date,desc"
-      return this.http.get<any>("http://localhost:8080/transactions/user?id=" + this.auth.getIdentity().userId + pageable)
+      return this.http.get<any>(this.baseURL + "/transactions/user?id=" + this.auth.getIdentity().userId + pageable)
     }
   
     public requestTransaction(request:Transaction): Observable<Transaction> {
       request.emitterId = this.auth.getIdentity().userId;
-      return this.http.post<Transaction>("http://localhost:8080/transactions", request)
+      return this.http.post<Transaction>(this.baseURL + "/transactions", request)
     }
 }

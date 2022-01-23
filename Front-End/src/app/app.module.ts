@@ -14,6 +14,9 @@ import { TransferComponent } from './component/transfer/transfer.component';
 import { ProfileComponent } from './component/profile/profile.component';
 import { ContactComponent } from './component/contact/contact.component';
 import { HomepageComponent } from './component/homepage/homepage.component';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+registerLocaleData(localeFr, 'fr');
 
 @NgModule({
   declarations: [
