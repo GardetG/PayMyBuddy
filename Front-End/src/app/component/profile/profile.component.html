@@ -2,73 +2,31 @@
     <div class="row justify-content-center mt-1  mx-1">
         <div class="col-12 col-sm-10 col-lg-8">
 
-            <div *ngIf="!isEditing">
-                <div class="row mt-2">
-                    <div class="col p-0">
-                        <h5 class="pt-2">My Profile</h5>
-                    </div>
-                    <div class="col-6 p-0">
-                        <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Edit
-                            Profile</button>
-                    </div>
+
+            <div class="row mt-2">
+                <div class="col p-0">
+                    <h5 class="pt-2">My Profile</h5>
                 </div>
-                <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
-                    <div class="col-4 text-center">
-                        <span class="icon">
-                            <i class="fas fa-user fa-5x"></i>
-                        </span>
-                    </div>
-                    <div class="col-8 align-self-center">
-                        <div class="border border-2 rounded-xl">
-                            <p class="m-0">{{user.firstname}}</p>
-                            <p class="m-0">{{user.lastname}}</p>
-                            <p class="m-0">{{user.email}}</p>
-                        </div>
-                        <p class="text-end small m-0">Register since {{user.registrationDate}}</p>
-                    </div>
+                <div class="col-6 p-0">
+                    <button class="btn btn-primary rounded-xl float-end" data-bs-toggle="modal"
+                        data-bs-target="#userModal">
+                        Edit Profile
+                    </button>
                 </div>
             </div>
-
-            <div *ngIf="isEditing">
-                <div class="row mt-2">
-                    <div class="col p-0">
-                        <h5 class="pt-2">My Profile</h5>
-                    </div>
-                    <div class="col-6 p-0">
-                        <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Save
-                            Profile</button>
-                    </div>
+            <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
+                <div class="col-4 text-center">
+                    <span class="icon">
+                        <i class="fas fa-user fa-5x"></i>
+                    </span>
                 </div>
-                <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
-                    <div class="col-4 text-center">
-                        <span class="icon">
-                            <i class="fas fa-user fa-5x"></i>
-                        </span>
-                        <button class="btn btn-primary rounded-xl float-end" (click)="toggleEdit()">Change
-                            Password</button>
+                <div class="col-8 align-self-center">
+                    <div class="border border-2 rounded-xl px-3">
+                        <p class="m-0">{{user.firstname}}</p>
+                        <p class="m-0">{{user.lastname}}</p>
+                        <p class="m-0">{{user.email}}</p>
                     </div>
-                    <div class="col-8 align-self-center border border-2 rounded-xl">
-                        <div class="mt-1">
-                            <div class="input-group">
-                                <input type="text" class="form-control rounded-xl" formControlName="firstname"
-                                    placeholder="Firstname">
-                            </div>
-                        </div>
-
-                        <div class="mt-1">
-                            <div class="input-group">
-                                <input type="text" class="form-control rounded-xl" formControlName="lastname"
-                                    placeholder="Lastname">
-                            </div>
-                        </div>
-
-                        <div class="my-1">
-                            <div class="input-group">
-                                <input type="email" class="form-control rounded-xl" formControlName="email"
-                                    placeholder="Email">
-                            </div>
-                        </div>
-                    </div>
+                    <p class="text-end small m-0">Register since {{user.registrationDate | slice:0:10 }}</p>
                 </div>
             </div>
 
@@ -78,7 +36,7 @@
                 </div>
                 <div class="col-6 p-0">
                     <button type="button" class="btn btn-primary rounded-xl float-end" data-bs-toggle="modal"
-                        data-bs-target="#exampleModal">Add bank account</button>
+                        data-bs-target="#bankAccountModal">Add bank account</button>
                 </div>
             </div>
             <div class="row border border-dark ">
@@ -130,42 +88,66 @@
 </div>
 
 <!-- Bank account Modal -->
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade"  data-bs-backdrop="static" data-bs-keyboard="false" id="bankAccountModal" tabindex="-1" aria-labelledby="bankAccountModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
 
             <form [formGroup]="bankAccountForm" (ngSubmit)="addAccount()">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Add bank account</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" aria-label="Close" (click)="closeBankAccountModal()"></button>
                 </div>
 
                 <div class="modal-body">
-                    <div class="row mb-3">
-
+                    <div class="row mb-4">
                         <div *ngIf="error != ''" class="alert alert-danger pb-4 text-center">
                             {{error}}
                         </div>
-
-                        <div class="col">
+                        <div class="col-12">
                             <input type="text" class="form-control" formControlName="title" placeholder="Title">
                         </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <input type="text" class="form-control" formControlName="iban" placeholder="IBAN">
+                        <div class="col-12" style="margin-bottom: -5rem;">
+                            <small *ngIf="check(bankAccountForm,'title','required')" class="text-danger">
+                                A title is required.
+                            </small>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <input type="text" class="form-control" formControlName="iban" placeholder="IBAN">
+                        </div>
+                        <div class="col-12" style="margin-bottom: -5rem;">
+                            <small *ngIf="check(bankAccountForm,'iban','required')" class="text-danger">
+                                An IBAN is required.
+                            </small>
+                            <small *ngIf="check(bankAccountForm,'iban','minlength')" class="text-danger">
+                                An IBAN must have at least 14 characters.
+                            </small>
+                            <small *ngIf="check(bankAccountForm,'iban','maxlength')" class="text-danger">
+                                An IBAN must have at most 34 characters.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
                         <div class="col-6">
                             <input type="text" class="form-control" formControlName="bic" placeholder="BIC">
                         </div>
+                        <div class="col-12" style="margin-bottom: -5rem;">
+                            <small *ngIf="check(bankAccountForm,'bic','required')" class="text-danger">
+                                A BIC is required.
+                            </small>
+                            <small *ngIf="check(bankAccountForm,'bic','minlength')" class="text-danger">
+                                An BIC must have at least 8 characters.
+                            </small>
+                            <small *ngIf="check(bankAccountForm,'bic','maxlength')" class="text-danger">
+                                An BIC must have at most 11 characters.
+                            </small>
+                        </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-sm-10">
+                        <div class="col">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="gridCheck1">
+                                <input class="form-check-input" formControlName="agreement" type="checkbox" id="gridCheck1">
                                 <label class="form-check-label" for="gridCheck1">
                                     I agree with the Privacy Policy and consent to the saving of my bank account.
                                 </label>
@@ -175,7 +157,109 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Add</button>
+                    <button type="submit" class="btn btn-success" [disabled]="bankAccountForm.invalid">Add</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal fade"  data-bs-backdrop="static" data-bs-keyboard="false" id="userModal" tabindex="-1" aria-labelledby="userModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <form [formGroup]="userForm" (ngSubmit)="editUser()">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close" aria-label="Close" (click)="closeUserModal()"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div *ngIf="error != ''" class="alert alert-danger pb-4 text-center">
+                        {{error}}
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="input-group border border-2 rounded-xl">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control border-0 rounded-xl" formControlName="firstname"
+                                placeholder="Firstname">
+                        </div>
+
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="input-group border border-2 rounded-xl">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control border-0 rounded-xl" formControlName="lastname"
+                                placeholder="Lastname">
+                                <div class="col-5" style="margin-bottom: -5rem;">
+                                    <small *ngIf="check(userForm,'lastname','required')" class="text-danger">
+                                        Lastname is required.
+                                    </small>
+                                </div>
+                        </div>
+
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="input-group border border-2 rounded-xl">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                            </div>
+                            <input type="email" class="form-control border-0 rounded-xl" formControlName="email"
+                                placeholder="Email">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapsePassword" aria-expanded="false" aria-controls="collapseExample">
+                        Change Password
+                    </button>
+
+                    <div class="collapse" id="collapsePassword">
+
+                        <div class="mb-4">
+                            <div class="input-group border border-2 rounded-xl">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                        <i class="fas fa-asterisk"></i>
+                                    </span>
+                                </div>
+                                <input type="password" class="form-control border-0 rounded-xl"
+                                    formControlName="password" placeholder="Password">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="input-group border border-2 rounded-xl">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                        <i class="fas fa-asterisk"></i>
+                                    </span>
+                                </div>
+                                <input type="password" class="form-control border-0 rounded-xl"
+                                    formControlName="confirmPassword" placeholder="Confirm Password">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger me-auto" (click)="deleteUser()" >Delete Profile</button>
+                    <button type="submit" class="btn btn-success">Save</button>
                 </div>
             </form>
 
