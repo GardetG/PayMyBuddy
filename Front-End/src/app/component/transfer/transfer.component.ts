@@ -23,7 +23,7 @@ export class TransferComponent implements OnInit {
   error: string = "";
   requestTransactionForm:FormGroup = this.fb.group({
     "receiverId": [null, Validators.required],
-    "amount": ['']
+    "amount": ['', [Validators.required, Validators.min(1), Validators.max(999.99)]]
   });
   confirmTransactionForm:FormGroup = this.fb.group({
     "description": ['', Validators.required]
@@ -52,11 +52,22 @@ export class TransferComponent implements OnInit {
       next: (v) => {
         this.pages = new Array<number>(v.totalPages)
         this.transactions = v.content;
+        this.transactions.map(transaction => {
+          if (transaction.emitterId == 0) {
+            transaction.emitterFirstname = "Deleted User";
+          }
+          if (transaction.receiverId ==0) {
+            transaction.receiverFirstname = "Deleted User";
+          }
+        });
       }
     });
   }
 
   requestTransaction() { 
+    if (this.requestTransactionForm.invalid) {
+      return;
+    }
     this.request = <Transaction>this.requestTransactionForm.value
     console.log(this.request)
     let receiver:Connection = this.connections.find(x => x.connectionId == this.request.receiverId)!
@@ -68,6 +79,9 @@ export class TransferComponent implements OnInit {
   }
 
   confirmTransaction() {
+    if (this.confirmTransactionForm.invalid) {
+      return;
+    }
     this.request =  {...this.request, ...<Transaction>this.confirmTransactionForm.value}
     this.api.requestTransaction(this.request)
     .subscribe({
@@ -102,5 +116,13 @@ export class TransferComponent implements OnInit {
     if (this.currentPage < this.pages.length-1) {
       this.onPage(this.currentPage + 1) ;
     }
+  }
+
+  check(form:FormGroup, controleName:string,error:string):boolean {
+    let control = form.controls[controleName];
+    if (control.hasError(error) && (control.touched || control.dirty)) {
+      return true
+    }
+    return false;
   }
 }

@@ -7,10 +7,12 @@
                     <h5 class="pt-2">Send Money</h5>
                 </div>
                 <div class="col-6 p-0">
-                    <button class="btn btn-primary rounded-xl float-end" routerLink="/home/contact">Add Connection</button>
+                    <button class="btn btn-primary rounded-xl float-end" routerLink="/home/contact">
+                        Add Connection
+                    </button>
                 </div>
             </div>
-            <form  [formGroup]="requestTransactionForm" (ngSubmit)="requestTransaction()">
+            <form [formGroup]="requestTransactionForm" (ngSubmit)="requestTransaction()">
                 <div class="row bg-light py-5 px-sm-3 px-lg-5">
                     <div class="col-5">
                         <select name="receiver" class="form-select" formControlName="receiverId">
@@ -19,6 +21,7 @@
                                 {{connection.firstname}} {{connection.lastname}}
                             </option>
                         </select>
+
                     </div>
                     <div class="col-3">
                         <input type="number" class="form-control" formControlName="amount" placeholder="0.00"
@@ -26,6 +29,22 @@
                     </div>
                     <div class="col-4">
                         <button type="submit" class="btn btn-success rounded-xl w-100">Pay</button>
+                    </div>
+                    <div class="col-5" style="margin-bottom: -5rem;">
+                        <small *ngIf="check(requestTransactionForm,'receiverId','required')" class="text-danger">
+                            A connection is required.
+                        </small>
+                    </div>
+                    <div class="col-7" style="margin-bottom: -5rem;">
+                        <small *ngIf="check(requestTransactionForm,'amount','required')" class="text-danger">
+                            An amount is required.
+                        </small>
+                        <small *ngIf="check(requestTransactionForm,'amount','min')" class="text-danger">
+                            The amount can't be less than 1.00.
+                        </small>
+                        <small *ngIf="check(requestTransactionForm,'amount','max')" class="text-danger">
+                            The amount can't exceed 999.99.
+                        </small>
                     </div>
 
                 </div>
@@ -52,11 +71,11 @@
                                 <td colspan="4">You don't have any transaction at this moment.</td>
                             </tr>
                             <tr scope="row" *ngFor="let transaction of transactions">
-                                <td>
+                                <td [ngClass]="{'fst-italic' : transaction.emitterId ==0 || transaction.receiverId ==0}">
                                     <span *ngIf="transaction.emitterId == userId; else asReceiver">
                                         {{transaction.receiverFirstname}} {{transaction.receiverLastname}}
                                     </span>
-                                    <ng-template #asReceiver>      
+                                    <ng-template #asReceiver>
                                         {{transaction.emitterFirstname}} {{transaction.emitterLastname}}
                                     </ng-template>
                                 </td>
@@ -66,7 +85,7 @@
                                     <span *ngIf="transaction.emitterId == userId; else asIncome">
                                         -{{transaction.amount | currency : 'EUR' : 'symbol' : '1.2-2' : 'fr'}}
                                     </span>
-                                    <ng-template #asIncome>      
+                                    <ng-template #asIncome>
                                         +{{transaction.amount | currency : 'EUR' : 'symbol' : '1.2-2' : 'fr'}}
                                     </ng-template>
                                 </td>
@@ -115,7 +134,8 @@
                                 <tbody>
                                     <tr>
                                         <td>Transaction to:</td>
-                                        <td class="text-end">{{request.receiverFirstname}} {{request.receiverLastname}}</td>
+                                        <td class="text-end">{{request.receiverFirstname}} {{request.receiverLastname}}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Amount:</td>
@@ -123,11 +143,13 @@
                                     </tr>
                                     <tr>
                                         <td>Fare:</td>
-                                        <td class="text-end text-danger">{{request.amount * (0.5/100) | number : '1.2-2' }}&euro;</td>
+                                        <td class="text-end text-danger">{{request.amount * (0.5/100) | number : '1.2-2'
+                                            }}&euro;</td>
                                     </tr>
                                     <tr class="border-top">
                                         <td>Total:</td>
-                                        <td class="text-end">{{request.amount * (100.5/100) | number : '1.2-2' }}&euro;</td>
+                                        <td class="text-end">{{request.amount * (100.5/100) | number : '1.2-2' }}&euro;
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -135,9 +157,14 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col">
+                        <div class="col-12">
                             <input type="text" class="form-control" formControlName="description"
                                 placeholder="Description">
+                        </div>
+                        <div class="col-12"  style="margin-bottom: -2rem;" >
+                            <small *ngIf="check(confirmTransactionForm,'description','required')" class="text-danger">
+                                An description is required.
+                            </small>
                         </div>
                     </div>
                 </div>
