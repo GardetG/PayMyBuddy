@@ -17,8 +17,8 @@ export class ContactComponent implements OnInit {
   page: number = 0;
   size: number = 3;
   error:string = "";
-  form:FormGroup= this.fb.group({
-    "email": ["", Validators.required],
+  requestForm:FormGroup= this.fb.group({
+    "email": ["", [Validators.required, Validators.email]],
   });
 
   constructor(private api:ApiPaymybuddyService, private fb:FormBuilder) { }
@@ -47,7 +47,10 @@ export class ContactComponent implements OnInit {
   }
 
   doRequest() {
-    this.api.addConnection(this.form.value)
+    if (this.requestForm.invalid) {
+      return;
+    }
+    this.api.addConnection(this.requestForm.value)
     .subscribe({
       next: (v) => {
         this.loadConnections();
@@ -60,6 +63,14 @@ export class ContactComponent implements OnInit {
         }
       }
     });
+  }
+
+  check(form:FormGroup,controleName:string,error:string):boolean {
+    let control = form.controls[controleName];
+    if (control.hasError(error) && (control.touched || control.dirty)) {
+      return true
+    }
+    return false;
   }
 
   onPage(i: number) {
