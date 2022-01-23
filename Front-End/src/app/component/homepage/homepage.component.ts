@@ -17,14 +17,15 @@ export class HomepageComponent implements OnInit {
   bankaccounts:BankAccount[] = [];
   bankTransfers:BankTransfer[] = [];
   error:string = "";
-  isIncome:boolean = true;
   bankTransferForm:FormGroup = this.fb.group({
-    "bankAccountId": [null],
+    "bankAccountId": [null, Validators.required],
     "title": [{value: '', disabled: true}, Validators.required],
     "iban": [{value: '', disabled: true}, Validators.required],
     "bic": [{value: '', disabled: true}, Validators.required],
-    "amount": []
+    "amount": ['', [Validators.required, Validators.min(1), Validators.max(999.99)]],
+    "agreement": [false, Validators.requiredTrue]
   });
+  isIncome:boolean = true;
   pages: Array<number> = new Array<number>(0);
   currentPage: number = 0;
   size: number = 3;
@@ -35,7 +36,6 @@ export class HomepageComponent implements OnInit {
     this.loadUser();
     this.loadBankAccounts();
     this.loadBankTransfers();
-    console.log(this.bankaccounts)
   }
 
   loadUser() {
@@ -61,7 +61,6 @@ export class HomepageComponent implements OnInit {
     this.api.getAllBankAccounts()
       .subscribe({
         next: (v) => {
-          console.log(v)
           this.bankaccounts = v;
         }
       });
@@ -75,9 +74,7 @@ export class HomepageComponent implements OnInit {
       next: (v) => {
         this.loadUser();
         this.loadBankTransfers();
-        var myModalEl = document.getElementById('bankTransferModal')
-        var modal = bootstrap.Modal.getInstance(myModalEl) 
-        modal.hide();
+        this.closeModal();
       },
       error: (e) => {
         if (e.status == 404 || e.status == 409) {
@@ -87,6 +84,14 @@ export class HomepageComponent implements OnInit {
         }
       }
     });
+  }
+
+  closeModal() {
+    this.error = "";
+    this.bankTransferForm.reset();
+    var myModalEl = document.getElementById('bankTransferModal')
+    var modal = bootstrap.Modal.getInstance(myModalEl) 
+    modal.hide();
   }
 
   reverse() {
@@ -131,5 +136,13 @@ export class HomepageComponent implements OnInit {
     if (this.currentPage < this.pages.length-1) {
       this.onPage(this.currentPage + 1);
     }
+  }
+
+  check(form: FormGroup, controleName: string, error: string): boolean {
+    let control = form.controls[controleName];
+    if (control.hasError(error) && (control.touched || control.dirty)) {
+      return true;
+    }
+    return false;
   }
 }
