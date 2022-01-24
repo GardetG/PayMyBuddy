@@ -45,11 +45,11 @@ class BankTransferControllerIntegrationTest {
     // THEN
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalElements", is(1)))
-        .andExpect(jsonPath("$.content[0].userId", is(3)))
+        .andExpect(jsonPath("$.content[0].userId", is(4)))
         .andExpect(jsonPath("$.content[0].bankAccountId", is(1)))
         .andExpect(jsonPath("$.content[0].amount", is(25.0)))
         .andExpect(jsonPath("$.content[0].date", is("2000-01-02 at 00:00" )))
-        .andExpect(jsonPath("$.content[0].income", is(false)))
+        .andExpect(jsonPath("$.content[0].isIncome", is(false)))
         .andExpect(jsonPath("$.content[0].firstname", is("User2" )))
         .andExpect(jsonPath("$.content[0].lastname", is("test")))
         .andExpect(jsonPath("$.content[0].title", is("Primary Account")));
@@ -59,10 +59,10 @@ class BankTransferControllerIntegrationTest {
   @Test
   void requestTransferIntegrationTest() throws Exception {
     // GIVEN
-    jsonParam.put("userId",3)
+    jsonParam.put("userId",4)
         .put("bankAccountId",1)
         .put("amount","10")
-        .put("income",true);
+        .put("isIncome",true);
 
     // WHEN
     mockMvc.perform(post("/banktransfers")
@@ -72,13 +72,13 @@ class BankTransferControllerIntegrationTest {
     // THEN Bank transfer successfully performed
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.amount", is(10)))
-        .andExpect(jsonPath("$.income", is(true)))
+        .andExpect(jsonPath("$.isIncome", is(true)))
         .andExpect(jsonPath("$.firstname", is("User2" )))
         .andExpect(jsonPath("$.lastname", is("test")))
         .andExpect(jsonPath("$.title", is("Primary Account")));
 
     // WHEN
-    mockMvc.perform(get("/users/3")
+    mockMvc.perform(get("/users/4")
             .header(HttpHeaders.AUTHORIZATION,CredentialUtils.encode("user2@mail.com","password")))
     // THEN
         .andExpect(status().isOk())

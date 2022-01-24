@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,9 +54,10 @@ class UserServiceTest {
 
   @BeforeEach
   void setUp() {
-    userTest = new User("user","test","user@mail.com","EncodedPwd", Role.USER, LocalDateTime.now());
+    LocalDateTime date = LocalDateTime.of(2000,1,1,0,0);
+    userTest = new User("user","test","user@mail.com","EncodedPwd", Role.USER, date);
     userTest.setUserId(1);
-    userInfoDto = new UserDto(1, "user","test","user@mail.com",null,BigDecimal.ZERO, LocalDateTime.now(),true);
+    userInfoDto = new UserDto(1, "user","test","user@mail.com",null,BigDecimal.ZERO, date,true);
   }
 
   @DisplayName("Get all user should return a page of user DTO")
@@ -162,9 +162,10 @@ class UserServiceTest {
   @Test
   void updateWithSameEmailTest() throws Exception {
     // GIVEN
+    LocalDateTime date = LocalDateTime.of(2000,1,1,0,0);
     UserDto userDto = new UserDto(1, "update","test", "user@mail.com",null, null, null, false);
-    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, LocalDateTime.now(),true);
-    User updatedUser = new User("update", "test", "user@mail.com", "EncodedPwd", Role.USER, LocalDateTime.now());
+    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, date,true);
+    User updatedUser = new User("update", "test", "user@mail.com", "EncodedPwd", Role.USER, date);
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.save(any(User.class))).thenReturn(updatedUser);
@@ -176,17 +177,17 @@ class UserServiceTest {
     assertThat(actualDto).usingRecursiveComparison().isEqualTo(updateDto);
     verify(userRepository, times(1)).findById(1);
     verify(userRepository, times(1)).save(userCaptor.capture());
-    assertThat(userCaptor.getValue()).usingRecursiveComparison().ignoringFields("registrationDate").isEqualTo(updatedUser);
+    assertThat(userCaptor.getValue()).usingRecursiveComparison().isEqualTo(updatedUser);
   }
 
   @DisplayName("Update a user with new email and no password provided should update the user names and email")
   @Test
   void updateWithNewEmailTest() throws Exception {
     // GIVEN
+    LocalDateTime date = LocalDateTime.of(2000,1,1,0,0);
     UserDto userDto = new UserDto(1, "update","test", "update@mail.com",null, null, null,false);
-    UserDto
-        updateDto = new UserDto(1, "update","test", "update@mail.com",null, BigDecimal.ZERO,LocalDateTime.now(),true);
-    User updatedUser = new User("update", "test", "update@mail.com", "EncodedPwd", Role.USER, LocalDateTime.now());
+    UserDto updateDto = new UserDto(1, "update","test", "update@mail.com",null, BigDecimal.ZERO,date,true);
+    User updatedUser = new User("update", "test", "update@mail.com", "EncodedPwd", Role.USER, date);
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(userRepository.existsByEmail(anyString())).thenReturn(false);
@@ -226,9 +227,10 @@ class UserServiceTest {
   @Test
   void updateInfoWithNewPasswordEmailTest() throws Exception {
     // GIVEN
+    LocalDateTime date = LocalDateTime.of(2000,1,1,0,0);
     UserDto userDto = new UserDto(1, "update","test", "user@mail.com","NewPassword", null, null,false);
-    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, LocalDateTime.now(),true);
-    User updatedUser = new User("update", "test", "user@mail.com", "NewEncoded", Role.USER, LocalDateTime.now());
+    UserDto updateDto = new UserDto(1, "update","test", "user@mail.com",null, BigDecimal.ZERO, date,true);
+    User updatedUser = new User("update", "test", "user@mail.com", "NewEncoded", Role.USER, date);
     updatedUser.setUserId(1);
     when(userRepository.findById(anyInt())).thenReturn(Optional.of(userTest));
     when(passwordEncoder.encode(anyString())).thenReturn("NewEncoded");
@@ -242,7 +244,7 @@ class UserServiceTest {
     verify(userRepository, times(1)).findById(1);
     verify(passwordEncoder, times(1)).encode("NewPassword");
     verify(userRepository, times(1)).save(userCaptor.capture());
-    assertThat(userCaptor.getValue()).usingRecursiveComparison().ignoringFields("registrationDate").isEqualTo(updatedUser);
+    assertThat(userCaptor.getValue()).usingRecursiveComparison().isEqualTo(updatedUser);
   }
 
   @DisplayName("Update a non existent user should throw an exception")

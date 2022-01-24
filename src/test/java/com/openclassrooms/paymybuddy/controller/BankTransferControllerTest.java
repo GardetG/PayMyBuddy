@@ -119,7 +119,7 @@ class BankTransferControllerTest {
         .andExpect(jsonPath("$.content[0].userId", is(1)))
         .andExpect(jsonPath("$.content[0].bankAccountId", is(1)))
         .andExpect(jsonPath("$.content[0].amount", is(10)))
-        .andExpect(jsonPath("$.content[0].income", is(false)))
+        .andExpect(jsonPath("$.content[0].isIncome", is(false)))
         .andExpect(jsonPath("$.content[0].date", is("2000-01-01 at 00:00")))
         .andExpect(jsonPath("$.content[0].firstname", is("user")))
         .andExpect(jsonPath("$.content[0].lastname", is("test")))
@@ -176,7 +176,7 @@ class BankTransferControllerTest {
         .andExpect(jsonPath("$.userId", is(1)))
         .andExpect(jsonPath("$.bankAccountId", is(1)))
         .andExpect(jsonPath("$.amount", is(10)))
-        .andExpect(jsonPath("$.income", is(false)))
+        .andExpect(jsonPath("$.isIncome", is(false)))
         .andExpect(jsonPath("$.firstname", is("user")))
         .andExpect(jsonPath("$.lastname", is("test")))
         .andExpect(jsonPath("$.title", is("Primary Account")));

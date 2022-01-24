@@ -210,10 +210,8 @@ public class User extends ComptableEntity implements UserDetails {
    * Clear all connections of the user.
    */
   public void clearConnection() {
-    connections.forEach(connection -> {
-      this.connections.remove(connection);
-      connection.connections.remove(this);
-    });
+    connections.forEach(connection -> connection.connections.remove(this));
+    connections.clear();
   }
 
   @Override
