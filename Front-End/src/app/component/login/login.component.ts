@@ -13,13 +13,13 @@ export class LoginComponent implements OnInit {
   error:string="";
   form:FormGroup= this.fb.group({
     "email": ["", Validators.required],
-    "password": ["", Validators.required]
+    "password": ["", Validators.required],
+    "remember": [false]
   });
 
   constructor(private auth: AuthenticationService, private router:Router, private fb:FormBuilder) { }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
 
   get email() {
     return this.form.get('email');
@@ -29,8 +29,12 @@ export class LoginComponent implements OnInit {
     return this.form.get('password');
   }
 
+  get remember() {
+    return this.form.get('remember');
+  }
+
   doLogin() {
-    this.auth.login(this.email?.value, this.password?.value)
+    this.auth.login(this.email?.value ,this.password?.value,this.remember?.value)
       .subscribe({
         next: (v) => {
           this.router.navigate(["home"]);

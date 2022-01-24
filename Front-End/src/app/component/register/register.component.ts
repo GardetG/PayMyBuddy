@@ -74,7 +74,7 @@ export class RegisterComponent implements OnInit {
 
 
   doLogin(email:string, password:string) {
-    this.auth.login(email,password)
+    this.auth.login(email,password,false)
       .subscribe({
         next: (v) => {
           this.router.navigate(["home"]);

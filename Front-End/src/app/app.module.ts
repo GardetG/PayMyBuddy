@@ -8,7 +8,6 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './component/login/login.component';
 import { HomeComponent } from './component/home/home.component';
 import { AuthenticationService } from './service/authentication.service';
-import { AuthenticationInterceptor } from './authentication.interceptor';
 import { RegisterComponent } from './component/register/register.component';
 import { TransferComponent } from './component/transfer/transfer.component';
 import { ProfileComponent } from './component/profile/profile.component';
@@ -16,6 +15,7 @@ import { ContactComponent } from './component/contact/contact.component';
 import { HomepageComponent } from './component/homepage/homepage.component';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
+import { AuthenticationInterceptor } from './Interceptor/authentication.interceptor';
 registerLocaleData(localeFr, 'fr');
 
 @NgModule({

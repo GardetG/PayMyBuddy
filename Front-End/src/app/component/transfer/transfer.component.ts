@@ -87,9 +87,8 @@ export class TransferComponent implements OnInit {
     .subscribe({
       next: (v) => {
         this.loadTransactions();
-        var myModalEl = document.getElementById('confirmTransactionModal')
-        var modal = bootstrap.Modal.getInstance(myModalEl) 
-        modal.hide();
+        this.requestTransactionForm.reset();
+        this.close();
       },
       error: (e) => {
         if (e.status == 404 || e.status == 409) {
@@ -99,6 +98,13 @@ export class TransferComponent implements OnInit {
         }
       }
     });
+  }
+
+  close() {
+    this.confirmTransactionForm.reset();
+    var myModalEl = document.getElementById('confirmTransactionModal')
+    var modal = bootstrap.Modal.getInstance(myModalEl) 
+    modal.hide();
   }
 
   onPage(i: number) {

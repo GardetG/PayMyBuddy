@@ -9,32 +9,48 @@ import { User } from '../model/User/user.model';
 })
 export class AuthenticationService {
 
-  public identity!: Identity;
+  private identity: Identity = new Identity();
+  private baseURL:string = "http://localhost:8080";
 
   constructor(private http:HttpClient) { }
 
-  public login(email:string, password:string): Observable<Identity> {
+  getIdentity() : Identity {
+    if (this.identity.userId ==  0) {
+      let storage = localStorage.getItem('identity');
+      if (storage != null) {
+        this.identity = JSON.parse(storage);
+      }
+    }
+    return this.identity;
+  }
+
+  getBasseURL():string {
+    return this.baseURL;
+  }
+
+  public login(email:string, password:string,remember:boolean): Observable<Identity> {
     const headers = new HttpHeaders({
-      "X-Requested-With": "XMLHttpRequest",
       Authorization: 'Basic ' + btoa(email+":"+password)
     });
-    return this.http.get<Identity>("http://localhost:8080/login", {headers})
+    return this.http.get<Identity>(this.baseURL + "/login?remember="+remember, {headers})
     .pipe(map(resp => {
       this.identity = resp;
+      localStorage.setItem('identity', JSON.stringify(this.identity));
       return resp;
     }))
   }
 
   public register(user:User): Observable<User> {
-    return this.http.post<User>("http://localhost:8080/register",user)
+    return this.http.post<User>(this.baseURL + "/register",user)
   }
 
   public logoff() {
     const headers = new HttpHeaders({
       "X-Requested-With": "XMLHttpRequest"})
-    return this.http.post<User>("http://localhost:8080/logout",{headers})
+    return this.http.get<User>(this.baseURL + "/logout",{headers})
     .pipe(map(resp => {
       this.identity = new Identity();
+      localStorage.clear();
       return resp
     }));
   }
