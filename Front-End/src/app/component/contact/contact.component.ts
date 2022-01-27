@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Connection } from 'src/app/model/Connection/connection.model';
-import { ApiPaymybuddyService } from 'src/app/service/api-paymybuddy.service';
+import { ApiPaymybuddyService } from 'src/app/service/ApiPayMyBuddy/api-paymybuddy.service';
+import { checkField } from 'src/app/Validator/checkField.utils';
 
 @Component({
   selector: 'app-contact',
@@ -14,7 +15,6 @@ export class ContactComponent implements OnInit {
   request: Connection = new Connection();
   pages: Array<number> = new Array<number>(0);
   currentPage: number = 0;
-  page: number = 0;
   size: number = 3;
   error:string = "";
   requestForm:FormGroup= this.fb.group({
@@ -28,7 +28,7 @@ export class ContactComponent implements OnInit {
   }
 
   loadConnections() {
-    this.api.getPageOfConnections(this.page,this.size)
+    this.api.getPageOfConnections(this.currentPage,this.size)
     .subscribe({
       next: (v) => {
         this.pages = new Array<number>(v.totalPages)
@@ -48,16 +48,20 @@ export class ContactComponent implements OnInit {
 
   doRequest() {
     if (this.requestForm.invalid) {
+      Object.keys(this.requestForm.controls).forEach(key => {
+        this.requestForm.controls[key].markAsTouched();
+      });
       return;
     }
     this.api.addConnection(this.requestForm.value)
     .subscribe({
       next: (v) => {
         this.loadConnections();
+        this.error=""
       },
       error: (e) => {
         if (e.status == 404 || e.status == 409) {
-          this.error = e.error;
+          this.error = e.error + ".";
         } else {
           this.error = "An error occured, please try again."
         }
@@ -66,11 +70,7 @@ export class ContactComponent implements OnInit {
   }
 
   check(form:FormGroup,controleName:string,error:string):boolean {
-    let control = form.controls[controleName];
-    if (control.hasError(error) && (control.touched || control.dirty)) {
-      return true
-    }
-    return false;
+    return checkField(form, controleName, error);
   }
 
   onPage(i: number) {

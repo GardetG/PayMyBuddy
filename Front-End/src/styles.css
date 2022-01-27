@@ -36,3 +36,12 @@ body{
     width: 150px;
     height: 45px;
 }
+
+small {
+    font-size: 0.8rem;
+}
+
+.invalid-msg {
+    margin-bottom: -2rem; 
+    margin-top: -0.1rem;
+}

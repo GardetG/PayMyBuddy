@@ -1,57 +1,76 @@
 <div class="container">
-  <div class="row mx-1 justify-content-center">
-    <div class="border border-2 rounded-xl my-5 p-3 col-12 col-sm-6 col-lg-4">
-      <div class="logo m-auto mt-2">Pay My Buddy</div>
-      <form class="text-center mt-5" [formGroup]="form" (ngSubmit)="doLogin()">
+  <div class="row mx-1 justify-content-center my-5">
+    <div class="col-12 col-md-6 col-xl-4 border border-2 rounded-xl p-3 ">
 
-        <div *ngIf="error != ''" class="alert alert-danger pb-4">
-          {{error}}
-        </div>
+      <!--Logo-->
+      <div class="row mb-5">
+        <div class="logo m-auto mt-2">Pay My Buddy</div>
+      </div>
 
-        <div class="mb-4">
-          <div class="input-group border border-2 rounded-xl">
-            <div class="input-group-prepend">
-              <span class="input-group-text border-0 rounded-xl bg-white h-100">
-                <i class="fas fa-envelope"></i>
-              </span>
+      <!--Error msg-->
+      <div class="row" *ngIf="error != ''" class="alert alert-danger text-center">
+        {{error}}
+      </div>
+
+      <form class="text-center" [formGroup]="form" (ngSubmit)="doLogin()">
+        <!--Email-->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-envelope"></i>
+                </span>
+              </div>
+              <input type="email" class="form-control border-0 rounded-xl" formControlName="email" placeholder="Email">
             </div>
-            <input type="email" class="form-control border-0 rounded-xl" formControlName="email" placeholder="Email">
           </div>
-          <small *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="text-danger">
-            Email is required to login
-          </small>
+          <div class="col-12 invalid-msg">
+            <small *ngIf="check(form, 'email')" class="text-danger">
+              Email is required to login
+            </small>
+          </div>
         </div>
 
-        <div class="mb-4">
-          <div class="input-group border border-2 rounded-xl">
-            <div class="input-group-prepend">
-              <span class="input-group-text border-0 rounded-xl bg-white h-100">
-                <i class="fas fa-asterisk"></i>
-              </span>
+        <!--Password-->
+        <div class="row mb-5">
+          <div class="col-12">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-asterisk"></i>
+                </span>
+              </div>
+              <input type="password" class="form-control border-0 rounded-xl" formControlName="password"
+                placeholder="Password">
             </div>
-            <input type="password" class="form-control border-0 rounded-xl" formControlName="password"
-              placeholder="Password">
           </div>
-          <small *ngIf="password?.invalid && (password?.dirty || password?.touched)" class="text-danger">
-            Password is required to login
-          </small>
+          <div class="col-12 invalid-msg">
+            <small *ngIf="check(form, 'password')" class="text-danger" style="margin-bottom: -5rem;">
+              Password is required to login
+            </small>
+          </div>
         </div>
 
-        <div class="form-check-inline">
-          <input class="form-check-input mx-2" type="checkbox" id="remember" formControlName="remember">
-          <label class="form-check-label" for="remember">
-            Remember Me
-          </label>
+        <!--Remeber-me-->
+        <div class="row mb-5">
+          <div class="form-check-inline">
+            <input class="form-check-input mx-2" type="checkbox" id="remember" formControlName="remember">
+            <label class="form-check-label" for="remember">
+              Remember Me
+            </label>
+          </div>
         </div>
 
-        <div class="mt-5">
-          <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Login</button>
+        <!--Login or Register-->
+        <div class="row justify-content-center">
+          <button class="btn btn-primary" type="submit">Login</button>
         </div>
-        <div class="mt-2 mb-4">
+        <div class="row justify-content-center mt-2 mb-4">
           <button class="btn btn-primary" type='button' routerLink="/register">Register</button>
         </div>
-
       </form>
+
     </div>
   </div>
 </div>

@@ -9,7 +9,7 @@
             </div>
             <form [formGroup]="requestForm" (ngSubmit)="doRequest()">
                 <div class="row bg-light py-5 px-sm-3 px-lg-5">
-                    <div *ngIf="error != ''" class="alert alert-danger pb-4 text-center">
+                    <div *ngIf="error != ''" class="alert alert-danger text-center">
                         {{error}}
                     </div>
             
@@ -20,7 +20,7 @@
                         <button type="submit" class="btn btn-success rounded-xl w-100">Add</button>
                     </div>
                     
-                    <div class="col" style="margin-bottom: -5rem;" >
+                    <div class="col invalid-msg"  >
                         <small *ngIf="check(requestForm,'email','required')" class="text-danger">
                             The connection's email is required.
                         </small>
