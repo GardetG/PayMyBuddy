@@ -3,8 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BankAccount } from 'src/app/model/BankAccount/bank-account.model';
 import { User } from 'src/app/model/User/user.model';
-import { ApiPaymybuddyService } from 'src/app/service/api-paymybuddy.service';
-import { AuthenticationService } from 'src/app/service/authentication.service';
+import { ApiPaymybuddyService } from 'src/app/service/ApiPayMyBuddy/api-paymybuddy.service';
+import { AuthenticationService } from 'src/app/service/Authentication/authentication.service';
+import { checkField } from 'src/app/Validator/checkField.utils';
 import { MustMatch } from 'src/app/Validator/confirmpassword.validator';
 declare var bootstrap: any;
 
@@ -15,12 +16,13 @@ declare var bootstrap: any;
 })
 export class ProfileComponent implements OnInit {
 
+  error: string = "";
   user: User = new User();
   bankAccounts: BankAccount[] = [];
   pages: Array<number> = new Array<number>(0);
   currentPage: number = 0;
   size: number = 3;
-  error: string = "";
+  changePwd:boolean = false;
   bankAccountForm: FormGroup = this.fb.group({
     "title": ["", Validators.required],
     "iban": ["", [Validators.required, Validators.minLength(14), Validators.maxLength(34)]],
@@ -31,10 +33,10 @@ export class ProfileComponent implements OnInit {
     "firstname": ["", Validators.required],
     "lastname": ["", Validators.required],
     "email": ["", [Validators.required, Validators.email]],
-    "password": [null, Validators.minLength(8)],
-    "confirmPassword": [null]
+    "password": [null],
+    "confirmpassword": [null]
   }, {
-    validator: MustMatch('password', 'confirmPassword')
+    validator: MustMatch('password', 'confirmpassword')
   });
 
   constructor(private api: ApiPaymybuddyService, private fb: FormBuilder, private router:Router,private auth:AuthenticationService) { }
@@ -70,22 +72,38 @@ export class ProfileComponent implements OnInit {
 
   editUser() {
     if (this.userForm.invalid) {
-      console.log('ERROR !!!')
+      Object.keys(this.userForm.controls).forEach(key => {
+        this.userForm.controls[key].markAsTouched();
+      });
       return;
     }
     this.api.updateUser(this.userForm.value)
       .subscribe({
         next: (v) => {
           this.user = v;
-          this.error = "";
-          var myModalEl = document.getElementById('userModal')
-          var modal = bootstrap.Modal.getInstance(myModalEl)
-          modal.hide();
+          this.closeUserModal();
         },
         error: (e) => {
-          this.error = e.error;
+          if (e.status == 404 || e.status == 409) {
+            this.error = e.error + ".";
+          } else {
+            this.error = "An error occured, please try again."
+          }
         }
       });
+  }
+
+  togglePwd() {
+    this.changePwd = !this.changePwd;
+    if (this.changePwd) {
+      this.userForm.controls['password'].setValidators([Validators.required, Validators.minLength(8)]);   
+     } else {
+      this.userForm.controls['password'].setValidators(null);   
+     }
+    this.userForm.patchValue({  
+      password: null,
+      confirmpassword: null
+    });
   }
 
   deleteUser() {
@@ -132,10 +150,11 @@ export class ProfileComponent implements OnInit {
       .subscribe({
         next: (v) => {
           this.loadBankAccounts();
+          this.closeBankAccountModal();
         },
         error: (e) => {
           if (e.status == 404 || e.status == 409) {
-            this.error = e.error;
+            this.error = e.error + ".";
           } else {
             this.error = "An error occured, please try again."
           }
@@ -153,19 +172,19 @@ export class ProfileComponent implements OnInit {
 
   closeUserModal() {
     this.error="";
-    this.bankAccountForm.reset();
+    this.changePwd=false;
+    this.userForm.reset();
     this.userForm.patchValue({
       firstname: this.user.firstname,
       lastname: this.user.lastname,
       email: this.user.email,
       password: null,
-      confirmPassword: null
+      confirmpassword: null
     });
     var myModalEl = document.getElementById('userModal');
     var modal = bootstrap.Modal.getInstance(myModalEl);
     modal.hide();
   }
-
 
   onPage(i: number) {
     this.currentPage = i;
@@ -185,11 +204,7 @@ export class ProfileComponent implements OnInit {
   }
 
   check(form: FormGroup, controleName: string, error: string): boolean {
-    let control = form.controls[controleName];
-    if (control.hasError(error) && (control.touched || control.dirty)) {
-      return true;
-    }
-    return false;
+    return checkField(form, controleName, error);
   }
 
 }
