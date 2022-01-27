@@ -1,12 +1,14 @@
 <div class="container">
   <div class="row justify-content-center mt-1  mx-1">
-    <div class="col-12 col-sm-10 col-lg-8">
+    <div class="col-12 col-md-10 col-xl-8">
 
+      <!--My wallet title-->
       <div class="row mt-2">
         <div class="col p-0">
           <h5 class="pt-2">My Wallet</h5>
         </div>
       </div>
+      <!--My wallet content-->
       <div class="row bg-light mb-3 py-4 px-2 px-sm-3 px-lg-5">
         <div class="col-4 p-1 text-center">
           <span class="icon">
@@ -18,7 +20,7 @@
         </div>
       </div>
 
-      <!-- Bank transfers table-->
+      <!--My bank transfers title-->
       <div class="row">
         <div class="col p-0">
           <h5 class="pt-2">My Bank Transfers</h5>
@@ -30,8 +32,9 @@
           </button>
         </div>
       </div>
+      <!--My bank transfers table-->
       <div class="row border border-dark ">
-        <div class="table-responsive-md p-0">
+        <div class="table-responsive p-0">
           <table class="table mytable table-striped table-borderless m-0">
             <thead>
               <tr>
@@ -56,6 +59,7 @@
           </table>
         </div>
       </div>
+      <!--My bank transfers nav-->
       <div class="row">
         <div class="col">
           <ul class="nav nav-pills justify-content-center">
@@ -77,18 +81,20 @@
 </div>
 
 <!-- Bank transfer Modal -->
-<div class="modal fade" id="bankTransferModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="bankTransferModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-
       <form [formGroup]="bankTransferForm" (ngSubmit)="requestTransfer()">
+
+        <!--Header-->
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">Bank Transfer</h5>
           <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
         </div>
 
+        <!--Content-->
         <div class="modal-body">
-          <!-- Icon banner-->
+          <!--Icon-->
           <div class="row mb-3">
             <div class="col-4 text-center">
               <span class="icon">
@@ -107,14 +113,15 @@
               </span>
             </div>
           </div>
-          <!-- Form fields-->
           <div class="row">
             <p class="m-0">{{isIncome ? "Debit" : "Credit"}} Bank Account:</p>
           </div>
+          <!--Error msg-->
+          <div class="row" *ngIf="error != ''" class="alert alert-danger text-center">
+            {{error}}
+          </div>
+          <!--Fields-->
           <div class="row mb-4">
-            <div *ngIf="error != ''" class="alert alert-danger pb-4 text-center">
-              {{error}}
-            </div>
             <div class="col">
               <select name="receiver" class="form-select" formControlName="bankAccountId" (change)="select()">
                 <option [ngValue]="null" selected disabled>Select a bank account</option>
@@ -124,9 +131,10 @@
               </select>
             </div>
             <div class="col">
-              <input type="text" class="form-control" formControlName="title" placeholder="Title">
+              <button type="button" class="btn btn-primary w-100" (click)="closeModal()" routerLink="profile">Add
+                Account</button>
             </div>
-            <div class="col-12" style="margin-bottom: -5rem;">
+            <div class="col-12 invalid-msg">
               <small *ngIf="check(bankTransferForm,'bankAccountId','required')" class="text-danger">
                 Select a bank account.
               </small>
@@ -142,20 +150,20 @@
               <input type="text" class="form-control" formControlName="bic" placeholder="BIC">
             </div>
             <div class="col-6">
-              <input type="number" class="form-control" formControlName="amount" placeholder="0.00" min="1" max="999.99"
-                step="0.01" aria-label="Amount">
+              <input type="number" class="form-control" formControlName="amount" placeholder="0.00 &euro;" min="1.00"
+                max="999.99" step="0.01">
             </div>
-            <div class="col-12" style="margin-bottom: -5rem;">
+            <div class="col-12 invalid-msg">
               <small *ngIf="check(bankTransferForm,'amount','required')" class="text-danger">
-                  An amount is required.
+                An amount is required.
               </small>
               <small *ngIf="check(bankTransferForm,'amount','min')" class="text-danger">
-                  The amount can't be less than 1.00.
+                The amount can't be less than 1.00.
               </small>
               <small *ngIf="check(bankTransferForm,'amount','max')" class="text-danger">
-                  The amount can't exceed 999.99.
+                The amount can't exceed 999.99.
               </small>
-          </div>
+            </div>
           </div>
           <div class="row mb-3">
             <div class="col">
@@ -169,11 +177,12 @@
           </div>
         </div>
 
+        <!--Footer-->
         <div class="modal-footer">
           <button type="submit" class="btn btn-success" [disabled]="bankTransferForm.invalid">Confirm</button>
         </div>
-      </form>
 
+      </form>
     </div>
   </div>
 </div>

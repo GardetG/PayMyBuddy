@@ -1,26 +1,27 @@
 <div class="container">
     <div class="row justify-content-center m-1">
-        <div class="col-12 col-sm-10 col-lg-8">
+        <div class="col-12 col-md-10 col-xl-8">
 
+            <!--Add connection title-->
             <div class="row mt-2">
-                <div class="col-6 p-0">
+                <div class="col p-0">
                     <h5 class="pt-2">Add Connection</h5>
                 </div>
             </div>
+            <!--Add connection formular-->
             <form [formGroup]="requestForm" (ngSubmit)="doRequest()">
                 <div class="row bg-light py-5 px-sm-3 px-lg-5">
-                    <div *ngIf="error != ''" class="alert alert-danger text-center">
+                    <div class="col" *ngIf="error != ''" class="alert alert-danger text-center">
                         {{error}}
                     </div>
-            
                     <div class="col-8">
-                        <input type="email" class="form-control" formControlName="email" placeholder="Email" aria-label="email">
+                        <input type="email" class="form-control" formControlName="email" placeholder="Email"
+                            aria-label="email">
                     </div>
                     <div class="col-4">
                         <button type="submit" class="btn btn-success rounded-xl w-100">Add</button>
                     </div>
-                    
-                    <div class="col invalid-msg"  >
+                    <div class="col invalid-msg">
                         <small *ngIf="check(requestForm,'email','required')" class="text-danger">
                             The connection's email is required.
                         </small>
@@ -31,11 +32,13 @@
                 </div>
             </form>
 
+            <!--My connections title-->
             <div class="row mt-3">
                 <div class="col p-0">
                     <h5 class="pt-2">My Connections</h5>
                 </div>
             </div>
+            <!--My connections table-->
             <div class="row border border-dark ">
                 <div class="table-responsive-md p-0">
                     <table class="table mytable table-striped table-borderless m-0">
@@ -52,13 +55,15 @@
                             <tr scope="row" *ngFor="let connection of connections">
                                 <td>{{connection.firstname}} {{connection.lastname}}</td>
                                 <td>
-                                    <button class="btn btn-danger rounded-xl" (click)="doDeleteConnection(connection.connectionId)" >X</button>
+                                    <button class="btn btn-danger rounded-xl"
+                                        (click)="doDeleteConnection(connection.connectionId)">X</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+            <!--My connections nav-->
             <div class="row">
                 <div class="col">
                     <ul class="nav nav-pills justify-content-center">
@@ -74,7 +79,7 @@
                     </ul>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </div>

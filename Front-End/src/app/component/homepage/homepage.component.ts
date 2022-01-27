@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BankAccount } from 'src/app/model/BankAccount/bank-account.model';
 import { BankTransfer } from 'src/app/model/BankTransfer/bank-transfer.model';
 import { User } from 'src/app/model/User/user.model';
-import { ApiPaymybuddyService } from 'src/app/service/api-paymybuddy.service';
+import { ApiPaymybuddyService } from 'src/app/service/ApiPayMyBuddy/api-paymybuddy.service';
 declare var bootstrap: any;
 
 @Component({
@@ -13,19 +13,19 @@ declare var bootstrap: any;
 })
 export class HomepageComponent implements OnInit {
 
+  error:string = "";
   user: User = new User();
   bankaccounts:BankAccount[] = [];
   bankTransfers:BankTransfer[] = [];
-  error:string = "";
+
   bankTransferForm:FormGroup = this.fb.group({
+    "isIncome": [true, {initialValueIsDefault: true}],
     "bankAccountId": [null, Validators.required],
-    "title": [{value: '', disabled: true}, Validators.required],
-    "iban": [{value: '', disabled: true}, Validators.required],
-    "bic": [{value: '', disabled: true}, Validators.required],
-    "amount": ['', [Validators.required, Validators.min(1), Validators.max(999.99)]],
+    "iban": [{value: null, disabled: true}, Validators.required],
+    "bic": [{value: null, disabled: true}, Validators.required],
+    "amount": [null, [Validators.required, Validators.min(1), Validators.max(999.99)]],
     "agreement": [false, Validators.requiredTrue]
   });
-  isIncome:boolean = true;
   pages: Array<number> = new Array<number>(0);
   currentPage: number = 0;
   size: number = 3;
@@ -67,8 +67,6 @@ export class HomepageComponent implements OnInit {
   }
 
   requestTransfer() {
-    let request:BankTransfer = <BankTransfer>this.bankTransferForm.value;
-    request.isIncome = this.isIncome;
     this.api.requestBankTransfer(this.bankTransferForm.value)
     .subscribe({
       next: (v) => {
@@ -78,7 +76,7 @@ export class HomepageComponent implements OnInit {
       },
       error: (e) => {
         if (e.status == 404 || e.status == 409) {
-          this.error = e.error;
+          this.error = e.error + ".";
         } else {
           this.error = "An error occured, please try again."
         }
@@ -88,34 +86,24 @@ export class HomepageComponent implements OnInit {
 
   closeModal() {
     this.error = "";
-    this.bankTransferForm.reset();
+    this.bankTransferForm.reset({isIncome: true});
     var myModalEl = document.getElementById('bankTransferModal')
-    var modal = bootstrap.Modal.getInstance(myModalEl) 
+    var modal = bootstrap.Modal.getInstance(myModalEl)
     modal.hide();
   }
 
+  get isIncome() {
+    return this.bankTransferForm.controls['isIncome'].value;
+  }
+
   reverse() {
-    this.isIncome = !this.isIncome;
+    this.bankTransferForm.patchValue({isIncome: !this.isIncome})
   }
 
   select() {
-    let controls = this.bankTransferForm.controls;
-    if (controls['bankAccountId'].value == null ) {
-      controls['title'].enable();
-      controls['iban'].enable();
-      controls['bic'].enable();
-      controls['title'].reset();
-      controls['iban'].reset();
-      controls['bic'].reset();
-      return;
-    }
-    controls['title'].disable();
-    controls['iban'].disable();
-    controls['bic'].disable();
     let id = this.bankTransferForm.controls['bankAccountId'].value;
     let bankAccount:BankAccount = this.bankaccounts.find(x => x.bankAccountId == id)!
     this.bankTransferForm.patchValue({
-      title: bankAccount.title,
       iban : bankAccount.iban,
       bic : bankAccount.bic
     });
