@@ -1,8 +1,8 @@
-import { HttpClient, HttpHandler, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { Identity } from '../model/Identity/identity.model';
-import { User } from '../model/User/user.model';
+import { Identity } from 'src/app/model/Identity/identity.model';
+import { User } from 'src/app/model/User/user.model';
 
 @Injectable({
   providedIn: 'root'

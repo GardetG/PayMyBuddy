@@ -7,7 +7,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './component/login/login.component';
 import { HomeComponent } from './component/home/home.component';
-import { AuthenticationService } from './service/authentication.service';
 import { RegisterComponent } from './component/register/register.component';
 import { TransferComponent } from './component/transfer/transfer.component';
 import { ProfileComponent } from './component/profile/profile.component';
@@ -16,6 +15,7 @@ import { HomepageComponent } from './component/homepage/homepage.component';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { AuthenticationInterceptor } from './Interceptor/authentication.interceptor';
+import { AuthenticationService } from './service/Authentication/authentication.service';
 registerLocaleData(localeFr, 'fr');
 
 @NgModule({
@@ -27,7 +27,7 @@ registerLocaleData(localeFr, 'fr');
     TransferComponent,
     ProfileComponent,
     ContactComponent,
-    HomepageComponent
+    HomepageComponent,
   ],
   imports: [
     BrowserModule,

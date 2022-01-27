@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { BankAccount } from '../model/BankAccount/bank-account.model';
-import { BankTransfer } from '../model/BankTransfer/bank-transfer.model';
-import { Connection } from '../model/Connection/connection.model';
-import { Transaction } from '../model/Transaction/transaction.model';
-import { User } from '../model/User/user.model';
-import { AuthenticationService } from './authentication.service';
+import { BankAccount } from 'src/app/model/BankAccount/bank-account.model';
+import { BankTransfer } from 'src/app/model/BankTransfer/bank-transfer.model';
+import { Connection } from 'src/app/model/Connection/connection.model';
+import { Transaction } from 'src/app/model/Transaction/transaction.model';
+import { User } from 'src/app/model/User/user.model';
+import { AuthenticationService } from '../Authentication/authentication.service';
 
 @Injectable({
   providedIn: 'root'
