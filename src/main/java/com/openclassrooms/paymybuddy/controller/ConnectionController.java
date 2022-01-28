@@ -61,6 +61,8 @@ public class ConnectionController {
    * @param connection to add
    * @return HTTP 201
    * @throws ResourceNotFoundException if user or requested connection not found
+   * @throws ForbiddenOperationException if user try to add himself
+   * @throws ResourceAlreadyExistsException if connection already exists
    */
   @PreAuthorize("#id == authentication.principal.userId")
   @PostMapping("/users/{id}/connections")

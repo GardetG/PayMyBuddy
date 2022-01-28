@@ -1,0 +1,11 @@
+com.openclassrooms.paymybuddy
+com.openclassrooms.paymybuddy.config
+com.openclassrooms.paymybuddy.constant
+com.openclassrooms.paymybuddy.controller
+com.openclassrooms.paymybuddy.dto
+com.openclassrooms.paymybuddy.exception
+com.openclassrooms.paymybuddy.integration.utils
+com.openclassrooms.paymybuddy.model
+com.openclassrooms.paymybuddy.repository
+com.openclassrooms.paymybuddy.service
+com.openclassrooms.paymybuddy.utils

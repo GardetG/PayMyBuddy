@@ -57,6 +57,7 @@ public class User extends ComptableEntity implements UserDetails {
    * @param email of user
    * @param password of user
    * @param role authorization of the user
+   * @param registrationDate of the user
    */
   public User(String firstname, String lastname, String email, String password, Role role,
               LocalDateTime registrationDate) {

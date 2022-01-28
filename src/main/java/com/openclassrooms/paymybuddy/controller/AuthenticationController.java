@@ -75,6 +75,7 @@ public class AuthenticationController {
    * @param id of the user
    * @param value is enabled
    * @return HTTP 204
+   * @throws ResourceNotFoundException if user not found
    */
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/users/{id}/enable")

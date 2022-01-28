@@ -61,6 +61,7 @@ public class BankAccountController {
    * @param bankAccount to add
    * @return HTTP 201
    * @throws ResourceNotFoundException if user not found
+   * @throws ResourceAlreadyExistsException if bank account already exists
    */
   @PreAuthorize("#id == authentication.principal.userId")
   @PostMapping("/users/{id}/bankaccounts")
