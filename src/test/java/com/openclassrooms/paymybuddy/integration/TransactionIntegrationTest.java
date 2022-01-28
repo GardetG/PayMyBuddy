@@ -44,8 +44,8 @@ class TransactionIntegrationTest {
     // THEN
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalElements", is(1)))
-        .andExpect(jsonPath("$.content[0].emitterId", is(3)))
-        .andExpect(jsonPath("$.content[0].receiverId", is(2)))
+        .andExpect(jsonPath("$.content[0].emitterId", is(4)))
+        .andExpect(jsonPath("$.content[0].receiverId", is(3)))
         .andExpect(jsonPath("$.content[0].description", is("Gift for a friend")))
         .andExpect(jsonPath("$.content[0].amount", is(25.0)))
         .andExpect(jsonPath("$.content[0].date", is("2000-01-02 at 00:00")))
@@ -59,8 +59,8 @@ class TransactionIntegrationTest {
   @Test
   void requestTransactionTest() throws Exception {
     // GIVEN
-    jsonParam.put("emitterId",2)
-        .put("receiverId",3)
+    jsonParam.put("emitterId",3)
+        .put("receiverId",4)
         .put("description","Transaction test")
         .put("amount",10);
 
@@ -72,8 +72,8 @@ class TransactionIntegrationTest {
 
     // THEN Transaction successfully performed
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.emitterId", is(2)))
-        .andExpect(jsonPath("$.receiverId", is(3)))
+        .andExpect(jsonPath("$.emitterId", is(3)))
+        .andExpect(jsonPath("$.receiverId", is(4)))
         .andExpect(jsonPath("$.description", is("Transaction test")))
         .andExpect(jsonPath("$.amount", is(10)))
         .andExpect(jsonPath("$.emitterFirstname", is("User1")))
@@ -82,14 +82,14 @@ class TransactionIntegrationTest {
         .andExpect(jsonPath("$.receiverLastname", is("test")));
 
     // WHEN
-    mockMvc.perform(get("/users/2")
+    mockMvc.perform(get("/users/3")
             .header(HttpHeaders.AUTHORIZATION,CredentialUtils.encode("user1@mail.com","password")))
     // THEN User 1 successfully debited of the amount plus the fare
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.wallet", is(89.95)));
 
     // WHEN
-    mockMvc.perform(get("/users/3")
+    mockMvc.perform(get("/users/4")
             .header(HttpHeaders.AUTHORIZATION,CredentialUtils.encode("user2@mail.com","password")))
     // THEN User 2 successfully credited of the amount
         .andExpect(status().isOk())

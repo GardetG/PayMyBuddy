@@ -1,0 +1,154 @@
+<div class="container">
+  <div class="row mx-1 justify-content-center my-5">
+    <div class="col-12 col-md-6 col-xl-4 border border-2 rounded-xl p-3 ">
+
+      <!--Logo-->
+      <div class="row mb-5">
+        <div class="logo m-auto mt-2">Pay My Buddy</div>
+      </div>
+
+      <!--Error msg-->
+      <div class="row" *ngIf="error != ''" class="alert alert-danger text-center">
+        {{error}}
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="doRegister()">
+        <!--Firstname-->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-user"></i>
+                </span>
+              </div>
+              <input type="text" class="form-control border-0 rounded-xl" formControlName="firstname"
+                placeholder="Firstname">
+            </div>
+          </div>
+          <div class="col-12 invalid-msg">
+            <small *ngIf="check(form, 'firstname', 'required')" class="text-danger">
+              Firstname is required to register
+            </small>
+          </div>
+        </div>
+
+        <!--Lastname-->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-user"></i>
+                </span>
+              </div>
+              <input type="text" class="form-control border-0 rounded-xl" formControlName="lastname"
+                placeholder="Lastname">
+            </div>
+          </div>
+          <div class="col-12 invalid-msg">
+            <small *ngIf="check(form, 'lastname', 'required')" class="text-danger">
+              Lastname is required to register
+            </small>
+          </div>
+        </div>
+
+        <!--Email-->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-envelope"></i>
+                </span>
+              </div>
+              <input type="email" class="form-control border-0 rounded-xl" formControlName="email" placeholder="Email">
+            </div>
+          </div>
+          <div class="col-12 invalid-msg">
+            <small *ngIf="check(form, 'email', 'required')" class="text-danger">
+              Email is required to register
+            </small>
+            <small *ngIf="check(form, 'email', 'email')" class="text-danger">
+              The provided email is invalid.
+            </small>
+          </div>
+        </div>
+
+        <!--Password-->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-asterisk"></i>
+                </span>
+              </div>
+              <input type="password" class="form-control border-0 rounded-xl" formControlName="password"
+                placeholder="Password">
+            </div>
+          </div>
+          <div class="col-12 invalid-msg">
+            <small *ngIf="check(form, 'password', 'required')" class="text-danger">
+              Password is required to register
+            </small>
+            <small *ngIf="check(form, 'password', 'minlength')" class="text-danger">
+              Password must be at least 8 characters
+            </small>
+          </div>
+        </div>
+
+        <!--Confirm Password-->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="input-group border border-2 rounded-xl">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                  <i class="fas fa-asterisk"></i>
+                </span>
+              </div>
+              <input type="password" class="form-control border-0 rounded-xl" formControlName="confirmpassword"
+                placeholder="Confirm Password">
+            </div>
+          </div>
+          <div class="col-12 invalid-msg">
+            <small *ngIf="form.controls['confirmpassword'].invalid" class="text-danger">
+              Password confirmation doesn't match
+            </small>
+          </div>
+        </div>
+
+        <!--Agreement-->
+        <div class="row mb-5">
+          <div class="col-12">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="acceptterms" formControlName="termsAgreement">
+              <label class="form-check-label" for="acceptterms">
+                I agree to the Terms and Conditions.
+              </label>
+            </div>
+            <div class="col-12">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="acceptprivacy" formControlName="privacyAgreement">
+                <label class="form-check-label" for="acceptprivacy">
+                  I agree to the Privacy Policy and I consent to the processing of my personal data that I have provided
+                  and
+                  I am aware of my rights on it according to the GDPR.
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--Register or Back-->
+        <div class="row justify-content-center">
+          <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Register</button>
+        </div>
+        <div class="row justify-content-center mt-2 mb-4">
+          <button class="btn btn-primary" type='button' routerLink="/login">Back</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>

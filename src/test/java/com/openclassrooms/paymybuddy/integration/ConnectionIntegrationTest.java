@@ -39,41 +39,41 @@ class ConnectionIntegrationTest {
   @DisplayName("Add a connection")
   @Test
   void addConnectionTest() throws Exception {
-    // GIVEN User 1 have a connection with User 2 already added
-    jsonParam.put("email", "admin@mail.com");
+    // GIVEN User1 have a connection with User2 and add a new one
+    jsonParam.put("email", "johndoe@mail.com");
 
     // WHEN
-    mockMvc.perform(post("/users/2/connections")
+    mockMvc.perform(post("/users/3/connections")
             .header(HttpHeaders.AUTHORIZATION, CredentialUtils.encode("user1@mail.com", "password"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonParam.toString()))
         // THEN connection successfully added
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.connectionId", is(1)));
+        .andExpect(jsonPath("$.connectionId", is(2)));
 
     // WHEN
-    mockMvc.perform(get("/users/2/connections")
+    mockMvc.perform(get("/users/3/connections")
             .header(HttpHeaders.AUTHORIZATION, CredentialUtils.encode("user1@mail.com", "password")))
         //THEN connections successfully retrieved
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(2)))
-        .andExpect(jsonPath("$.content.[1].connectionId", is(1)))
-        .andExpect(jsonPath("$.content.[1].firstname", is("Admin")))
-        .andExpect(jsonPath("$.content.[1].lastname", is("test")));
+        .andExpect(jsonPath("$.content.[0].connectionId", is(2)))
+        .andExpect(jsonPath("$.content.[0].firstname", is("John")))
+        .andExpect(jsonPath("$.content.[0].lastname", is("Doe")));
   }
 
   @DisplayName("Remove a connection")
   @Test
   void removeBankAccountTest() throws Exception {
-    // GIVEN User 2 have a connection registered
+    // GIVEN User2 have a connection registered
     // WHEN
-    mockMvc.perform(delete("/users/3/connections/2")
+    mockMvc.perform(delete("/users/4/connections/3")
             .header(HttpHeaders.AUTHORIZATION, CredentialUtils.encode("user2@mail.com", "password")))
         // THEN Connection successfully deleted
         .andExpect(status().isNoContent());
 
     // WHEN
-    mockMvc.perform(get("/users/3/connections")
+    mockMvc.perform(get("/users/4/connections")
             .header(HttpHeaders.AUTHORIZATION, CredentialUtils.encode("user2@mail.com", "password")))
         // THEN No connection registered
         .andExpect(status().isOk())

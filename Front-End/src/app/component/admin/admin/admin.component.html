@@ -1,0 +1,222 @@
+<div class="container">
+    <div class="row justify-content-center m-1">
+        <div class="col-12 col-md-10 col-xl-8">
+
+            <!--My profile title-->
+            <div class="row mt-2">
+                <div class="col p-0">
+                    <h5 class="pt-2">My Profile</h5>
+                </div>
+                <div class="col-6 p-0">
+                    <button class="btn btn-primary rounded-xl float-end" data-bs-toggle="modal"
+                        data-bs-target="#adminModal">
+                        Edit Profile
+                    </button>
+                </div>
+            </div>
+            <!--My profile info-->
+            <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
+                <div class="col-4 text-center">
+                    <span class="icon">
+                        <i class="fas fa-user fa-5x"></i>
+                    </span>
+                </div>
+                <div class="col-8 align-self-center">
+                    <div class="border border-2 rounded-xl px-3">
+                        <p class="m-0">{{user.firstname}}</p>
+                        <p class="m-0">{{user.lastname}}</p>
+                        <p class="m-0">{{user.email}}</p>
+                    </div>
+                    <p class="text-end small m-0">Register since {{user.registrationDate | slice:0:10 }}</p>
+                </div>
+            </div>
+
+            <!--Pay my buddy-->
+            <div class="row mt-2">
+                <div class="col p-0">
+                    <h5 class="pt-2">Pay My Buddy</h5>
+                </div>
+            </div>
+            <!--Info-->
+            <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
+                <div class="col-8 align-self-center">
+                    <div class="border border-2 rounded-xl px-3">
+                        <p class="m-0">Name: {{info.name}}</p>
+                        <p class="m-0">Version: {{info.version}}</p>
+                    </div>
+                </div>
+                <div class="col-4 text-center">
+                    <span class="icon">
+                        <i class="fas fa-check fa-3x"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="row bg-light pb-4 px-1">
+                <div class="table-responsive table-wrapper text-nowrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="row">Date and time</th>
+                                <th scope="row"></th>
+                                <th scope="row">URI</th>
+                                <th scope="row">Resp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let trace of traces">
+                                <td>{{trace.timestamp | slice:0:16 }}</td>
+                                <td>{{trace.request.method}}</td>
+                                <td>{{trace.request.uri}}</td>
+                                <td>{{trace.response.status}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Admin Modal -->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="adminModal" tabindex="-1"
+    aria-labelledby="userModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form [formGroup]="adminForm" (ngSubmit)="editAdmin()">
+
+                <!--Header-->
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Profile</h5>
+                    <button type="button" class="btn-close" aria-label="Close" (click)="closeAdminModal()"></button>
+                </div>
+
+                <!--Content-->
+                <div class="modal-body">
+                    <!--Error msg-->
+                    <div class="row" *ngIf="error != ''" class="alert alert-danger pb-4 text-center">
+                        {{error}}
+                    </div>
+
+                    <!--Firstname-->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="input-group border border-2 rounded-xl">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control border-0 rounded-xl" formControlName="firstname"
+                                    placeholder="Firstname">
+                            </div>
+                        </div>
+                        <div class="col-12 invalid-msg">
+                            <small *ngIf="check(adminForm, 'firstname', 'required')" class="text-danger">
+                                Firstname is required to register
+                            </small>
+                        </div>
+                    </div>
+
+                    <!--Lastname-->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="input-group border border-2 rounded-xl">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control border-0 rounded-xl" formControlName="lastname"
+                                    placeholder="Lastname">
+                            </div>
+                        </div>
+                        <div class="col-12 invalid-msg">
+                            <small *ngIf="check(adminForm, 'lastname', 'required')" class="text-danger">
+                                Lastname is required to register
+                            </small>
+                        </div>
+                    </div>
+
+                    <!--Email-->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="input-group border border-2 rounded-xl">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                </div>
+                                <input type="email" class="form-control border-0 rounded-xl" formControlName="email"
+                                    placeholder="Email">
+                            </div>
+                        </div>
+                        <div class="col-12 invalid-msg">
+                            <small *ngIf="check(adminForm, 'email', 'required')" class="text-danger">
+                                Email is required to register
+                            </small>
+                            <small *ngIf="check(adminForm, 'email', 'email')" class="text-danger">
+                                The provided email is invalid.
+                            </small>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary mb-3" type="button" (click)="togglePwd()">
+                        {{changePwd ? "Keep Password" : "Change Password"}}
+                    </button>
+
+                    <div *ngIf="changePwd">
+                        <!--Password-->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="input-group border border-2 rounded-xl">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                            <i class="fas fa-asterisk"></i>
+                                        </span>
+                                    </div>
+                                    <input type="password" class="form-control border-0 rounded-xl"
+                                        formControlName="password" placeholder="Password">
+                                </div>
+                            </div>
+                            <div class="col-12 invalid-msg">
+                                <small *ngIf="check(adminForm, 'password', 'required')" class="text-danger">
+                                    Password is required
+                                </small>
+                                <small *ngIf="check(adminForm, 'password', 'minlength')" class="text-danger">
+                                    Password must be at least 8 characters
+                                </small>
+                            </div>
+                        </div>
+
+                        <!--Confirm Password-->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="input-group border border-2 rounded-xl">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                            <i class="fas fa-asterisk"></i>
+                                        </span>
+                                    </div>
+                                    <input type="password" class="form-control border-0 rounded-xl"
+                                        formControlName="confirmpassword" placeholder="Confirm Password">
+                                </div>
+                            </div>
+                            <div class="col-12 invalid-msg">
+                                <small *ngIf="adminForm.controls['confirmpassword'].invalid" class="text-danger">
+                                    Password confirmation doesn't match
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Footer-->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>

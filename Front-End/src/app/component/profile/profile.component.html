@@ -1,0 +1,323 @@
+<div class="container">
+    <div class="row justify-content-center m-1">
+        <div class="col-12 col-md-10 col-xl-8">
+
+            <!--My profile title-->
+            <div class="row mt-2">
+                <div class="col p-0">
+                    <h5 class="pt-2">My Profile</h5>
+                </div>
+                <div class="col-6 p-0">
+                    <button class="btn btn-primary rounded-xl float-end" data-bs-toggle="modal"
+                        data-bs-target="#userModal">
+                        Edit Profile
+                    </button>
+                </div>
+            </div>
+            <!--My profile info-->
+            <div class="row bg-light py-4 px-2 px-sm-3 px-lg-5">
+                <div class="col-4 text-center">
+                    <span class="icon">
+                        <i class="fas fa-user fa-5x"></i>
+                    </span>
+                </div>
+                <div class="col-8 align-self-center">
+                    <div class="border border-2 rounded-xl px-3">
+                        <p class="m-0">{{user.firstname}}</p>
+                        <p class="m-0">{{user.lastname}}</p>
+                        <p class="m-0">{{user.email}}</p>
+                    </div>
+                    <p class="text-end small m-0">Register since {{user.registrationDate | slice:0:10 }}</p>
+                </div>
+            </div>
+
+            <!--My bank accounts title-->
+            <div class="row mt-3">
+                <div class="col p-0">
+                    <h5 class="pt-2">My Bank Accounts</h5>
+                </div>
+                <div class="col-6 p-0">
+                    <button type="button" class="btn btn-primary rounded-xl float-end" data-bs-toggle="modal"
+                        data-bs-target="#bankAccountModal">Add bank account</button>
+                </div>
+            </div>
+            <!--My bank accounts table-->
+            <div class="row border border-dark ">
+                <div class="table-responsive p-0">
+                    <table class="table mytable table-striped table-borderless m-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Title</th>
+                                <th scope="col">Iban</th>
+                                <th scope="col">Bic</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr scope="row" *ngIf="bankAccounts.length==0">
+                                <td colspan="4">You don't have any bank accounts at this moment.</td>
+                            </tr>
+                            <tr scope="row" *ngFor="let bankAccount of bankAccounts">
+                                <td>{{bankAccount.title}}</td>
+                                <td>{{bankAccount.iban}}</td>
+                                <td>{{bankAccount.bic}}</td>
+                                <td>
+                                    <button class="btn btn-danger rounded-xl"
+                                        (click)="deleteAccount(bankAccount.bankAccountId)">X</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!--My bank accounts nav-->
+            <div class="row">
+                <div class="col">
+                    <ul class="nav nav-pills justify-content-center">
+                        <li class="nav-item border">
+                            <a class="nav-link" (click)="onPrec()">&lt;&lt;</a>
+                        </li>
+                        <li class="nav-item border" *ngFor="let p of pages; let i=index">
+                            <a class="nav-link" [ngClass]="{'active': i==currentPage}" (click)="onPage(i)">{{i+1}}</a>
+                        </li>
+                        <li class="nav-item border">
+                            <a class="nav-link" (click)="onNext()">&gt;&gt;</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Bank account Modal -->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="bankAccountModal" tabindex="-1"
+    aria-labelledby="bankAccountModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form [formGroup]="bankAccountForm" (ngSubmit)="addAccount()">
+
+                <!--Header-->
+                <div class="modal-header">
+                    <h5 class="modal-title">Add bank account</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                        (click)="closeBankAccountModal()"></button>
+                </div>
+
+                <!--Content-->
+                <div class="modal-body">
+                    <!--Error msg-->
+                    <div class="row" *ngIf="error != ''" class="alert alert-danger text-center">
+                        {{error}}
+                    </div>
+                    <!--Fields-->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <input type="text" class="form-control" formControlName="title" placeholder="Title">
+                        </div>
+                        <div class="col-12 invalid-msg">
+                            <small *ngIf="check(bankAccountForm,'title','required')" class="text-danger">
+                                A title is required.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <input type="text" class="form-control" formControlName="iban" placeholder="IBAN">
+                        </div>
+                        <div class="col-12 invalid-msg">
+                            <small *ngIf="check(bankAccountForm,'iban','required')" class="text-danger">
+                                An IBAN is required.
+                            </small>
+                            <small *ngIf="check(bankAccountForm,'iban','minlength')" class="text-danger">
+                                An IBAN must have at least 14 characters.
+                            </small>
+                            <small *ngIf="check(bankAccountForm,'iban','maxlength')" class="text-danger">
+                                An IBAN must have at most 34 characters.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <input type="text" class="form-control" formControlName="bic" placeholder="BIC">
+                        </div>
+                        <div class="col-12 invalid-msg">
+                            <small *ngIf="check(bankAccountForm,'bic','required')" class="text-danger">
+                                A BIC is required.
+                            </small>
+                            <small *ngIf="check(bankAccountForm,'bic','minlength')" class="text-danger">
+                                An BIC must have at least 8 characters.
+                            </small>
+                            <small *ngIf="check(bankAccountForm,'bic','maxlength')" class="text-danger">
+                                An BIC must have at most 11 characters.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" formControlName="agreement" type="checkbox"
+                                    id="gridCheck1">
+                                <label class="form-check-label" for="gridCheck1">
+                                    I agree with the Privacy Policy and consent to the saving of my bank account
+                                    details.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Footer-->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" [disabled]="bankAccountForm.invalid">Add</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="userModal" tabindex="-1"
+    aria-labelledby="userModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form [formGroup]="userForm" (ngSubmit)="editUser()">
+
+                <!--Header-->
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Profile</h5>
+                    <button type="button" class="btn-close" aria-label="Close" (click)="closeUserModal()"></button>
+                </div>
+
+                <!--Content-->
+                <div class="modal-body">
+                    <!--Error msg-->
+                    <div class="row" *ngIf="error != ''" class="alert alert-danger pb-4 text-center">
+                        {{error}}
+                    </div>
+
+                    <!--Firstname-->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="input-group border border-2 rounded-xl">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control border-0 rounded-xl" formControlName="firstname"
+                                    placeholder="Firstname">
+                            </div>
+                        </div>
+                        <div class="col-12 invalid-msg">
+                            <small *ngIf="check(userForm, 'firstname', 'required')" class="text-danger">
+                                Firstname is required to register
+                            </small>
+                        </div>
+                    </div>
+
+                    <!--Lastname-->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="input-group border border-2 rounded-xl">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control border-0 rounded-xl" formControlName="lastname"
+                                    placeholder="Lastname">
+                            </div>
+                        </div>
+                        <div class="col-12 invalid-msg">
+                            <small *ngIf="check(userForm, 'lastname', 'required')" class="text-danger">
+                                Lastname is required to register
+                            </small>
+                        </div>
+                    </div>
+
+                    <!--Email-->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="input-group border border-2 rounded-xl">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                </div>
+                                <input type="email" class="form-control border-0 rounded-xl" formControlName="email"
+                                    placeholder="Email">
+                            </div>
+                        </div>
+                        <div class="col-12 invalid-msg">
+                            <small *ngIf="check(userForm, 'email', 'required')" class="text-danger">
+                                Email is required to register
+                            </small>
+                            <small *ngIf="check(userForm, 'email', 'email')" class="text-danger">
+                                The provided email is invalid.
+                            </small>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary mb-3" type="button" (click)="togglePwd()">
+                        {{changePwd ? "Keep Password" : "Change Password"}}
+                    </button>
+
+                    <div *ngIf="changePwd">
+                        <!--Password-->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="input-group border border-2 rounded-xl">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                            <i class="fas fa-asterisk"></i>
+                                        </span>
+                                    </div>
+                                    <input type="password" class="form-control border-0 rounded-xl"
+                                        formControlName="password" placeholder="Password">
+                                </div>
+                            </div>
+                            <div class="col-12 invalid-msg">
+                                <small *ngIf="check(userForm, 'password', 'required')" class="text-danger">
+                                    Password is required
+                                </small>
+                                <small *ngIf="check(userForm, 'password', 'minlength')" class="text-danger">
+                                    Password must be at least 8 characters
+                                </small>
+                            </div>
+                        </div>
+
+                        <!--Confirm Password-->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="input-group border border-2 rounded-xl">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text border-0 rounded-xl bg-white h-100">
+                                            <i class="fas fa-asterisk"></i>
+                                        </span>
+                                    </div>
+                                    <input type="password" class="form-control border-0 rounded-xl"
+                                        formControlName="confirmpassword" placeholder="Confirm Password">
+                                </div>
+                            </div>
+                            <div class="col-12 invalid-msg">
+                                <small *ngIf="userForm.controls['confirmpassword'].invalid" class="text-danger">
+                                    Password confirmation doesn't match
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Footer-->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger me-auto" (click)="deleteUser()">Delete Profile</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>

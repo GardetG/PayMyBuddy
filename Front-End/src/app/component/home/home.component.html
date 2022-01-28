@@ -1,0 +1,36 @@
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col navbar navbar-expand-sm navbar-light justify-content-between p-1">
+            <div class="logo">Pay My Buddy</div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse mx-3" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" *ngFor="let menu of menus">
+                        <a class="nav-link" routerLink="{{menu.url}}">{{menu.label}}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" (click)="doLogOff()">Log Off</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div class="row bg-light">
+        <div class="col">
+            <nav class="mx-1 p-1" aria-label="breadcrumb">
+                <ol class="breadcrumb mx-3 pt-2">
+                    <li class="breadcrumb-item" *ngFor="let breadcrumb of breadcrumbs">
+                        <a class="text-decoration-none" routerLink="{{breadcrumb.url}}">{{breadcrumb.label}}</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        {{currentRoute}}
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<router-outlet></router-outlet>

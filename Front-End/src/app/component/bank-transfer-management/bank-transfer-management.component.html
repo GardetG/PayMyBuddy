@@ -1,0 +1,59 @@
+<div class="container">
+    <div class="row justify-content-center m-1">
+        <div class="col-12 col-md-10 col-xl-8">
+
+            <!--Bank transfers title-->
+            <div class="row">
+                <div class="col p-0">
+                    <h5 class="pt-2">Bank Transfers</h5>
+                </div>
+            </div>
+            <!--Bank transfers table-->
+            <div class="row border border-dark ">
+                <div class="table-responsive p-0">
+                    <table class="table mytable table-striped table-borderless m-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">User</th>
+                                <th scope="col">Bank account</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr scope="row" *ngIf="bankTransfers.length==0">
+                                <td colspan="4">No Bank transfers at this moment.</td>
+                            </tr>
+                            <tr scope="row" *ngFor="let bankTransfer of bankTransfers">
+                                <td>{{bankTransfer.firstname}} {{bankTransfer.lastname}}</td>
+                                <td>{{bankTransfer.title}}</td>
+                                <td>{{bankTransfer.date}}</td>
+                                <td>
+                                    {{bankTransfer.isIncome ? "+" : "-"}}
+                                    {{bankTransfer.amount | currency : 'EUR' : 'symbol' : '1.2-2' : 'fr'}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!--Bank transfers nav-->
+            <div class="row">
+                <div class="col">
+                    <ul class="nav nav-pills justify-content-center">
+                        <li class="nav-item border">
+                            <a class="nav-link" (click)="onPrec()">&lt;&lt;</a>
+                        </li>
+                        <li class="nav-item border" *ngFor="let p of pages; let i=index">
+                            <a class="nav-link" [ngClass]="{'active': i==currentPage}" (click)="onPage(i)">{{i+1}}</a>
+                        </li>
+                        <li class="nav-item border">
+                            <a class="nav-link" (click)="onNext()">&gt;&gt;</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

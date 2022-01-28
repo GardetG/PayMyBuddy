@@ -45,7 +45,7 @@ class BankAccountIntegrationTest {
         .put("bic","12345678xyz");
 
     // WHEN
-    mockMvc.perform(post("/users/2/bankaccounts")
+    mockMvc.perform(post("/users/3/bankaccounts")
             .header(HttpHeaders.AUTHORIZATION, CredentialUtils.encode("user1@mail.com","password"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonParam.toString()))
@@ -54,7 +54,7 @@ class BankAccountIntegrationTest {
         .andExpect(jsonPath("$.bankAccountId", is(2)));
 
     // WHEN
-    mockMvc.perform(get("/users/2/bankaccounts")
+    mockMvc.perform(get("/users/3/bankaccounts")
             .header(HttpHeaders.AUTHORIZATION,CredentialUtils.encode("user1@mail.com","password")))
     // THEN bank account successfully retrieved
         .andExpect(status().isOk())
@@ -68,22 +68,22 @@ class BankAccountIntegrationTest {
   @DisplayName("Remove a bank account")
   @Test
   void removeBankAccountTest() throws Exception {
-    // GIVEN User 2 have a bank account registered and involved in bank transfer
+    // GIVEN User2 have a bank account registered and involved in bank transfer
     // WHEN
-    mockMvc.perform(delete("/users/3/bankaccounts/1")
+    mockMvc.perform(delete("/users/4/bankaccounts/1")
             .header(HttpHeaders.AUTHORIZATION,CredentialUtils.encode("user2@mail.com","password")))
     // THEN Bank account successfully deleted
         .andExpect(status().isNoContent());
 
     // WHEN
-    mockMvc.perform(get("/users/3/bankaccounts")
+    mockMvc.perform(get("/users/4/bankaccounts")
             .header(HttpHeaders.AUTHORIZATION,CredentialUtils.encode("user2@mail.com","password")))
     // THEN No bank account registred
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(0)));
 
     // WHEN
-    mockMvc.perform(get("/banktransfers/user?id=3")
+    mockMvc.perform(get("/banktransfers/user?id=4")
             .header(HttpHeaders.AUTHORIZATION,CredentialUtils.encode("user2@mail.com","password")))
         // THEN No bank account registred
         .andExpect(status().isOk())

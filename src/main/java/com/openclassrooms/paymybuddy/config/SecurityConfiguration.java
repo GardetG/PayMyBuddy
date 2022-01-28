@@ -55,18 +55,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .authorizeRequests()
         .antMatchers("/register").permitAll()
         .antMatchers("/actuator/**").hasRole("ADMIN")
-        .anyRequest().fullyAuthenticated()
+        .anyRequest().authenticated()
         .and()
-        .httpBasic()
+          .httpBasic()
         .and()
-        .logout().permitAll()
-        .logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)))
+          .logout().permitAll()
+          .logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)))
+          .deleteCookies("JSESSIONID", "remember-me")
         .and()
         .rememberMe()
-        .userDetailsService(credentialsService)
+          .userDetailsService(credentialsService)
+          .rememberMeParameter("remember")
+          .rememberMeCookieName("remember-me")
         .and()
-        .csrf().disable()
-        .cors();
+          .csrf().disable()
+          .cors().configurationSource(corsConfigurationSource());
   }
 
   @Bean

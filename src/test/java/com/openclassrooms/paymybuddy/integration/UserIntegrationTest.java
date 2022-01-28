@@ -46,11 +46,11 @@ class UserIntegrationTest {
     jsonParam.put("userId",2)
         .put("firstname","update")
         .put("lastname","update")
-        .put("email","user1@mail.com");
+        .put("email","johndoe@mail.com");
 
     // WHEN
     mockMvc.perform(put("/users")
-            .header(HttpHeaders.AUTHORIZATION, CredentialUtils.encode("user1@mail.com","password"))
+            .header(HttpHeaders.AUTHORIZATION, CredentialUtils.encode("johndoe@mail.com","password"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonParam.toString()))
     // THEN User updated
@@ -60,14 +60,14 @@ class UserIntegrationTest {
 
     // WHEN
     mockMvc.perform(get("/users/2")
-            .header(HttpHeaders.AUTHORIZATION, CredentialUtils.encode("user1@mail.com","password")))
+            .header(HttpHeaders.AUTHORIZATION, CredentialUtils.encode("johndoe@mail.com","password")))
     // THEN Getting updated user profile
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.firstname", is("update")))
         .andExpect(jsonPath("$.lastname", is("update")))
-        .andExpect(jsonPath("$.email", is("user1@mail.com")))
-        .andExpect(jsonPath("$.wallet", is(100.0)))
-        .andExpect(jsonPath("$.registrationDate", is("2000-01-01 at 00:00")))
+        .andExpect(jsonPath("$.email", is("johndoe@mail.com")))
+        .andExpect(jsonPath("$.wallet", is(0.0)))
+        .andExpect(jsonPath("$.registrationDate", is("2022-01-01 at 00:00")))
         .andExpect(jsonPath("$.password").doesNotExist());
   }
 
@@ -75,7 +75,7 @@ class UserIntegrationTest {
   @Test
   void updateEmailAndPasswordTest() throws Exception {
     // GIVEN
-    jsonParam.put("userId",2)
+    jsonParam.put("userId",3)
         .put("firstname","User1")
         .put("lastname","test")
         .put("email","update@mail.com")
@@ -94,7 +94,7 @@ class UserIntegrationTest {
             .header(HttpHeaders.AUTHORIZATION, CredentialUtils.encode("update@mail.com","newpassword")))
     // THEN Login successfully with new credentials
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.userId", is(2)))
+        .andExpect(jsonPath("$.userId", is(3)))
         .andExpect(jsonPath("$.role", is("USER")));
   }
 
@@ -102,14 +102,14 @@ class UserIntegrationTest {
   @Test
   void deleteIntegrationTest() throws Exception {
     // WHEN
-    mockMvc.perform(delete("/users/3")
+    mockMvc.perform(delete("/users/4")
         .header(HttpHeaders.AUTHORIZATION,CredentialUtils.encode("user2@mail.com","password")))
 
     // THEN delete user 3 successfully
         .andExpect(status().isNoContent());
 
     // WHEN
-    mockMvc.perform(get("/users/3")
+    mockMvc.perform(get("/users/4")
         .header(HttpHeaders.AUTHORIZATION,CredentialUtils.encode("admin@mail.com","password")))
     // THEN user 2 doesn't exist anymore
         .andExpect(status().isNotFound());

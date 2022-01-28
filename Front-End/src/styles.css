@@ -1,0 +1,51 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
+
+body{
+    font-family: "Montserrat", Arial, Helvetica, sans-serif;
+}
+
+.rounded-xl {
+    border-radius: .5rem;
+}
+
+.btn-success {
+    background-color: #5cb95c;
+} 
+
+.mytable>tbody>tr>td, .mytable>tbody>tr>th, .mytable>tfoot>tr>td, .mytable>tfoot>tr>th, .mytable>thead>tr>td, .mytable>thead>tr>th {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    text-align: center;
+}
+
+.mytable>thead>tr>td, .mytable>thead>tr>th {
+    padding-left: 30px;
+    padding-right: 30px;
+    color: white;
+    background-color: #5cb95c;
+}
+
+.logo {
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+    border-radius: .4rem;
+    background: linear-gradient(90deg, rgba(97, 186, 90, 1) 0%, rgba(140, 196, 72, 1) 100%);
+    width: 150px;
+    height: 45px;
+}
+
+small {
+    font-size: 0.8rem;
+}
+
+.invalid-msg {
+    margin-bottom: -2rem; 
+    margin-top: -0.1rem;
+}
+
+.icon {
+    color: #5cb95c;
+}
