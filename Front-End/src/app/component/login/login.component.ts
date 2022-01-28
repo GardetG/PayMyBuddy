@@ -29,7 +29,6 @@ export class LoginComponent implements OnInit {
       });
       return;
     }
-    console.log(this.form.value)
     this.auth.login(this.form.controls['email'].value, this.form.controls['password'].value, this.form.controls['remember'].value)
       .subscribe({
         next: (v) => {

@@ -69,10 +69,6 @@ export class ContactComponent implements OnInit {
     });
   }
 
-  check(form:FormGroup,controleName:string,error:string):boolean {
-    return checkField(form, controleName, error);
-  }
-
   onPage(i: number) {
     this.currentPage = i;
     this.loadConnections();
@@ -88,6 +84,10 @@ export class ContactComponent implements OnInit {
     if (this.currentPage < this.pages.length-1) {
       this.onPage(this.currentPage + 1);
     }
+  }
+
+  check(form:FormGroup,controleName:string,error:string):boolean {
+    return checkField(form, controleName, error);
   }
 
 }

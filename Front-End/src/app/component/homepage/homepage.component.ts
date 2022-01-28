@@ -4,6 +4,7 @@ import { BankAccount } from 'src/app/model/BankAccount/bank-account.model';
 import { BankTransfer } from 'src/app/model/BankTransfer/bank-transfer.model';
 import { User } from 'src/app/model/User/user.model';
 import { ApiPaymybuddyService } from 'src/app/service/ApiPayMyBuddy/api-paymybuddy.service';
+import { checkField } from 'src/app/Validator/checkField.utils';
 declare var bootstrap: any;
 
 @Component({
@@ -17,7 +18,6 @@ export class HomepageComponent implements OnInit {
   user: User = new User();
   bankaccounts:BankAccount[] = [];
   bankTransfers:BankTransfer[] = [];
-
   bankTransferForm:FormGroup = this.fb.group({
     "isIncome": [true, {initialValueIsDefault: true}],
     "bankAccountId": [null, Validators.required],
@@ -127,10 +127,6 @@ export class HomepageComponent implements OnInit {
   }
 
   check(form: FormGroup, controleName: string, error: string): boolean {
-    let control = form.controls[controleName];
-    if (control.hasError(error) && (control.touched || control.dirty)) {
-      return true;
-    }
-    return false;
+    return checkField(form, controleName, error);
   }
 }

@@ -55,4 +55,8 @@ export class AuthenticationService {
     }));
   }
 
+  public setEnabling(id:number, value:boolean): Observable<any> {
+    return this.http.put(this.baseURL + "/users/" + id + "/enable?value=" + value, {})
+  }
+
 }

@@ -16,6 +16,10 @@ import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { AuthenticationInterceptor } from './Interceptor/authentication.interceptor';
 import { AuthenticationService } from './service/Authentication/authentication.service';
+import { AdminComponent } from './component/admin/admin/admin.component';
+import { UserManagementComponent } from './component/usermanagement/user-management/user-management.component';
+import { TransactionsManagementComponent } from './component/transactions-management/transactions-management.component';
+import { BankTransferManagementComponent } from './component/bank-transfer-management/bank-transfer-management.component';
 registerLocaleData(localeFr, 'fr');
 
 @NgModule({
@@ -28,6 +32,10 @@ registerLocaleData(localeFr, 'fr');
     ProfileComponent,
     ContactComponent,
     HomepageComponent,
+    AdminComponent,
+    UserManagementComponent,
+    TransactionsManagementComponent,
+    BankTransferManagementComponent,
   ],
   imports: [
     BrowserModule,

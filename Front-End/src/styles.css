@@ -45,3 +45,7 @@ small {
     margin-bottom: -2rem; 
     margin-top: -0.1rem;
 }
+
+.icon {
+    color: #5cb95c;
+}
