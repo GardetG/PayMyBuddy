@@ -2,41 +2,42 @@
     <div class="row justify-content-center m-1">
         <div class="col-12 col-md-10 col-xl-8">
 
-            <!--Transactions title-->
+            <!--Bank transfers title-->
             <div class="row">
                 <div class="col p-0">
-                    <h5 class="pt-2">Transaction</h5>
+                    <h5 class="pt-2">Bank Transfers</h5>
                 </div>
             </div>
-            <!--Transactiond table-->
+            <!--Bank transfers table-->
             <div class="row border border-dark ">
                 <div class="table-responsive p-0">
                     <table class="table mytable table-striped table-borderless m-0">
                         <thead>
                             <tr>
-                                <th scope="col">From</th>
-                                <th scope="col">To</th>
+                                <th scope="col">User</th>
+                                <th scope="col">Bank account</th>
                                 <th scope="col">Date</th>
-                                <th scope="col">Description</th>
                                 <th scope="col">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr scope="row" *ngIf="transactions.length==0">
-                                <td colspan="5">No Transactions at this moment.</td>
+                            <tr scope="row" *ngIf="bankTransfers.length==0">
+                                <td colspan="4">No Bank transfers at this moment.</td>
                             </tr>
-                            <tr scope="row" *ngFor="let transaction of transactions">
-                                <td>{{transaction.emitterFirstname}} {{transaction.emitterLastname}}</td>
-                                <td>{{transaction.receiverFirstname}} {{transaction.receiverLastname}}</td>
-                                <td>{{transaction.date}}</td>
-                                <td>{{transaction.description}}</td>
-                                <td>+ {{transaction.amount | currency : 'EUR' : 'symbol' : '1.2-2' : 'fr'}}</td>
+                            <tr scope="row" *ngFor="let bankTransfer of bankTransfers">
+                                <td>{{bankTransfer.firstname}} {{bankTransfer.lastname}}</td>
+                                <td>{{bankTransfer.title}}</td>
+                                <td>{{bankTransfer.date}}</td>
+                                <td>
+                                    {{bankTransfer.isIncome ? "+" : "-"}}
+                                    {{bankTransfer.amount | currency : 'EUR' : 'symbol' : '1.2-2' : 'fr'}}
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <!--Transactions nav-->
+            <!--Bank transfers nav-->
             <div class="row">
                 <div class="col">
                     <ul class="nav nav-pills justify-content-center">

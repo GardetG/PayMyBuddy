@@ -1,4 +1,4 @@
-DROP SCHEMA IF EXISTS `paymybuddy` cascade;
+DROP SCHEMA IF EXISTS `paymybuddy`;
 CREATE SCHEMA IF NOT EXISTS `paymybuddy`;
 
 USE `paymybuddy`;

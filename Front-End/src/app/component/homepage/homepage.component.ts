@@ -78,7 +78,7 @@ export class HomepageComponent implements OnInit {
         if (e.status == 404 || e.status == 409) {
           this.error = e.error + ".";
         } else {
-          this.error = "An error occured, please try again."
+          this.error = "An error occured, please try again.";
         }
       }
     });

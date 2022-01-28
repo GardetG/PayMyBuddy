@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationService } from 'src/app/service/Authentication/authentication.service';
 import { checkField } from 'src/app/Validator/checkField.utils';
+import { threadId } from 'worker_threads';
 
 @Component({
   selector: 'app-login',
@@ -38,6 +39,9 @@ export class LoginComponent implements OnInit {
           if (e.status == 401) {
             this.error = "Wrong email or password, please try again.";
             this.form.reset();
+            this.form.patchValue({
+              remember : false
+            });
           } else {
             this.error = "An error occured, please try again."
           }

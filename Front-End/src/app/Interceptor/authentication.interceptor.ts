@@ -22,8 +22,6 @@ export class AuthenticationInterceptor implements HttpInterceptor {
       withCredentials: true
     });
     
- 
-    
     return next.handle(clonedRequest).pipe(tap((event: HttpEvent<any>) => {
       if (event instanceof HttpResponse) {
       }

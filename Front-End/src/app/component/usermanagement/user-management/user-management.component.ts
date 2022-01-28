@@ -33,7 +33,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   deleteUser(id:number) {
-    var result = confirm("Are you sure to delete this user? This action is irreversible.")
+    var result = confirm("Are you sure to delete this user? This action is irreversible.");
     if (result) {
       this.api.deleteUser()
         .subscribe({
