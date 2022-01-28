@@ -1,4 +1,3 @@
-DROP SCHEMA IF EXISTS `paymybuddy`;
 CREATE SCHEMA IF NOT EXISTS `paymybuddy`;
 
 USE `paymybuddy`;
