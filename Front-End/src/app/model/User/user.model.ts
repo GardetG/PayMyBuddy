@@ -7,6 +7,7 @@ export class User {
     wallet: number = 0;
     role: string = "";
     registrationDate: string = "";
+    enabled:boolean = true;
 
     public constructor(init?: Partial<User>) {
         Object.assign(this, init);
