@@ -19,6 +19,11 @@ export class ApiPaymybuddyService {
     this.baseURL = auth.getBasseURL();
   }
 
+  public getPageUsers(page:number, size:number): Observable<any> {
+    let pageable = "?page=" + page + "&size=" + size
+    return this.http.get<any>(this.baseURL + "/users" + pageable)
+  }
+
   public getUser(): Observable<User> {
     return this.http.get<User>(this.baseURL + "/users/" + this.auth.getIdentity().userId)
   }
@@ -78,6 +83,11 @@ export class ApiPaymybuddyService {
 
   // Bank transfer end-points
 
+  public getPageOfAllBankTransfers(page:number, size:number): Observable<any> {
+    let pageable = "?page=" + page + "&size=" + size + "&sort=date,desc"
+    return this.http.get<any>(this.baseURL + "/banktransfers" + pageable)
+  }
+
   public getPageOfBankTransfers(page:number, size:number): Observable<any> {
     let pageable = "&page=" + page + "&size=" + size + "&sort=date,desc"
     return this.http.get<any>(this.baseURL + "/banktransfers/user?id=" + this.auth.getIdentity().userId + pageable)
@@ -90,6 +100,11 @@ export class ApiPaymybuddyService {
 
     // Transaction end-points
 
+    public getPageOfAllTransactions(page:number, size:number): Observable<any> {
+      let pageable = "?page=" + page + "&size=" + size + "&sort=date,desc"
+      return this.http.get<any>(this.baseURL + "/transactions" + pageable)
+    }
+
     public getPageOfTransactions(page:number, size:number): Observable<any> {
       let pageable = "&page=" + page + "&size=" + size + "&sort=date,desc"
       return this.http.get<any>(this.baseURL + "/transactions/user?id=" + this.auth.getIdentity().userId + pageable)
@@ -98,5 +113,15 @@ export class ApiPaymybuddyService {
     public requestTransaction(request:Transaction): Observable<Transaction> {
       request.emitterId = this.auth.getIdentity().userId;
       return this.http.post<Transaction>(this.baseURL + "/transactions", request)
+    }
+
+    // Actuator end-points
+
+    public getInfo(): Observable<any> {
+      return this.http.get<any>(this.baseURL + "/actuator/info")
+    }
+
+    public getTrace(): Observable<any> {
+      return this.http.get<any>(this.baseURL + "/actuator/httptrace")
     }
 }
