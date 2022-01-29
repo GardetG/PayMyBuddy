@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationService } from 'src/app/service/Authentication/authentication.service';
 import { checkField } from 'src/app/Validator/checkField.utils';
-import { threadId } from 'worker_threads';
 
 @Component({
   selector: 'app-login',
