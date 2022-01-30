@@ -32,7 +32,7 @@ public class ConnectionController {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionController.class);
 
   @Autowired
-  ConnectionService connectionService;
+  private ConnectionService connectionService;
 
   /**
    * Handle HTTP GET request on user's connections by id.

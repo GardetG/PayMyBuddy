@@ -28,10 +28,10 @@ public class BankTransferServiceImpl implements BankTransferService, UserDeletio
   private static final Logger LOGGER = LoggerFactory.getLogger(BankTransferServiceImpl.class);
 
   @Autowired
-  BankTransferRepository bankTransferRepository;
+  private BankTransferRepository bankTransferRepository;
 
   @Autowired
-  UserService userService;
+  private UserService userService;
 
   /**
    * Subscribe to the userService to get notify on user deletion.

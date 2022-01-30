@@ -25,10 +25,10 @@ import org.springframework.stereotype.Service;
 public class TransactionServiceImpl implements TransactionService, UserDeletionObserver {
 
   @Autowired
-  TransactionRepository transactionRepository;
+  private TransactionRepository transactionRepository;
 
   @Autowired
-  UserService userService;
+  private UserService userService;
 
   /**
    * Subscribe to the userService to get notify on user deletion.

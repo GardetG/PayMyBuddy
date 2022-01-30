@@ -23,7 +23,7 @@ public class ConnectionServiceImpl implements ConnectionService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionServiceImpl.class);
 
   @Autowired
-  UserService userService;
+  private UserService userService;
 
   /**
    * {@inheritDoc}

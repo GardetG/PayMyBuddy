@@ -31,7 +31,7 @@ public class BankTransferController {
   private static final Logger LOGGER = LoggerFactory.getLogger(BankTransferController.class);
 
   @Autowired
-  BankTransferService bankTransferService;
+  private BankTransferService bankTransferService;
 
   /**
    * Handle HTTP GET request on all bank transfers. Reserved to admin.

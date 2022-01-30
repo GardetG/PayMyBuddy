@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class AttributeEncryptorTest {
 
   @Autowired
-  AttributeEncryptor attributeEncryptor;
+  private AttributeEncryptor attributeEncryptor;
 
   @Test
   void convertToDatabaseColumnTest() {

@@ -31,7 +31,7 @@ public class TransactionController {
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionController.class);
 
   @Autowired
-  TransactionService transactionService;
+  private TransactionService transactionService;
 
   /**
    * Handle HTTP GET request on all transactions. Reserved to admin

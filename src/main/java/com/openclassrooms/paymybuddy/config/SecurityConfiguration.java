@@ -27,7 +27,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   @Autowired
-  CredentialsService credentialsService;
+  private CredentialsService credentialsService;
 
   /**
    *  Overriding the default AuthenticationManagerBuilder to use CredentialService to retrieve user

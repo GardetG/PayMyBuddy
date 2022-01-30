@@ -32,7 +32,7 @@ public class AuthenticationController {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationController.class);
 
   @Autowired
-  UserService userService;
+  private UserService userService;
 
   /**
    * Handle HTTP POST user registration.

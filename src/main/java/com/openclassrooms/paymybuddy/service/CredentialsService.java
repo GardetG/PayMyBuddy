@@ -18,7 +18,7 @@ public class CredentialsService implements UserDetailsService {
   private static final Logger LOGGER = LoggerFactory.getLogger(CredentialsService.class);
 
   @Autowired
-  UserRepository userRepository;
+  private UserRepository userRepository;
 
   /**
    * Get a user from repository by it's email and return it in the form of UserDetails.

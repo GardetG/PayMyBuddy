@@ -31,7 +31,7 @@ public class UserController {
   private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
   @Autowired
-  UserService userService;
+  private UserService userService;
 
   /**
    * Handle HTTP GET request on all user. Reserved to admin.

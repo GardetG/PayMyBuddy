@@ -31,7 +31,7 @@ public class BankAccountController {
   private static final Logger LOGGER = LoggerFactory.getLogger(BankAccountController.class);
 
   @Autowired
-  BankAccountService bankAccountService;
+  private BankAccountService bankAccountService;
 
   /**
    * Handle HTTP GET request on user's bank accounts by id.

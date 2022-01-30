@@ -41,13 +41,13 @@ class UserServiceTest {
   private UserService userService;
 
   @MockBean
-  UserRepository userRepository;
+  private UserRepository userRepository;
 
   @MockBean
-  PasswordEncoder passwordEncoder;
+  private PasswordEncoder passwordEncoder;
 
   @Captor
-  ArgumentCaptor<User> userCaptor;
+  private ArgumentCaptor<User> userCaptor;
 
   private User userTest;
   private UserDto userInfoDto;
